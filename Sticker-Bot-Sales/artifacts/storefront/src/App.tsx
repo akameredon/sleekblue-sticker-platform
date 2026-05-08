@@ -11,6 +11,9 @@ import { OrderDetailPage } from "@/pages/OrderDetail";
 import { ChatPage } from "@/pages/Chat";
 import { TrackPage } from "@/pages/Track";
 import { WishlistPage } from "@/pages/Wishlist";
+import { GeneratePage } from "@/pages/Generate";
+import { BatchPage } from "@/pages/Batch";
+import { AdminPage } from "@/pages/Admin";
 import NotFound from "@/pages/not-found";
 import { queryClient } from "@/lib/queryClient";
 
@@ -25,6 +28,9 @@ function Routes() {
       <Route path="/track" component={TrackPage} />
       <Route path="/wishlist" component={WishlistPage} />
       <Route path="/chat" component={ChatPage} />
+      <Route path="/generate" component={GeneratePage} />
+      <Route path="/batch" component={BatchPage} />
+      <Route path="/admin" component={AdminPage} />
       <Route component={NotFound} />
     </Switch>
   );

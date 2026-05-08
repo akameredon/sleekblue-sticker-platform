@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Heart, Menu, MessageCircle, ShoppingBag, X } from "lucide-react";
+import { BarChart2, Heart, Layers, Menu, MessageCircle, ShoppingBag, Wand2, X } from "lucide-react";
 import { useState } from "react";
 import { useGetShopInfo } from "@workspace/api-client-react";
 import { useCartCount, useHasMounted } from "@/lib/cart";
@@ -12,6 +12,8 @@ const NAV = [
   { href: "/shop", label: "Shop" },
   { href: "/track", label: "Track order" },
   { href: "/chat", label: "Chat with AI" },
+  { href: "/generate", label: "AI Design" },
+  { href: "/batch", label: "Batch quote" },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -35,7 +37,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-1 md:flex">
+          <nav className="hidden items-center gap-1 lg:flex">
             {NAV.map((item) => {
               const active = location === item.href || (item.href !== "/" && location.startsWith(item.href));
               return (
@@ -54,6 +56,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className="flex items-center gap-1.5">
+            <Link href="/admin" className="hidden md:inline-flex">
+              <Button variant="outline" size="sm" title="Analytics" data-testid="button-admin">
+                <BarChart2 className="h-4 w-4" />
+              </Button>
+            </Link>
             <Link href="/wishlist" className="hidden sm:inline-flex">
               <Button variant="outline" size="sm" className="relative" data-testid="button-wishlist">
                 <Heart className={mounted && wishlistCount > 0 ? "h-4 w-4 fill-current text-accent" : "h-4 w-4"} />
@@ -82,7 +89,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={() => setOpen((v) => !v)}
-              className="md:hidden grid h-9 w-9 place-items-center rounded-md hover-elevate"
+              className="lg:hidden grid h-9 w-9 place-items-center rounded-md hover-elevate"
               aria-label="Open menu"
               data-testid="button-menu"
             >
@@ -91,7 +98,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         {open ? (
-          <div className="border-t border-border md:hidden">
+          <div className="border-t border-border lg:hidden">
             <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3">
               {NAV.map((item) => (
                 <Link
@@ -103,6 +110,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   {item.label}
                 </Link>
               ))}
+              <Link
+                href="/admin"
+                onClick={() => setOpen(false)}
+                className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover-elevate flex items-center gap-2"
+              >
+                <BarChart2 className="h-4 w-4" /> Analytics
+              </Link>
             </div>
           </div>
         ) : null}
@@ -155,10 +169,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </div>
               <ul className="mt-3 space-y-2 text-sm">
                 <li><Link href="/shop" className="hover:underline">All stickers</Link></li>
-                <li><Link href="/chat" className="hover:underline">Custom quote</Link></li>
+                <li><Link href="/generate" className="hover:underline flex items-center gap-1"><Wand2 className="h-3 w-3" />AI sticker generator</Link></li>
+                <li><Link href="/batch" className="hover:underline flex items-center gap-1"><Layers className="h-3 w-3" />Batch quote</Link></li>
+                <li><Link href="/chat" className="hover:underline">Custom quote (AI chat)</Link></li>
                 <li><Link href="/track" className="hover:underline">Track an order</Link></li>
                 <li><Link href="/wishlist" className="hover:underline">Wishlist</Link></li>
                 <li><Link href="/cart" className="hover:underline">Your cart</Link></li>
+                <li><Link href="/admin" className="hover:underline flex items-center gap-1"><BarChart2 className="h-3 w-3" />Analytics</Link></li>
               </ul>
             </div>
           </div>
