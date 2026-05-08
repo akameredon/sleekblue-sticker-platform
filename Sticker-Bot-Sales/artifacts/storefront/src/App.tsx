@@ -14,6 +14,7 @@ import { WishlistPage } from "@/pages/Wishlist";
 import { GeneratePage } from "@/pages/Generate";
 import { BatchPage } from "@/pages/Batch";
 import { AdminPage } from "@/pages/Admin";
+import { QuickOrderPage } from "@/pages/QuickOrder";
 import NotFound from "@/pages/not-found";
 import { queryClient } from "@/lib/queryClient";
 
@@ -31,6 +32,7 @@ function Routes() {
       <Route path="/generate" component={GeneratePage} />
       <Route path="/batch" component={BatchPage} />
       <Route path="/admin" component={AdminPage} />
+      <Route path="/quick-order" component={QuickOrderPage} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -9,6 +9,7 @@ import storageRouter from "./storage";
 import openaiRouter from "./openai";
 import adminRouter from "./admin";
 import generateRouter from "./generate";
+import voiceRouter from "./voice";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(storageRouter);
 router.use(openaiRouter);
 router.use(adminRouter);
 router.use(generateRouter);
+router.use(voiceRouter);
 
 export default router;

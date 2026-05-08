@@ -1,19 +1,22 @@
 import { Link, useLocation } from "wouter";
-import { BarChart2, Heart, Layers, Menu, MessageCircle, ShoppingBag, Wand2, X } from "lucide-react";
+import { BarChart2, Heart, Layers, Menu, MessageCircle, ShoppingBag, Wand2, X, Zap } from "lucide-react";
 import { useState } from "react";
 import { useGetShopInfo } from "@workspace/api-client-react";
 import { useCartCount, useHasMounted } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
 import { Button } from "@/components/ui/button";
 import { whatsappUrl } from "@/lib/whatsapp";
+import { VoiceAssistant } from "@/components/VoiceAssistant";
+import { FloatingChat } from "@/components/FloatingChat";
 
 const NAV = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Shop" },
-  { href: "/track", label: "Track order" },
-  { href: "/chat", label: "Chat with AI" },
+  { href: "/quick-order", label: "Quick Order" },
+  { href: "/track", label: "Track" },
+  { href: "/chat", label: "AI Chat" },
   { href: "/generate", label: "AI Design" },
-  { href: "/batch", label: "Batch quote" },
+  { href: "/batch", label: "Batch Quote" },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -32,19 +35,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <span className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-primary-foreground font-bold text-lg sticker-rotate-2">
               SL
             </span>
-            <span className="font-serif text-lg font-semibold leading-none">
+            <span className="font-serif text-lg font-semibold leading-none hidden sm:inline">
               {shop?.businessName ?? "Sticker Lab"}
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-1 lg:flex">
+          <nav className="hidden items-center gap-0.5 xl:flex">
             {NAV.map((item) => {
               const active = location === item.href || (item.href !== "/" && location.startsWith(item.href));
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`rounded-md px-3 py-2 text-sm font-medium hover-elevate ${
+                  className={`rounded-md px-2.5 py-2 text-sm font-medium hover-elevate ${
                     active ? "text-foreground" : "text-muted-foreground"
                   }`}
                   data-testid={`nav-${item.href.replace(/\W/g, "") || "home"}`}
@@ -56,6 +59,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className="flex items-center gap-1.5">
+            <Link href="/quick-order" className="hidden md:inline-flex">
+              <Button size="sm" variant="outline" className="gap-1.5 border-accent/40 text-accent hover:bg-accent/5" data-testid="button-quick-order-nav">
+                <Zap className="h-3.5 w-3.5" />
+                Quick Order
+              </Button>
+            </Link>
             <Link href="/admin" className="hidden md:inline-flex">
               <Button variant="outline" size="sm" title="Analytics" data-testid="button-admin">
                 <BarChart2 className="h-4 w-4" />
@@ -80,16 +89,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 ) : null}
               </Button>
             </Link>
-            <Link href="/chat" className="hidden sm:inline-flex">
-              <Button size="sm" data-testid="button-chat-cta">
-                <MessageCircle className="h-4 w-4" />
-                Chat
-              </Button>
-            </Link>
             <button
               type="button"
               onClick={() => setOpen((v) => !v)}
-              className="lg:hidden grid h-9 w-9 place-items-center rounded-md hover-elevate"
+              className="xl:hidden grid h-9 w-9 place-items-center rounded-md hover-elevate"
               aria-label="Open menu"
               data-testid="button-menu"
             >
@@ -97,25 +100,29 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </button>
           </div>
         </div>
+
         {open ? (
-          <div className="border-t border-border lg:hidden">
+          <div className="border-t border-border xl:hidden">
             <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3">
               {NAV.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="rounded-md px-3 py-2 text-sm font-medium hover-elevate"
+                  className={`rounded-md px-3 py-2 text-sm font-medium hover-elevate ${
+                    location === item.href || (item.href !== "/" && location.startsWith(item.href))
+                      ? "text-foreground bg-muted/40"
+                      : "text-muted-foreground"
+                  }`}
                 >
                   {item.label}
                 </Link>
               ))}
-              <Link
-                href="/admin"
-                onClick={() => setOpen(false)}
-                className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover-elevate flex items-center gap-2"
-              >
+              <Link href="/admin" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover-elevate flex items-center gap-2">
                 <BarChart2 className="h-4 w-4" /> Analytics
+              </Link>
+              <Link href="/wishlist" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover-elevate flex items-center gap-2">
+                <Heart className="h-4 w-4" /> Wishlist
               </Link>
             </div>
           </div>
@@ -129,16 +136,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <div className="grid gap-8 md:grid-cols-4">
             <div className="md:col-span-2">
               <div className="flex items-center gap-2">
-                <span className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-primary-foreground font-bold sticker-rotate-3">
-                  SL
-                </span>
-                <span className="font-serif text-lg font-semibold">
-                  {shop?.businessName ?? "Sticker Lab"}
-                </span>
+                <span className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-primary-foreground font-bold sticker-rotate-3">SL</span>
+                <span className="font-serif text-lg font-semibold">{shop?.businessName ?? "Sticker Lab"}</span>
               </div>
-              <p className="mt-3 max-w-md text-sm text-sidebar-foreground/75">
-                {shop?.tagline}
-              </p>
+              <p className="mt-3 max-w-md text-sm text-sidebar-foreground/75">{shop?.tagline}</p>
               {shop ? (
                 <a
                   href={whatsappUrl(shop.whatsappNumber, "Hi! I'd like to ask about a sticker order.")}
@@ -153,9 +154,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               ) : null}
             </div>
             <div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/60">
-                Studio
-              </div>
+              <div className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/60">Studio</div>
               <ul className="mt-3 space-y-2 text-sm">
                 <li>{shop?.location}</li>
                 <li>{shop?.hours}</li>
@@ -164,11 +163,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </ul>
             </div>
             <div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/60">
-                Shop
-              </div>
+              <div className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/60">Shop</div>
               <ul className="mt-3 space-y-2 text-sm">
                 <li><Link href="/shop" className="hover:underline">All stickers</Link></li>
+                <li><Link href="/quick-order" className="hover:underline flex items-center gap-1"><Zap className="h-3 w-3" />Quick order (3 min)</Link></li>
                 <li><Link href="/generate" className="hover:underline flex items-center gap-1"><Wand2 className="h-3 w-3" />AI sticker generator</Link></li>
                 <li><Link href="/batch" className="hover:underline flex items-center gap-1"><Layers className="h-3 w-3" />Batch quote</Link></li>
                 <li><Link href="/chat" className="hover:underline">Custom quote (AI chat)</Link></li>
@@ -185,6 +183,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </footer>
+
+      <FloatingChat />
+      <VoiceAssistant />
     </div>
   );
 }

@@ -12,10 +12,13 @@ import { useRecentlyViewed } from "@/lib/recentlyViewed";
 import { useListProducts } from "@workspace/api-client-react";
 import {
   ArrowRight,
+  BarChart2,
   CheckCircle2,
+  Clock,
   Droplets,
   Layers,
   MessageCircle,
+  Mic,
   Package,
   Palette,
   Scissors,
@@ -23,6 +26,9 @@ import {
   Sparkles,
   Sun,
   Truck,
+  Upload,
+  Wand2,
+  Zap,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { whatsappUrl } from "@/lib/whatsapp";
@@ -65,20 +71,19 @@ export function HomePage() {
                 designed to <span className="text-accent">show off</span>.
               </h1>
               <p className="mt-5 max-w-lg text-base text-muted-foreground md:text-lg">
-                {shop?.tagline ??
-                  "Premium die-cut vinyl stickers, made in Lagos. Designed to outlast your laptop."}
+                {shop?.tagline ?? "Premium die-cut vinyl stickers, made in Lagos. Designed to outlast your laptop."}
               </p>
               <div className="mt-7 flex flex-wrap items-center gap-3">
-                <Link href="/shop">
-                  <Button size="lg" data-testid="button-hero-shop">
-                    Browse the shop
-                    <ArrowRight className="h-4 w-4" />
+                <Link href="/quick-order">
+                  <Button size="lg" data-testid="button-hero-quick-order" className="gap-2 bg-accent text-accent-foreground hover:bg-accent/90">
+                    <Zap className="h-4 w-4" />
+                    Order in 3 minutes
                   </Button>
                 </Link>
-                <Link href="/chat">
-                  <Button size="lg" variant="outline" data-testid="button-hero-chat">
-                    <MessageCircle className="h-4 w-4" />
-                    Get a custom quote
+                <Link href="/shop">
+                  <Button size="lg" variant="outline" data-testid="button-hero-shop">
+                    Browse the shop
+                    <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
               </div>
@@ -99,10 +104,82 @@ export function HomePage() {
                 </dl>
               ) : null}
             </div>
-
             <div className="relative">
               <StickerCollage />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SMART STOREFRONT — I HAVE A DESIGN */}
+      <section className="border-y border-border bg-primary text-primary-foreground">
+        <div className="mx-auto max-w-6xl px-4 py-10 md:px-6 md:py-14">
+          <div className="grid items-center gap-8 md:grid-cols-2">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-wider opacity-70">The fast lane</div>
+              <h2 className="mt-1 font-serif text-3xl font-semibold md:text-4xl">Already have a design?</h2>
+              <p className="mt-3 text-base opacity-80">
+                Upload your file, configure size, finish, and quantity — get a live price in seconds. Order placed in under 3 minutes.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link href="/quick-order">
+                  <Button size="lg" variant="secondary" data-testid="button-i-have-design" className="gap-2">
+                    <Upload className="h-4 w-4" />
+                    I have a design
+                  </Button>
+                </Link>
+                <Link href="/generate">
+                  <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 gap-2">
+                    <Wand2 className="h-4 w-4" />
+                    Generate with AI
+                  </Button>
+                </Link>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-3 text-center">
+              {[
+                { icon: Upload, label: "Upload", desc: "PNG, PDF, SVG, AI" },
+                { icon: Zap, label: "Configure", desc: "Size · Finish · Qty" },
+                { icon: MessageCircle, label: "Order on WhatsApp", desc: "Confirm & pay" },
+              ].map((s, i) => (
+                <div key={s.label} className="rounded-2xl bg-primary-foreground/10 p-4 backdrop-blur-sm">
+                  <div className="grid h-10 w-10 mx-auto place-items-center rounded-xl bg-primary-foreground/20">
+                    <s.icon className="h-5 w-5" />
+                  </div>
+                  <div className="mt-2 text-xs font-semibold">{s.label}</div>
+                  <div className="text-[11px] opacity-70 mt-0.5">{s.desc}</div>
+                  {i < 2 ? <div className="mt-2 text-xs opacity-40">step {i + 1}</div> : null}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* AI CAPABILITIES STRIP */}
+      <section className="border-b border-border bg-muted/30">
+        <div className="mx-auto max-w-6xl px-4 py-6 md:px-6">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
+            {[
+              { icon: Mic, label: "Voice assistant", sub: "Talk to shop by voice", href: null },
+              { icon: Sparkles, label: "AI chat", sub: "Instant quotes + recommendations", href: "/chat" },
+              { icon: Wand2, label: "AI design", sub: "Generate sticker mockups", href: "/generate" },
+              { icon: Layers, label: "Batch quotes", sub: "Compare 10 configs at once", href: "/batch" },
+              { icon: BarChart2, label: "Live analytics", sub: "Studio dashboard", href: "/admin" },
+            ].map((c) => {
+              const inner = (
+                <div className="flex items-center gap-2.5 rounded-xl border border-border bg-card px-3 py-2.5 hover-elevate">
+                  <div className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground">
+                    <c.icon className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-xs">{c.label}</div>
+                    <div className="text-[11px] text-muted-foreground">{c.sub}</div>
+                  </div>
+                </div>
+              );
+              return c.href ? <Link key={c.label} href={c.href}>{inner}</Link> : <div key={c.label}>{inner}</div>;
+            })}
           </div>
         </div>
       </section>
@@ -153,12 +230,8 @@ export function HomePage() {
         </div>
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {loadingFeat
-            ? Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-[420px] rounded-2xl" />
-              ))
-            : (featured ?? []).map((p, i) => (
-                <ProductCard key={p.slug} product={p} rotate={(i % 3 - 1) * 2} />
-              ))}
+            ? Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-[420px] rounded-2xl" />)
+            : (featured ?? []).map((p, i) => <ProductCard key={p.slug} product={p} rotate={(i % 3 - 1) * 2} />)}
         </div>
       </section>
 
@@ -168,9 +241,7 @@ export function HomePage() {
           <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recently viewed</div>
           <h2 className="mt-1 font-serif text-2xl font-semibold md:text-3xl">Pick up where you left off</h2>
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {recentProducts.slice(0, 4).map((p, i) => (
-              <ProductCard key={p.slug} product={p} rotate={(i % 2 === 0 ? -1 : 1) * 1.5} />
-            ))}
+            {recentProducts.slice(0, 4).map((p, i) => <ProductCard key={p.slug} product={p} rotate={(i % 2 === 0 ? -1 : 1) * 1.5} />)}
           </div>
         </section>
       ) : null}
@@ -180,23 +251,12 @@ export function HomePage() {
         <div className="mx-auto max-w-6xl px-4 py-14 md:px-6 md:py-20">
           <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">How it works</div>
           <h2 className="mt-1 font-serif text-3xl font-semibold md:text-4xl">From idea to peel-and-stick</h2>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
+          <div className="mt-10 grid gap-6 md:grid-cols-4">
             {[
-              {
-                icon: Palette,
-                title: "1. Pick or upload",
-                body: "Choose from our shop, or chat with our AI to get a quote on a custom shape, size, and finish.",
-              },
-              {
-                icon: Scissors,
-                title: "2. We print & cut",
-                body: "Premium 3.2mil vinyl. Eco-solvent inks. Precision die-cutting on every order.",
-              },
-              {
-                icon: Truck,
-                title: "3. Pickup or delivery",
-                body: shop?.deliveryNote ?? "Free pickup in Lekki. Doorstep delivery quoted on chat.",
-              },
+              { icon: Upload, title: "1. Upload or generate", body: "Upload your design file — PNG, PDF, SVG, AI — or use our AI generator to create one from scratch." },
+              { icon: Zap, title: "2. Configure & price", body: "Pick size, finish, and quantity. Get a live price instantly. No waiting, no forms." },
+              { icon: Scissors, title: "3. We print & cut", body: "Premium 3.2mil vinyl. Eco-solvent inks. Precision die-cutting on every order, in Lagos." },
+              { icon: Truck, title: "4. Pickup or delivery", body: shop?.deliveryNote ?? "Free pickup in Lekki. Doorstep delivery quoted on WhatsApp." },
             ].map(({ icon: Icon, title, body }) => (
               <div key={title} className="rounded-2xl border border-card-border bg-card p-6">
                 <div className="grid h-11 w-11 place-items-center rounded-xl bg-accent text-accent-foreground">
@@ -207,53 +267,120 @@ export function HomePage() {
               </div>
             ))}
           </div>
+          <div className="mt-8 text-center">
+            <Link href="/quick-order">
+              <Button size="lg" data-testid="button-howitworks-cta">
+                <Zap className="h-4 w-4" />
+                Try the 3-minute order flow
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* SMART FEATURES HIGHLIGHT */}
+      <section className="mx-auto max-w-6xl px-4 py-14 md:px-6 md:py-20">
+        <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Technology</div>
+        <h2 className="mt-1 font-serif text-3xl font-semibold md:text-4xl">Shopping, reimagined</h2>
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            {
+              icon: Mic,
+              title: "Voice Shopping",
+              body: "Tap the mic at the bottom of the screen and say what you need. Add items to cart, get prices, navigate — all by voice.",
+              badge: "Try it",
+            },
+            {
+              icon: Sparkles,
+              title: "AI Sales Assistant",
+              body: "Sticky, our AI bot, knows every product, price tier, and finish. Ask anything — it replies in seconds with a real quote.",
+              badge: "Live",
+            },
+            {
+              icon: Wand2,
+              title: "AI Design Studio",
+              body: "No design? No problem. Describe your sticker concept and our AI generates a print-ready mockup in under 30 seconds.",
+              badge: "Powered by DALL-E 3",
+            },
+            {
+              icon: Layers,
+              title: "Batch Quote Engine",
+              body: "Comparing 5 different sticker configs? Quote all of them in parallel with one click. Built for brands that order in volume.",
+              badge: "Up to 10 rows",
+            },
+            {
+              icon: Clock,
+              title: "3-Minute Checkout",
+              body: "Upload design → configure → live quote → your details → WhatsApp confirmation. The entire purchase flow in under 3 minutes.",
+              badge: "Quick Order",
+            },
+            {
+              icon: BarChart2,
+              title: "Studio Analytics",
+              body: "Real-time order tracking, revenue charts, product popularity, and finish trends — all in one dashboard.",
+              badge: "Admin",
+            },
+          ].map((f) => (
+            <div key={f.title} className="rounded-2xl border border-card-border bg-card p-5">
+              <div className="flex items-start justify-between gap-2">
+                <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground">
+                  <f.icon className="h-5 w-5" />
+                </div>
+                <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold text-accent">{f.badge}</span>
+              </div>
+              <h3 className="mt-3 font-semibold">{f.title}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{f.body}</p>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* WHY US */}
-      <section className="mx-auto max-w-6xl px-4 py-14 md:px-6 md:py-20">
-        <div className="grid items-center gap-10 md:grid-cols-2">
-          <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Why Sticker Lab</div>
-            <h2 className="mt-1 font-serif text-3xl font-semibold md:text-4xl">
-              Made for founders, creators & brands that ship.
-            </h2>
-            <ul className="mt-6 space-y-4 text-sm">
-              {[
-                "Weatherproof, dishwasher-safe and UV-stable for 5+ years outdoors.",
-                "Tiered pricing — bigger packs land below ₦150 a sticker.",
-                "AI assistant for instant quotes on custom shapes and finishes.",
-                "Made in Lagos with fast turnaround and friendly humans on WhatsApp.",
-              ].map((line) => (
-                <li key={line} className="flex items-start gap-3">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-accent" />
-                  <span>{line}</span>
-                </li>
-              ))}
-            </ul>
-            {shop ? (
-              <a
-                href={whatsappUrl(shop.whatsappNumber, "Hi Sticker Lab! I'd like to ask about an order.")}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-7 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover-elevate"
-                data-testid="link-whatsapp-why"
-              >
-                <MessageCircle className="h-4 w-4" />
-                Talk to us on WhatsApp
-              </a>
-            ) : null}
-          </div>
-          <div className="rounded-3xl border border-card-border bg-card p-8 shadow-md">
-            <blockquote className="font-serif text-2xl leading-snug">
-              “Ordered 200 die-cut logos for our launch event. Showed up in 3 days,
-              and they’ve survived the rainy season on every laptop. Perfect.”
-            </blockquote>
-            <div className="mt-6 flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-full bg-accent text-accent-foreground font-semibold">A</div>
-              <div>
-                <div className="text-sm font-semibold">Ada O.</div>
-                <div className="text-xs text-muted-foreground">Founder · Lagos</div>
+      <section className="bg-muted/30">
+        <div className="mx-auto max-w-6xl px-4 py-14 md:px-6 md:py-20">
+          <div className="grid items-center gap-10 md:grid-cols-2">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Why Sticker Lab</div>
+              <h2 className="mt-1 font-serif text-3xl font-semibold md:text-4xl">
+                Made for founders, creators & brands that ship.
+              </h2>
+              <ul className="mt-6 space-y-4 text-sm">
+                {[
+                  "Weatherproof, dishwasher-safe and UV-stable for 5+ years outdoors.",
+                  "Tiered pricing — bigger packs land below ₦150 a sticker.",
+                  "AI voice & chat assistant for instant quotes on any size and finish.",
+                  "Made in Lagos with 3-day turnaround and humans on WhatsApp.",
+                ].map((line) => (
+                  <li key={line} className="flex items-start gap-3">
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-accent" />
+                    <span>{line}</span>
+                  </li>
+                ))}
+              </ul>
+              {shop ? (
+                <a
+                  href={whatsappUrl(shop.whatsappNumber, "Hi Sticker Lab! I'd like to ask about an order.")}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-7 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover-elevate"
+                  data-testid="link-whatsapp-why"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Talk to us on WhatsApp
+                </a>
+              ) : null}
+            </div>
+            <div className="rounded-3xl border border-card-border bg-card p-8 shadow-md">
+              <blockquote className="font-serif text-2xl leading-snug">
+                "Ordered 200 die-cut logos for our launch event. Showed up in 3 days,
+                and they've survived the rainy season on every laptop. Perfect."
+              </blockquote>
+              <div className="mt-6 flex items-center gap-3">
+                <div className="grid h-10 w-10 place-items-center rounded-full bg-accent text-accent-foreground font-semibold">A</div>
+                <div>
+                  <div className="text-sm font-semibold">Ada O.</div>
+                  <div className="text-xs text-muted-foreground">Founder · Lagos</div>
+                </div>
               </div>
             </div>
           </div>
