@@ -1,0 +1,22 @@
+{
+  "name": "sticker-bot-sales",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "drizzle-zod": "^0.8.3",
+    "openai": "^6.37.0",
+    "p-limit": "^7.3.0",
+    "p-retry": "^7.1.1",
+    "pnpm": "^10.33.4",
+    "zod": "^4.4.3",
+    "zod-validation-error": "^5.0.0"
+  }
+}

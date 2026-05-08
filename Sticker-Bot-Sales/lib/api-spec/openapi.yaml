@@ -1,0 +1,1107 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: shop
+    description: Shop info, settings, and storefront stats
+  - name: catalog
+    description: Categories and sticker products
+  - name: pricing
+    description: Sticker pricing and quotes
+  - name: orders
+    description: Customer orders and WhatsApp handoff
+  - name: reviews
+    description: Customer product reviews
+  - name: storage
+    description: Object storage upload and serving
+  - name: openai
+    description: OpenAI AI chat, image, and audio operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /shop/info:
+    get:
+      operationId: getShopInfo
+      tags: [shop]
+      summary: Get shop business information
+      responses:
+        "200":
+          description: Shop information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopInfo"
+
+  /shop/stats:
+    get:
+      operationId: getShopStats
+      tags: [shop]
+      summary: Get storefront stats (totals, recent activity)
+      responses:
+        "200":
+          description: Storefront stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopStats"
+
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [catalog]
+      summary: List sticker categories
+      responses:
+        "200":
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+
+  /products:
+    get:
+      operationId: listProducts
+      tags: [catalog]
+      summary: List sticker products
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Category slug to filter by
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Search query
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /products/featured:
+    get:
+      operationId: listFeaturedProducts
+      tags: [catalog]
+      summary: List featured products for the homepage
+      responses:
+        "200":
+          description: Featured products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /products/bestsellers:
+    get:
+      operationId: listBestsellerProducts
+      tags: [catalog]
+      summary: List bestselling products
+      responses:
+        "200":
+          description: Bestseller products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /products/{slug}:
+    get:
+      operationId: getProductBySlug
+      tags: [catalog]
+      summary: Get a single product by slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /pricing/quote:
+    post:
+      operationId: calculateQuote
+      tags: [pricing]
+      summary: Calculate a sticker pricing quote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuoteRequest"
+      responses:
+        "200":
+          description: Quote breakdown
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuoteResponse"
+
+  /orders:
+    get:
+      operationId: listRecentOrders
+      tags: [orders]
+      summary: List recent orders (latest 10)
+      responses:
+        "200":
+          description: Recent orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Create a new order and prepare WhatsApp handoff
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderBody"
+      responses:
+        "201":
+          description: Created order with WhatsApp handoff link
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderWithHandoff"
+
+  /orders/{id}:
+    get:
+      operationId: getOrderById
+      tags: [orders]
+      summary: Get order details and WhatsApp handoff link
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Order details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderWithHandoff"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /orders/lookup:
+    post:
+      operationId: lookupOrder
+      tags: [orders]
+      summary: Lookup an order by reference + phone (last 4 digits)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LookupOrderBody"
+      responses:
+        "200":
+          description: Order found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderWithHandoff"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /products/{slug}/reviews:
+    get:
+      operationId: listProductReviews
+      tags: [reviews]
+      summary: List reviews for a product
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Review"
+    post:
+      operationId: createProductReview
+      tags: [reviews]
+      summary: Submit a review for a product
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReviewBody"
+      responses:
+        "201":
+          description: Created review
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+        "404":
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /storage/uploads/request-url:
+    post:
+      operationId: requestUploadUrl
+      tags: [storage]
+      summary: Request a presigned URL for file upload
+      description: |
+        Returns a presigned GCS URL for direct upload. The client sends JSON
+        metadata here, then uploads the file directly to the returned URL.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadUrlRequest"
+      responses:
+        "200":
+          description: Presigned upload URL generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadUrlResponse"
+        "400":
+          description: Missing or invalid required fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Failed to generate upload URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /openai/conversations:
+    get:
+      operationId: listOpenaiConversations
+      tags: [openai]
+      summary: List all conversations
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenaiConversation"
+    post:
+      operationId: createOpenaiConversation
+      tags: [openai]
+      summary: Create a new AI sales chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOpenaiConversationBody"
+      responses:
+        "201":
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiConversation"
+
+  /openai/conversations/{id}:
+    get:
+      operationId: getOpenaiConversation
+      tags: [openai]
+      summary: Get conversation with messages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Conversation with messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiConversationWithMessages"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiError"
+    delete:
+      operationId: deleteOpenaiConversation
+      tags: [openai]
+      summary: Delete a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiError"
+
+  /openai/conversations/{id}/messages:
+    get:
+      operationId: listOpenaiMessages
+      tags: [openai]
+      summary: List messages in a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenaiMessage"
+    post:
+      operationId: sendOpenaiMessage
+      tags: [openai]
+      summary: Send a text message and receive a streaming text response
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendOpenaiMessageBody"
+      responses:
+        "200":
+          description: SSE stream of assistant text chunks
+          content:
+            text/event-stream: {}
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    ShopInfo:
+      type: object
+      properties:
+        businessName:
+          type: string
+        tagline:
+          type: string
+        whatsappNumber:
+          type: string
+          description: E.164 phone number for WhatsApp (digits only, no plus)
+        whatsappDisplay:
+          type: string
+        email:
+          type: string
+        location:
+          type: string
+        hours:
+          type: string
+        currency:
+          type: string
+        currencySymbol:
+          type: string
+        instagram:
+          type: string
+        deliveryNote:
+          type: string
+        leadTimeDays:
+          type: integer
+      required:
+        - businessName
+        - tagline
+        - whatsappNumber
+        - whatsappDisplay
+        - location
+        - hours
+        - currency
+        - currencySymbol
+        - leadTimeDays
+
+    ShopStats:
+      type: object
+      properties:
+        totalProducts:
+          type: integer
+        totalCategories:
+          type: integer
+        ordersThisWeek:
+          type: integer
+        happyCustomers:
+          type: integer
+        averageLeadTimeDays:
+          type: integer
+      required:
+        - totalProducts
+        - totalCategories
+        - ordersThisWeek
+        - happyCustomers
+        - averageLeadTimeDays
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        slug:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        icon:
+          type: string
+          description: Lucide icon name
+        productCount:
+          type: integer
+      required:
+        - id
+        - slug
+        - name
+        - description
+        - icon
+        - productCount
+
+    SizeOption:
+      type: object
+      properties:
+        label:
+          type: string
+        widthMm:
+          type: integer
+        heightMm:
+          type: integer
+        priceModifier:
+          type: number
+          description: Multiplier on the base price
+      required:
+        - label
+        - widthMm
+        - heightMm
+        - priceModifier
+
+    FinishOption:
+      type: object
+      properties:
+        label:
+          type: string
+        description:
+          type: string
+        priceModifier:
+          type: number
+      required:
+        - label
+        - description
+        - priceModifier
+
+    QuantityTier:
+      type: object
+      properties:
+        minQty:
+          type: integer
+        unitPrice:
+          type: number
+        label:
+          type: string
+      required:
+        - minQty
+        - unitPrice
+        - label
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        slug:
+          type: string
+        name:
+          type: string
+        tagline:
+          type: string
+        description:
+          type: string
+        categorySlug:
+          type: string
+        categoryName:
+          type: string
+        basePrice:
+          type: number
+        currency:
+          type: string
+        imageUrl:
+          type: string
+        material:
+          type: string
+        isFeatured:
+          type: boolean
+        isBestseller:
+          type: boolean
+        rating:
+          type: number
+        reviewCount:
+          type: integer
+        sizes:
+          type: array
+          items:
+            $ref: "#/components/schemas/SizeOption"
+        finishes:
+          type: array
+          items:
+            $ref: "#/components/schemas/FinishOption"
+        quantityTiers:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuantityTier"
+        tags:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - slug
+        - name
+        - tagline
+        - description
+        - categorySlug
+        - categoryName
+        - basePrice
+        - currency
+        - imageUrl
+        - material
+        - isFeatured
+        - isBestseller
+        - rating
+        - reviewCount
+        - sizes
+        - finishes
+        - quantityTiers
+        - tags
+
+    QuoteRequest:
+      type: object
+      properties:
+        productSlug:
+          type: string
+          description: Optional — if provided, uses product's pricing tiers
+        sizeLabel:
+          type: string
+        finishLabel:
+          type: string
+        quantity:
+          type: integer
+        widthMm:
+          type: integer
+          description: Custom width in mm (used when sizeLabel is "Custom")
+        heightMm:
+          type: integer
+          description: Custom height in mm (used when sizeLabel is "Custom")
+      required:
+        - sizeLabel
+        - finishLabel
+        - quantity
+
+    QuoteLine:
+      type: object
+      properties:
+        label:
+          type: string
+        amount:
+          type: number
+      required:
+        - label
+        - amount
+
+    QuoteResponse:
+      type: object
+      properties:
+        productSlug:
+          type: string
+        productName:
+          type: string
+        sizeLabel:
+          type: string
+        finishLabel:
+          type: string
+        quantity:
+          type: integer
+        widthMm:
+          type: integer
+        heightMm:
+          type: integer
+        unitPrice:
+          type: number
+        subtotal:
+          type: number
+        discount:
+          type: number
+        deliveryFee:
+          type: number
+        total:
+          type: number
+        currency:
+          type: string
+        currencySymbol:
+          type: string
+        breakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuoteLine"
+        leadTimeDays:
+          type: integer
+        savingsNote:
+          type: string
+      required:
+        - sizeLabel
+        - finishLabel
+        - quantity
+        - unitPrice
+        - subtotal
+        - discount
+        - deliveryFee
+        - total
+        - currency
+        - currencySymbol
+        - breakdown
+        - leadTimeDays
+
+    OrderItem:
+      type: object
+      properties:
+        productSlug:
+          type: string
+        productName:
+          type: string
+        sizeLabel:
+          type: string
+        finishLabel:
+          type: string
+        quantity:
+          type: integer
+        widthMm:
+          type: integer
+        heightMm:
+          type: integer
+        unitPrice:
+          type: number
+        lineTotal:
+          type: number
+        notes:
+          type: string
+      required:
+        - productName
+        - sizeLabel
+        - finishLabel
+        - quantity
+        - unitPrice
+        - lineTotal
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        reference:
+          type: string
+        customerName:
+          type: string
+        customerPhone:
+          type: string
+        customerEmail:
+          type: string
+        deliveryAddress:
+          type: string
+        deliveryMethod:
+          type: string
+        notes:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        subtotal:
+          type: number
+        deliveryFee:
+          type: number
+        total:
+          type: number
+        currency:
+          type: string
+        currencySymbol:
+          type: string
+        status:
+          type: string
+        artworkUrls:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - reference
+        - customerName
+        - customerPhone
+        - items
+        - subtotal
+        - deliveryFee
+        - total
+        - currency
+        - currencySymbol
+        - status
+        - artworkUrls
+        - createdAt
+
+    OrderWithHandoff:
+      allOf:
+        - $ref: "#/components/schemas/Order"
+        - type: object
+          properties:
+            whatsappUrl:
+              type: string
+              description: A wa.me deep link with the prefilled order summary
+            whatsappMessage:
+              type: string
+          required:
+            - whatsappUrl
+            - whatsappMessage
+
+    CreateOrderItem:
+      type: object
+      properties:
+        productSlug:
+          type: string
+        productName:
+          type: string
+        sizeLabel:
+          type: string
+        finishLabel:
+          type: string
+        quantity:
+          type: integer
+        widthMm:
+          type: integer
+        heightMm:
+          type: integer
+        unitPrice:
+          type: number
+        notes:
+          type: string
+      required:
+        - productName
+        - sizeLabel
+        - finishLabel
+        - quantity
+        - unitPrice
+
+    CreateOrderBody:
+      type: object
+      properties:
+        customerName:
+          type: string
+        customerPhone:
+          type: string
+        customerEmail:
+          type: string
+        deliveryAddress:
+          type: string
+        deliveryMethod:
+          type: string
+          description: e.g. "Pickup" or "Doorstep delivery"
+        notes:
+          type: string
+        items:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/CreateOrderItem"
+        artworkUrls:
+          type: array
+          items:
+            type: string
+          description: Object paths from /storage/uploads/request-url
+      required:
+        - customerName
+        - customerPhone
+        - items
+
+    LookupOrderBody:
+      type: object
+      properties:
+        reference:
+          type: string
+        phone:
+          type: string
+          description: Full phone number or last 4 digits
+      required:
+        - reference
+        - phone
+
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+        productSlug:
+          type: string
+        customerName:
+          type: string
+        customerEmail:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        title:
+          type: string
+        body:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - productSlug
+        - customerName
+        - rating
+        - body
+        - createdAt
+
+    CreateReviewBody:
+      type: object
+      properties:
+        customerName:
+          type: string
+          minLength: 1
+        customerEmail:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        title:
+          type: string
+        body:
+          type: string
+          minLength: 1
+      required:
+        - customerName
+        - rating
+        - body
+
+    UploadUrlRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        size:
+          type: integer
+          minimum: 1
+        contentType:
+          type: string
+          minLength: 1
+      required:
+        - name
+        - size
+        - contentType
+
+    UploadUrlResponse:
+      type: object
+      properties:
+        uploadURL:
+          type: string
+          format: uri
+        objectPath:
+          type: string
+        metadata:
+          $ref: "#/components/schemas/UploadUrlRequest"
+      required:
+        - uploadURL
+        - objectPath
+
+    OpenaiConversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - createdAt
+
+    OpenaiMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        role:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - conversationId
+        - role
+        - content
+        - createdAt
+
+    CreateOpenaiConversationBody:
+      type: object
+      properties:
+        title:
+          type: string
+      required:
+        - title
+
+    SendOpenaiMessageBody:
+      type: object
+      properties:
+        content:
+          type: string
+      required:
+        - content
+
+    OpenaiConversationWithMessages:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpenaiMessage"
+      required:
+        - id
+        - title
+        - createdAt
+        - messages
+
+    OpenaiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
