@@ -1,0 +1,148 @@
+GOAL:
+Generate a complete project system from idea and enter Self-Correction/Autonomous Mode. Act as a swarm of 80,000 specialized teams.
+INPUT:
+
+
+
+
+
+
+* User Idea: Alright—most “WhatsApp storefronts” today are just glorified auto-replies + catalogs. They don’t think, don’t guide, and don’t close. They dump options and leave the customer to struggle.
+Let’s build something that actually behaves like a high-performing human sales rep 👇
+
+⚡ IDEA: “Conversational Deal Engine” (Not a Store)
+Instead of a store, you build a decision-making system inside WhatsApp.
+It doesn’t show products first.
+It diagnoses → guides → commits → closes.
+
+🧠 Core Concept
+A WhatsApp AI agent that:
+Understands intent in seconds
+Designs the best offer in real-time
+Pushes customer to a decision (not endless chatting)
+Think:
+Less “What do you want to buy?”
+More “Here’s exactly what you should do next.”
+
+🔥 HOW IT WORKS (FLOW)
+1. Entry Hook (Pattern Interrupt)
+User sends: “Hi”
+Instead of:
+“Welcome, how can we help you?”
+It responds:
+“Quick one — are you trying to print stickers for:
+1️⃣ Business branding
+2️⃣ Packaging
+3️⃣ Personal use
+4️⃣ Reselling”
+👉 Immediate categorization (no wasted chat)
+
+2. Smart Compression (Kill 20 mins → 60 seconds)
+Instead of long back-and-forth, it asks stacked questions:
+“How many pieces?”
+“Do you already have a design?”
+“Budget range?”
+BUT:
+It adapts questions based on answers
+Skips irrelevant steps
+Learns patterns over time
+
+3. Real-Time Offer Builder
+Instead of showing catalog:
+It says:
+“Based on what you need — here’s the best option:
+✔ Die-cut vinyl stickers
+✔ Waterproof
+✔ 500 pieces
+✔ ₦X price
+✔ Delivery in 48hrs”
+👉 This is AI-generated offer packaging
+
+4. Visual Proof Drop
+Not random images.
+It sends:
+Exact similar past jobs
+Before/after mockups
+Short 5-sec video
+👉 Contextual trust, not spam
+
+5. Decision Lock (This is where most systems fail)
+Instead of:
+“Let me know if you’re interested”
+It says:
+“Should I lock this in for you now or adjust the quantity?”
+👉 Forces a micro-decision
+
+6. Payment + Fulfillment Automation
+Payment link or transfer
+Auto-confirmation
+Production ticket created instantly
+Customer gets live status updates
+
+🧩 WHAT MAKES THIS DIFFERENT
+❌ Current Systems:
+Catalog dumping
+Manual replies
+No intelligence
+No closing strategy
+✅ Your System:
+Acts like a sales strategist
+Reduces chat time from 20 mins → 2 mins
+Closes faster than humans
+Scales infinitely
+
+🧠 SECRET WEAPON (Your Edge)
+“Behavioral Sales Engine”
+It tracks:
+Where customers drop off
+What offers convert best
+Which words trigger buying
+Then automatically improves responses.
+👉 Over time, it becomes your best salesperson
+
+🏗️ TECH STACK (Simple but deadly)
+WhatsApp API via Twilio or Meta
+AI brain via OpenAI
+Automation via n8n or Make
+Database: Airtable / Supabase
+Payment: Paystack / Flutterwave
+
+🚀 NEXT LEVEL (WHERE YOU DOMINATE)
+1. “Design Instantly” Mode
+Customer says:
+“I don’t have a design”
+Bot:
+Generates preview instantly
+Sends mockup in chat
+Asks: “Use this or tweak it?”
+
+2. “Bulk Lead Crusher”
+When 1000 people message:
+Each gets a personalized guided flow
+No human needed until payment
+
+3. Voice Commerce Layer
+Customer sends voice note → AI understands → responds intelligently
+
+4. Offer Personalization Engine
+Returning customer?
+“Last time you ordered 300pcs — want to repeat or upgrade to 500 at a discount?”
+
+
+
+OUTPUT:
+
+   1. full sleekos/ structure: Create the directory hierarchy including .claude/, agents/, modules/, and docs/.
+   2. agents: Define and initialize specialized sub-agent profiles (Architect, Security, Lead Dev, QA, DevOps).
+   3. tasks: Populate a BACKLOG.md with at least 10 granular, initial tasks mapped to the swarm.
+   4. modules: Automatically infer and scaffold the core technical modules needed to realize the idea.
+
+RULES:
+
+* Inference: You must infer the tech stack and module requirements without asking for permission.
+* Autonomy: Execute file creation and setup immediately. Do not wait for feedback between steps.
+* Hive Mind: Create a MEMORY.md to track state across your internal agent swarm.
+* Parallelism: Use parallel tool calls to build the structure, documentation, and boilerplate simultaneously.
+* Persistence: Document the "Long-term Vision" in the root so future sessions retain the 80,000-developer context.
+
+START MISSION.
