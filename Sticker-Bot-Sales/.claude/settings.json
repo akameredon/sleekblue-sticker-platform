@@ -1,0 +1,40 @@
+{
+  "project": "Conversational Deal Engine — Sticker Commerce AI",
+  "version": "1.0.0",
+  "mission": "Build a WhatsApp AI agent that diagnoses customer intent, generates real-time offers, and closes sales in under 2 minutes — replacing a human sales rep at infinite scale.",
+  "swarm_size": 80000,
+  "mode": "autonomous",
+  "self_correction": true,
+  "active_agents": [
+    "Architect",
+    "SecurityGuard",
+    "LeadDev",
+    "QAEngineer",
+    "DevOps"
+  ],
+  "core_modules": [
+    "intent-engine",
+    "offer-builder",
+    "behavioral-engine",
+    "conversation-flow",
+    "payment-gateway",
+    "design-generator",
+    "visual-proof",
+    "fulfillment"
+  ],
+  "tech_stack": {
+    "ai": "OpenAI GPT-4o",
+    "messaging": "WhatsApp Business API (Meta / Twilio)",
+    "backend": "Node.js + Fastify (TypeScript)",
+    "database": "PostgreSQL (Replit DB)",
+    "automation": "n8n / internal orchestrator",
+    "payments": "Paystack / Flutterwave",
+    "storage": "Replit Object Storage"
+  },
+  "constraints": {
+    "max_conversation_time_seconds": 120,
+    "target_close_rate": "40%",
+    "max_questions_per_flow": 5,
+    "offer_generation_timeout_ms": 3000
+  }
+}
