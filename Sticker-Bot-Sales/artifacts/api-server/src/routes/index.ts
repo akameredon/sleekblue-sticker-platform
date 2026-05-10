@@ -10,10 +10,16 @@ import openaiRouter from "./openai";
 import adminRouter from "./admin";
 import generateRouter from "./generate";
 import voiceRouter from "./voice";
+import authRouter from "./auth";
+import paymentsRouter from "./payments";
+import whatsappRouter from "./whatsapp";
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use(authRouter);
+router.use(paymentsRouter);
+router.use(whatsappRouter);
 router.use(shopRouter);
 router.use(catalogRouter);
 router.use(pricingRouter);
