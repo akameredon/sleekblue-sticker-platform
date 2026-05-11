@@ -176,17 +176,18 @@ async function main() {
   const existingSettings = await db.select().from(schema.shopSettings).limit(1);
   if (existingSettings.length === 0) {
     await db.insert(schema.shopSettings).values({
-      businessName: "Sticker Lab",
+      businessName: "Sticker Lab by Sleekblue",
       tagline: "Premium die-cut vinyl stickers, made in Lagos. Designed to outlast your laptop.",
-      whatsappNumber: "2348000000000",
-      whatsappDisplay: "+234 800 000 0000",
+      // ⚠️ Real WhatsApp number — no + prefix — used by n8n bot and wa.me links
+      whatsappNumber: "2348058162036",
+      whatsappDisplay: "+234 805 816 2036",
       email: "hello@stickerlab.ng",
-      location: "Lekki, Lagos",
-      hours: "Mon–Sat, 9am–6pm WAT",
+      location: "Lagos, Nigeria",
+      hours: "Mon–Sat, 7am–10pm WAT",
       currency: "NGN",
       currencySymbol: "₦",
-      instagram: "@stickerlab.ng",
-      deliveryNote: "Pickup free in Lekki. Doorstep delivery quoted on chat.",
+      instagram: "@sleekbluemediahouz",
+      deliveryNote: "Pickup free in Lagos. Doorstep delivery nationwide — quoted on WhatsApp.",
       leadTimeDays: 3,
     });
     console.log("  shop settings seeded");

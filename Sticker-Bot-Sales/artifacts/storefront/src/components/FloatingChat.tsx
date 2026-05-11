@@ -11,6 +11,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { useGetShopInfo } from "@workspace/api-client-react";
+import { useLocation } from "wouter";
 import { apiUrl } from "@/lib/paths";
 import { getStoredConversationId, setStoredConversationId } from "@/lib/conversation";
 import { getToken } from "@/lib/auth";
@@ -310,7 +311,10 @@ function UiBlock({ payload, onProductSelect, onOrderConfirmed }: {
 
 export function FloatingChat() {
   const { data: shop } = useGetShopInfo();
+  const [location] = useLocation();
+  const isChatRoute = location === "/chat";
   const [open, setOpen] = useState(false);
+  const isOpen = isChatRoute || open;
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -332,7 +336,7 @@ export function FloatingChat() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages.length]);
 
-  useEffect(() => { if (open) setUnread(0); }, [open]);
+  useEffect(() => { if (isOpen) setUnread(0); }, [isOpen]);
 
   const ensureConv = async (firstMsg: string): Promise<number> => {
     if (convId) return convId;
@@ -452,38 +456,49 @@ export function FloatingChat() {
 
   return (
     <>
-      {open && (
+      {isOpen && (
         <div
-          className="fixed bottom-[84px] right-4 z-50 flex flex-col rounded-2xl border border-card-border bg-card shadow-2xl animate-in fade-in slide-in-from-bottom-2"
-          style={{ width: "min(440px, calc(100vw - 2rem))", maxHeight: "min(680px, calc(100vh - 120px))" }}
+          className={
+            isChatRoute
+              ? "fixed inset-0 top-[60px] z-30 flex flex-col bg-background animate-in fade-in"
+              : "fixed bottom-[84px] right-4 z-50 flex flex-col rounded-2xl border border-card-border bg-card shadow-2xl animate-in fade-in slide-in-from-bottom-2"
+          }
+          style={
+            isChatRoute
+              ? {}
+              : { width: "min(440px, calc(100vw - 2rem))", maxHeight: "min(680px, calc(100vh - 120px))" }
+          }
           data-testid="floating-chat"
         >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-border px-4 py-3 flex-shrink-0">
-            <div className="flex items-center gap-2">
-              <div className="relative grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground">
-                <Sparkles className="h-4 w-4" />
-                <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green-400 ring-2 ring-card" />
+          {!isChatRoute && (
+            <div className="flex items-center justify-between border-b border-border px-4 py-3 flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="relative grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground">
+                  <Sparkles className="h-4 w-4" />
+                  <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green-400 ring-2 ring-card" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold">Sticky AI</div>
+                  <div className="text-[10px] text-muted-foreground">{shop?.businessName ?? "Sticker Lab"} · Shopping Assistant</div>
+                </div>
               </div>
-              <div>
-                <div className="text-sm font-semibold">Sticky AI</div>
-                <div className="text-[10px] text-muted-foreground">{shop?.businessName ?? "Sticker Lab"} · Shopping Assistant</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-1">
-              {messages.length > 0 && (
-                <button type="button" onClick={reset} className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover-elevate" aria-label="New chat">
-                  <RotateCcw className="h-3.5 w-3.5" />
+              <div className="flex items-center gap-1">
+                {messages.length > 0 && (
+                  <button type="button" onClick={reset} className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover-elevate" aria-label="New chat">
+                    <RotateCcw className="h-3.5 w-3.5" />
+                  </button>
+                )}
+                <button type="button" onClick={() => setOpen(false)} className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover-elevate" aria-label="Close">
+                  <X className="h-4 w-4" />
                 </button>
-              )}
-              <button type="button" onClick={() => setOpen(false)} className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover-elevate" aria-label="Close">
-                <X className="h-4 w-4" />
-              </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Messages */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-3 scrollbar-thin">
+          <div ref={scrollRef} className={`flex-1 overflow-y-auto p-3 scrollbar-thin ${isChatRoute ? "flex flex-col items-center pt-8 md:pt-12" : ""}`}>
+            <div className={isChatRoute ? "w-full max-w-3xl space-y-6" : "space-y-3 w-full"}>
             {messages.length === 0 ? (
               <div className="space-y-3">
                 <div className="flex items-start gap-2">
@@ -555,29 +570,38 @@ export function FloatingChat() {
                 </div>
               </div>
             )}
+            </div>
           </div>
 
           {/* Input */}
-          <form className="border-t border-border p-2 flex gap-2 flex-shrink-0"
-            onSubmit={(e) => { e.preventDefault(); send(input); }}
-          >
-            <input value={input} onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input); } }}
-              placeholder="Describe what you need…"
-              className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-              data-testid="input-float-chat"
-            />
-            <button type="submit" disabled={sending || !input.trim()}
-              className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground disabled:opacity-50 hover-elevate"
-              data-testid="button-float-send"
+          <div className={`flex-shrink-0 bg-background w-full ${isChatRoute ? "flex justify-center p-4 md:p-6" : "border-t border-border p-2"}`}>
+            <form className={`flex gap-2 ${isChatRoute ? "w-full max-w-3xl" : "w-full"}`}
+              onSubmit={(e) => { e.preventDefault(); send(input); }}
             >
-              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUp className="h-4 w-4" />}
-            </button>
-          </form>
+              {isChatRoute && messages.length > 0 && (
+                <button type="button" onClick={reset} className="grid h-12 w-12 flex-shrink-0 place-items-center rounded-xl border border-border bg-card text-muted-foreground hover-elevate" aria-label="New chat">
+                  <RotateCcw className="h-5 w-5" />
+                </button>
+              )}
+              <input value={input} onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input); } }}
+                placeholder="Describe what you need…"
+                className={`flex-1 rounded-xl border border-border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring ${isChatRoute ? "h-12 text-base shadow-sm" : ""}`}
+                data-testid="input-float-chat"
+              />
+              <button type="submit" disabled={sending || !input.trim()}
+                className={`grid flex-shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground disabled:opacity-50 hover-elevate ${isChatRoute ? "h-12 w-12" : "h-10 w-10"}`}
+                data-testid="button-float-send"
+              >
+                {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUp className="h-4 w-4" />}
+              </button>
+            </form>
+          </div>
         </div>
       )}
 
-      <button type="button" onClick={() => setOpen((v) => !v)} aria-label="Open AI Shopping Assistant"
+      {!isChatRoute && (
+        <button type="button" onClick={() => setOpen((v) => !v)} aria-label="Open AI Shopping Assistant"
         data-testid="button-float-chat"
         className="fixed bottom-6 right-20 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-card border border-card-border shadow-lg hover-elevate"
       >
@@ -587,7 +611,8 @@ export function FloatingChat() {
             {unread}
           </span>
         )}
-      </button>
+        </button>
+      )}
     </>
   );
 }

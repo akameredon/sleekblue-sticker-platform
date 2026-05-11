@@ -6,6 +6,7 @@
  *
  * All amounts are in KOBO (multiply NGN × 100).
  */
+import { createHmac } from "crypto";
 
 const SECRET_KEY = process.env.PAYSTACK_SECRET_KEY ?? "";
 const BASE_URL = "https://api.paystack.co";
@@ -81,9 +82,9 @@ export async function verifyPayment(reference: string): Promise<VerifyResponse> 
  * Validate Paystack webhook signature.
  * X-Paystack-Signature header = HMAC-SHA512 of raw body using secret key.
  */
-export function validateWebhookSignature(rawBody: string, signature: string): boolean {
+export function validateWebhookSignature(rawBody: string | Buffer, signature: string): boolean {
   if (!SECRET_KEY || !signature) return false;
-  const { createHmac } = require("crypto") as typeof import("crypto");
-  const expected = createHmac("sha512", SECRET_KEY).update(rawBody).digest("hex");
+  const body = Buffer.isBuffer(rawBody) ? rawBody.toString("utf8") : rawBody;
+  const expected = createHmac("sha512", SECRET_KEY).update(body).digest("hex");
   return expected === signature;
 }

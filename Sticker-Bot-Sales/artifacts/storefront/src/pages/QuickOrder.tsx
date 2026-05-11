@@ -220,7 +220,7 @@ export function QuickOrderPage() {
 
       <div className="mt-8">
         {step === "upload" && (
-          <div className="space-y-5">
+          <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="text-sm font-semibold text-muted-foreground">Do you have a design file ready?</div>
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -343,7 +343,7 @@ export function QuickOrderPage() {
         )}
 
         {step === "configure" && (
-          <div className="space-y-6">
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <Section title="Sticker type">
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {PRODUCTS.map((p) => (
@@ -440,7 +440,7 @@ export function QuickOrderPage() {
         )}
 
         {step === "quote" && (
-          <div className="space-y-5">
+          <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="rounded-2xl border border-card-border bg-card p-5">
               <div className="flex items-center justify-between mb-3">
                 <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Your live quote</div>
@@ -494,7 +494,7 @@ export function QuickOrderPage() {
         )}
 
         {step === "checkout" && (
-          <div className="space-y-5">
+          <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="rounded-2xl border border-card-border bg-card p-4 text-sm space-y-1">
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Order summary</div>
               <div className="flex justify-between"><span className="text-muted-foreground">{PRODUCTS.find((p) => p.slug === productSlug)?.name} — {quantity} × {sizeLabel} {finishLabel}</span><span className="font-semibold">{quote ? formatNGN(quote.total) : "—"}</span></div>

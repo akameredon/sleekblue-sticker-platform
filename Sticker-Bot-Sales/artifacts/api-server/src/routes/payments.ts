@@ -15,7 +15,7 @@
  */
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { db, schema } from "../lib/db";
 import { initializePayment, verifyPayment, validateWebhookSignature } from "../lib/paystack";
 import { buildWhatsappMessage, buildWhatsappUrl } from "../lib/whatsapp";
@@ -105,17 +105,18 @@ router.post("/payments/initialize", async (req, res) => {
 
 /**
  * POST /payments/webhook
- * Raw body required for signature validation — must be mounted before json middleware
- * or use express.raw() on this route.
+ * Raw body required for signature validation — mounted with express.raw()
+ * in app.ts BEFORE express.json() on this specific route.
  */
 router.post("/payments/webhook", async (req, res) => {
-  // express.json() parses body, we need raw string for sig validation
-  const rawBody: string =
-    typeof req.body === "string"
-      ? req.body
-      : JSON.stringify(req.body);
+  // express.raw() gives us a Buffer; express.json() gives an object
+  const rawBody: string = Buffer.isBuffer(req.body)
+    ? req.body.toString("utf8")
+    : typeof req.body === "string"
+    ? req.body
+    : JSON.stringify(req.body);
 
-  const signature = req.headers["x-paystack-signature"] as string ?? "";
+  const signature = (req.headers["x-paystack-signature"] as string) ?? "";
 
   // Always respond 200 quickly to avoid Paystack retries
   res.status(200).json({ received: true });

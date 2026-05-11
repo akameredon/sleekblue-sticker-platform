@@ -157,7 +157,7 @@ export function BatchPage() {
         {rows.map((row, idx) => (
           <div
             key={row.id}
-            className="rounded-2xl border border-card-border bg-card p-4"
+            className="rounded-2xl border border-card-border bg-card p-4 animate-in fade-in slide-in-from-bottom-2 duration-300"
             data-testid={`batch-row-${idx}`}
           >
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-[1fr_1fr_1fr_120px_1fr_40px] sm:items-center">

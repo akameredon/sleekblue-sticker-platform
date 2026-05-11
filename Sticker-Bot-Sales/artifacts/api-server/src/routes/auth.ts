@@ -10,7 +10,7 @@
  */
 import { Router, type IRouter, type Request, type Response, type NextFunction } from "express";
 import { eq } from "drizzle-orm";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { db, schema } from "../lib/db";
 import { signToken, verifyToken, hashPassword, verifyPassword, extractToken } from "../lib/auth";
 
