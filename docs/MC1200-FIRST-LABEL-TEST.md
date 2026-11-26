@@ -1,6 +1,6 @@
 # MC1200 first-label acceptance test
 
-<badge>PHYSICAL TEST PASSED — operator-confirmed 2026-11-26</badge>
+**PHYSICAL TEST PASSED — operator-confirmed 2026-11-26**
 
 The operator confirmed that the sample exported, opened in CorelDRAW, was prepared in SignMaster 3.5 Basic, the MC1200 CCD camera read the registration marks, and the cutter successfully completed the contour cut. This validates the first artwork-to-cutter milestone. Exact measured trim tolerance, stock/finish, print profile and cut settings were not supplied, so those remain production-record fields for the complete test order.
 
