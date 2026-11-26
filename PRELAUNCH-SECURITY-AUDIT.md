@@ -6,7 +6,7 @@
 
 ## Critical findings observed in the current main application code
 
-1. **Admin API routes lack an authorization gate.** The current `artifacts/api-server/src/routes/admin.ts` defines analytics, customer, order, product and shop-settings endpoints without applying the existing `requireAdmin` middleware from `routes/auth.ts`. These endpoints can expose business/customer data and permit privileged changes if deployed as-is.
+1. **Admin API routes lacked an authorization gate on main.** This branch now applies the existing `requireAdmin` middleware to the admin router, sends the admin JWT from the dashboard and hides admin links from non-admin customers. This change still needs CI and role-based tests before it can be treated as verified.
 
 2. **Order listing exposes customer data.** `GET /orders` in `routes/orders.ts` returns recent order details, including customer name, phone, address, order items and artwork URLs, without authentication.
 
@@ -24,7 +24,7 @@
 
 ## Product and commercial readiness
 
-- The current sticker image generator calls DALL·E 3. That is not a free-first design workflow and can incur API charges. The new design studio route avoids this dependency.
+- The previous sticker image generator and OpenAI/voice chat routes were unmounted in this branch so the free-first MVP does not invoke those paid AI endpoints. Their source files remain in the repository but are no longer mounted by the API router.
 - Current default pricing values in `lib/pricing.ts` are not validated against Sleekblue's wholesale cost sheet. Do not publish or accept them as approved prices.
 - The new public/private choice is currently stored only in the browser's local draft. It is not a server-side permission setting and does not publish to a shared gallery yet.
 - The design studio produces a watermarked preview, not a production PDF. It does not guarantee CMYK profile, bleed, safe area, vector text, or a cutter-ready path.
@@ -34,7 +34,7 @@
 
 ## Required release gates
 
-- [ ] Gate all admin endpoints with server-side admin authorization; test anonymous, customer and admin roles.
+- [x] Add server-side admin authorization to the admin router and send the admin JWT from the dashboard (this branch); test anonymous, customer and admin roles in CI before merge.
 - [ ] Restrict order reads to the owner/admin; remove sequential-ID disclosure.
 - [ ] Enforce private object-storage ACLs and test cross-customer access denial.
 - [ ] Recalculate and validate all prices server-side.
