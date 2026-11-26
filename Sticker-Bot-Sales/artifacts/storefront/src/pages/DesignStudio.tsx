@@ -221,7 +221,7 @@ export function GeneratePage() {
 
   const placeOrderAndPay = async () => {
     setNotice("");
-    if (customerName.trim().length < 2 || customerPhone.replace(/\\D/g, "").length < 10 || !customerEmail.trim()) {
+    if (customerName.trim().length < 2 || customerPhone.replace(/\D/g, "").length < 10 || !customerEmail.trim()) {
       setNotice("Enter your name, a valid phone number and email to continue to secure payment.");
       return;
     }
