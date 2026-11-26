@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatNGN } from "@/lib/format";
+import { apiUrl } from "@/lib/paths";
 import { Search, Package, MessageCircle } from "lucide-react";
 import { format } from "date-fns";
 
@@ -22,6 +23,7 @@ export function TrackPage() {
   const [reference, setReference] = useState("");
   const [phone, setPhone] = useState("");
   const [submitErr, setSubmitErr] = useState<string | null>(null);
+  const [paymentBusy, setPaymentBusy] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -48,6 +50,37 @@ export function TrackPage() {
   };
 
   const statusInfo = order ? STATUS_LABEL[order.status] ?? { label: order.status, tone: "bg-muted text-foreground" } : null;
+
+  const retryPayment = async () => {
+    if (!order?.customerEmail || !order.customerPhone || paymentBusy) return;
+    setPaymentBusy(true);
+    setSubmitErr(null);
+    try {
+      const response = await fetch(apiUrl("/payments/initialize"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: order.id,
+          customerEmail: order.customerEmail,
+          customerPhone: order.customerPhone,
+        }),
+      });
+      const payment = await response.json();
+      if (!response.ok) throw new Error(payment.error || "Could not restart payment.");
+      try {
+        sessionStorage.setItem("labelflow-pending-payment", JSON.stringify({
+          reference: payment.reference,
+          phone: order.customerPhone,
+          orderReference: order.reference,
+        }));
+      } catch { /* payment can continue without session storage */ }
+      window.location.assign(payment.authorizationUrl);
+    } catch (error) {
+      setSubmitErr(error instanceof Error ? error.message : "Could not restart payment.");
+    } finally {
+      setPaymentBusy(false);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 md:px-6 md:py-16">
@@ -138,6 +171,11 @@ export function TrackPage() {
           </div>
 
           <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+            {order.status === "pending_payment" && order.customerEmail ? (
+              <Button className="flex-1" size="lg" onClick={retryPayment} disabled={paymentBusy}>
+                {paymentBusy ? "Opening payment…" : "Retry secure payment"}
+              </Button>
+            ) : null}
             <a
               href={order.whatsappUrl}
               target="_blank"
