@@ -16,7 +16,7 @@ const NAV = [
   { href: "/quick-order", label: "Quick Order" },
   { href: "/track", label: "Track" },
   { href: "/chat", label: "AI Chat" },
-  { href: "/generate", label: "AI Design" },
+  { href: "/generate", label: "Design stickers" },
   { href: "/batch", label: "Batch Quote" },
 ];
 
