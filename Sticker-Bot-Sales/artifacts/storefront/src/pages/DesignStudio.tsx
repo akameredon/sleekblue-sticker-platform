@@ -163,8 +163,8 @@ export function GeneratePage() {
 
   const design = useMemo<Template>(() => ({
     ...(TEMPLATES.find((t) => t.id === templateId) ?? TEMPLATES[0]),
-    brand, product, tagline, color, accent, shape,
-  }), [templateId, brand, product, tagline, color, accent, shape]);
+    brand, product, tagline: includeTagline ? tagline : "", color, accent, shape,
+  }), [templateId, brand, product, tagline, includeTagline, color, accent, shape]);
 
   useEffect(() => {
     try {
@@ -379,7 +379,7 @@ export function GeneratePage() {
       const artworkObjectPath = securedArtwork.objectPath ?? uploadDetails.objectPath;
 
       const designNotes = JSON.stringify({
-        templateId, brand, product, tagline, printPhone: includePrintPhone ? printPhone : "", printSocials: includePrintSocials ? printSocials : "", printWebsite: includePrintWebsite ? printWebsite : "", includeTagline, includePrintPhone, includePrintSocials, includePrintWebsite, logoFilename: logoFile?.name ?? null, color, accent, shape,
+        templateId, brand, product, tagline: includeTagline ? tagline : "", printPhone: includePrintPhone ? printPhone : "", printSocials: includePrintSocials ? printSocials : "", printWebsite: includePrintWebsite ? printWebsite : "", includeTagline, includePrintPhone, includePrintSocials, includePrintWebsite, logoFilename: logoFile?.name ?? null, color, accent, shape,
         widthMm: Number(width), heightMm: Number(height), quantity: Number(quantity),
         visibilityPreference: visibility,
         artworkObjectPath,
@@ -633,7 +633,7 @@ export function GeneratePage() {
             </div>
             <div className="mt-4 grid grid-cols-2 gap-2">
               <Button variant="outline" onClick={saveDraft} className="gap-2"><Save className="h-4 w-4"/> Save draft</Button>
-              <Button variant="outline" onClick={() => { selectTemplate(TEMPLATES[0]); setBrand(""); setProduct(""); setTagline(""); setPrintPhone(""); setPrintSocials(""); setPrintWebsite(""); setWidth("50"); setHeight("50"); setQuantity("100"); setNotice("Started a new blank label."); }} className="gap-2"><RotateCcw className="h-4 w-4"/> Reset</Button>
+              <Button variant="outline" onClick={() => { selectTemplate(TEMPLATES[0]); setBrand(""); setProduct(""); setTagline(""); setPrintPhone(""); setPrintSocials(""); setPrintWebsite(""); setIncludePrintPhone(false); setIncludePrintSocials(false); setIncludePrintWebsite(false); setIncludeTagline(false); setLogoFile(null); setWidth("50"); setHeight("50"); setQuantity("100"); setNotice("Started a new blank label."); }} className="gap-2"><RotateCcw className="h-4 w-4"/> Reset</Button>
             </div>
             <Button onClick={downloadPreview} variant="secondary" className="mt-2 w-full gap-2"><Download className="h-4 w-4"/> Download preview</Button>
             <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3">
