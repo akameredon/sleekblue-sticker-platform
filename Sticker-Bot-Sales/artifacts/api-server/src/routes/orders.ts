@@ -69,8 +69,19 @@ router.post("/orders", async (req, res) => {
     return;
   }
   const body = parsed.data;
-  if (body.customerName.trim().length < 2 || body.customerPhone.replace(/\D/g, "").length < 10) {
-    res.status(400).json({ error: "Enter a name and a valid phone number with at least 10 digits." });
+  if (
+    body.customerName.trim().length < 2 ||
+    body.customerName.length > 100 ||
+    body.customerPhone.replace(/\D/g, "").length < 10 ||
+    (body.customerEmail !== undefined && body.customerEmail.length > 254) ||
+    (body.notes !== undefined && body.notes.length > 4000) ||
+    body.items.length > 10
+  ) {
+    res.status(400).json({ error: "Check your contact details and order information." });
+    return;
+  }
+  if (body.items.some((item) => !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 100000)) {
+    res.status(400).json({ error: "Each order quantity must be a whole number between 1 and 100,000." });
     return;
   }
   if (body.deliveryMethod && body.deliveryMethod.toLowerCase() !== "pickup") {
