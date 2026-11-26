@@ -462,7 +462,7 @@ export function GeneratePage() {
               </div>
               <div className="mt-3 flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Estimated order total</span>
-                <strong>{retailEstimate == null ? "Manual quote" : `₦${(retailEstimate * quantityNumber).toLocaleString("en-NG")}`}</strong>
+                <strong>{retailEstimate == null ? "Manual quote" : `₦${(retailEstimate).toLocaleString("en-NG")}`}</strong>
               </div>
               <Button onClick={placeOrderAndPay} disabled={checkoutBusy || retailEstimate == null} className="mt-3 w-full gap-2">
                 {checkoutBusy ? "Preparing secure checkout…" : "Create order & pay securely"}
