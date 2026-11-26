@@ -46,6 +46,37 @@ router.post("/storage/uploads/request-url", requireAuth, async (req: Request, re
 });
 
 /**
+ * POST /storage/uploads/complete
+ *
+ * Finalize an upload by assigning a private ACL to the authenticated owner's
+ * user-scoped upload path. Call only after the browser's PUT upload succeeds.
+ */
+router.post("/storage/uploads/complete", requireAuth, async (req: Request, res: Response) => {
+  const userId = (req as Request & { user: { id: number } }).user.id;
+  const objectPath = typeof req.body?.objectPath === "string" ? req.body.objectPath : "";
+  const ownerPrefix = `/objects/uploads/${userId}/`;
+  if (!objectPath.startsWith(ownerPrefix) || objectPath.includes("..")) {
+    res.status(400).json({ error: "Invalid upload path" });
+    return;
+  }
+
+  try {
+    const securedPath = await objectStorageService.trySetObjectEntityAclPolicy(objectPath, {
+      owner: String(userId),
+      visibility: "private",
+    });
+    res.json({ objectPath: securedPath, visibility: "private" });
+  } catch (error) {
+    if (error instanceof ObjectNotFoundError) {
+      res.status(404).json({ error: "Uploaded object not found" });
+      return;
+    }
+    req.log.error({ err: error }, "Error finalizing private upload");
+    res.status(500).json({ error: "Failed to finalize upload" });
+  }
+});
+
+/**
  * GET /storage/public-objects/*
  *
  * Serve public assets from PUBLIC_OBJECT_SEARCH_PATHS.
