@@ -14,6 +14,7 @@
  *  6. If payment fails, frontend shows WhatsApp fallback link
  */
 import { Router, type IRouter } from "express";
+import { randomBytes } from "crypto";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "../lib/db";
@@ -72,7 +73,7 @@ router.post("/payments/initialize", async (req, res) => {
 
   try {
     // Paystack reference must be unique — use order reference
-    const paystackRef = `PS-${order.reference}`;
+    const paystackRef = `PS-${order.reference}-${randomBytes(4).toString("hex").toUpperCase()}`;
     const payData = await initializePayment(
       Number(order.total),
       customerEmail,
