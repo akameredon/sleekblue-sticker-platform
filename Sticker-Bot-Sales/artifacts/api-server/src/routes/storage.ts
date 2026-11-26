@@ -43,7 +43,7 @@ router.post("/storage/uploads/request-url", requireAuth, async (req: Request, re
       res.status(415).json({ error: "Supported artwork formats: PNG, JPG, WEBP, SVG, PDF and AI/EPS." });
       return;
     }
-    if (name.length > 180 || name.includes("/") || name.includes("\\\\")) {
+    if (name.length > 180 || name.includes("/") || name.includes("\\")) {
       res.status(400).json({ error: "Invalid artwork filename." });
       return;
     }
