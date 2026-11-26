@@ -62,3 +62,18 @@ Rounds 3–5 have not yet been answered. Do not infer or implement decisions abo
 
 **Round 3 experience principle:** Keep sizing visual and straightforward: present recommended sizes in millimetres, allow custom dimensions and quantities, show a flat proportionate preview, and make clear that custom die-cut outlines require approval.
 
+## Round 4 — Artwork generation and editing (confirmed)
+
+1. **Generation workflow:** Generate an artwork prompt for the customer to use elsewhere; do not generate the artwork inside this app as the selected workflow.
+2. **Prompt inputs:** Use the selected reference's visual style, business details and uploaded logo.
+3. **Initial design options:** Provide prompts for 3 design options.
+4. **Reference treatment:** Use the Pinterest reference as visual-style inspiration to create original artwork; never copy the reference.
+5. **Sticker text:** AI arranges the business and product details; the customer can edit the text.
+6. **Uploaded logo:** Use the logo as supplied; do not redesign or distort it.
+7. **Languages:** English by default, while allowing the customer to enter another language.
+8. **Preview:** Flat, front-facing sticker artwork only; no product or lifestyle mockups.
+9. **Editing:** Customers can edit text, colours and layout, then regenerate.
+10. **Approval:** Customer approval of the final artwork is required before checkout.
+
+**Round 4 experience principle:** The app prepares clear, usable prompts rather than generating images itself. It should preserve supplied logos, encourage original designs inspired by references, offer three design directions, and support a customer review/edit/approval step before checkout.
+
