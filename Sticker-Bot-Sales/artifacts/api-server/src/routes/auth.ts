@@ -20,13 +20,13 @@ const router: IRouter = Router();
 
 const RegisterBody = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
-  email: z.email("Invalid email"),
+  email: z.string().email("Invalid email"),
   phone: z.string().min(7, "Invalid phone").max(20),
   password: z.string().min(8, "Password must be at least 8 characters").max(128),
 });
 
 const LoginBody = z.object({
-  email: z.email("Invalid email"),
+  email: z.string().email("Invalid email"),
   password: z.string().min(1, "Password required"),
 });
 
