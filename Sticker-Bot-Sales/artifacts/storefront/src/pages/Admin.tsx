@@ -22,7 +22,7 @@ import { authHeaders } from "@/lib/auth";
 import {
   BarChart2, ChevronLeft, ExternalLink, Package, ShoppingBag,
   TrendingUp, Users, Zap, MessageSquare, Bot, Settings,
-  CheckCircle2, Edit2, Trash2, Plus, Save, X,
+  CheckCircle2, Edit2, Trash2, Plus, Save, X, Printer,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -199,6 +199,7 @@ export function AdminPage() {
         <div>
           <h1 className="font-serif text-2xl font-semibold md:text-3xl">Studio Dashboard</h1>
           <p className="text-xs text-muted-foreground">Full-stack operations · AI sales · WhatsApp CRM</p>
+          <Link href="/admin/production-artwork" className="mt-2 inline-flex items-center gap-2 text-xs font-semibold text-primary hover:underline"><Printer className="h-3.5 w-3.5"/> Production artwork exporter</Link>
         </div>
       </header>
 
