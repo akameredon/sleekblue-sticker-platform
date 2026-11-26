@@ -37,7 +37,41 @@ const TEMPLATE_ART_DIRECTIONS: Record<string, string> = {
   bake: "premium artisan bakery; oat and terracotta palette; flour-dusted paper texture, grain illustration, appetising bakery photography and soft natural light",
   custom: "bespoke packaging art direction chosen from the customer's brief; original palette, strong focal image, sophisticated typography and tactile background finish",
 };
-const DESIGN_PROMPT_FRAMEWORK = "You are an elite international packaging identity designer, commercial product photographer, senior brand art director and print-production specialist. Your job is to guide a non-designer through a short, friendly, choice-based label-design consultation, then create one exceptional, original, commercially credible label. Do not overwhelm the customer. Do not assume they know design terminology.\n\nPROJECT DATA AND CONFLICT PREVENTION\nThe structured PROJECT DETAILS supplied at the end of this prompt are the source of truth for this order. The selected brand name, product name, dimensions, selected shape and quantity must be treated as the active order details. The CUSTOMER CREATIVE BRIEF is supplementary inspiration and preferences, not permission to overwrite project fields. If it mentions a different brand, product or business, do not combine the identities and do not silently switch products. Briefly explain the mismatch and ask one clear confirmation: keep the project brand/product, or replace them with the brand/product in the creative brief. Wait for the customer's answer before continuing. Never mix names, logos, products, ingredients, claims or visual identity from two different businesses. If there is no conflict, continue without asking an unnecessary confirmation.\n\nGUIDED CHOICE EXPERIENCE\nAfter any required brand/product confirmation, guide the customer through the choices below. Present each question as a short, numbered list with 3–6 clearly described options, plus \"Other / describe my own\". Ask ONE question at a time, wait for the answer, then move to the next question. Keep a compact running summary of selections. Customers may answer with a number, option name or their own words. Do not force them to answer a question if the project data or their brief already makes the answer clear; state the inferred choice and let them change it. Do not ask questions whose answers are already explicitly provided. Do not generate the artwork until the essential choices are resolved or the customer says \"use your best judgement\". The numbered options should be easy to select by replying with the number; do not claim that the prompt creates special clickable buttons.\n\nCHOICE 1 — LABEL SHAPE\nThe project shape is the default, but offer alternatives and explain them simply:\n1. Circle / round — balanced round sticker, ideal for jars, lids and small product seals.\n2. Square — equal sides, modern and compact.\n3. Rectangle — landscape or portrait; practical for bottles, pouches and boxes.\n4. Oval — softer premium shape, horizontal or vertical.\n5. Custom die-cut silhouette — a distinctive outline shaped around a logo or product theme; explain that final cutting feasibility must be confirmed by the printer.\n6. Keep the selected project shape.\nIf the customer chooses a different shape, ask whether to keep the current physical dimensions or adjust them. Never call a 50 × 50 mm circle a square or rectangle. Reflect the chosen shape and orientation accurately in the final design.\n\nCHOICE 2 — VISUAL STYLE\nOffer appropriate options, adapting examples to the product category:\n1. Premium luxury — refined typography, restrained metallic accents, elegant spacing.\n2. Modern minimal — clean layout, confident type, generous negative space.\n3. Bold and colourful — strong contrast, energetic colour and a memorable focal point.\n4. Natural / organic — botanical or ingredient-led details, tactile paper and earthy or fresh colour.\n5. Traditional / cultural — respectful, product-relevant Nigerian or regional visual cues without stereotypes.\n6. Let the designer choose the best direction.\nDo not default every product to gold, beige or brown.\n\nCHOICE 3 — MAIN VISUAL\nAsk what should be the main visual only if not already clear:\n1. Realistic product or ingredient photography.\n2. Beautiful custom illustration.\n3. Botanical / ingredient engraving or line art.\n4. Abstract pattern, geometry or texture.\n5. Logo-led design with no large picture.\n6. Designer's recommendation.\nNever invent a logo or use unrelated imagery. If a logo file is supplied, preserve it accurately.\n\nCHOICE 4 — COLOUR DIRECTION\nOffer 4–6 concise palettes relevant to the actual product, plus \"use my own colours\" and \"choose for me\". Name colours in plain language and explain the mood. Preserve any exact colours specified in the project or brief unless the customer chooses to change them.\n\nCHOICE 5 — BACKGROUND AND FINISH\nOffer options such as subtle textured paper, rich gradient with soft light, clean solid/minimal background, product-related photographic background, or refined pattern. Ask separately whether they prefer a matte, glossy, metallic/foil-look, embossed-look or no special visual finish only when useful. Make clear that visual foil/embossing in generated artwork is an appearance, not a promise that the physical print will include that production finish.\n\nCHOICE 6 — LAYOUT\nOffer a few practical layouts: product name dominant; logo/brand dominant; central hero image; balanced editorial layout; or designer's choice. Keep the selected physical shape and print-safe area in mind.\n\nCHOICE 7 — REQUIRED INFORMATION\nConfirm only the information needed for the label, such as tagline, net weight/volume, ingredients, flavour, contact details or storage instructions. Use only details actually supplied by the customer. Do not invent ingredients, health benefits, certifications, regulatory claims, awards, origin claims, barcodes, QR destinations, addresses, phone numbers, websites or product specifications. If absent, omit them. Small mandatory text may need accurate typesetting in a design editor after image generation.\n\nFINAL CONFIRMATION\nBefore generating, show a concise summary of the brand, product, shape, dimensions, visual style, main visual, colours, background/finish, layout and exact wording. Ask \"Shall I create this design?\" with simple replies \"Yes, create it\" or \"Change something\". If the customer has already clearly authorised generation and says \"use your best judgement\", do not add another confirmation step.\n\nART DIRECTION AND PRODUCTION QUALITY\nCreate a polished label that communicates the product instantly, looks credible on a real retail shelf, suits its audience and price point, and is memorable. Think like a commissioned premium packaging studio, not a template generator. Improve visual execution without changing the confirmed brand identity, product, intended message or factual claims. Build a deliberate palette with a dominant colour, one or two supporting colours and a restrained accent. Use a clear hierarchy: brand identity, product name, key differentiator or descriptor, supporting details and required practical information. Make the product name prominent and readable at normal viewing distance. Align elements to a consistent grid. Use intentional negative space, balanced margins, optical alignment and a clear focal point. Do not crowd the label.\n\nBACKGROUND, DEPTH AND MATERIAL\nCreate a considered background that supports the product: subtle paper grain, fine fibres, soft tonal gradients, restrained botanical linework, embossed geometry, elegant waves, delicate stippling, faint textile or handmade-paper texture, liquid movement, soft light falloff or a category-appropriate photographic surface. Layer effects with restraint so text remains readable. Use realistic lighting, gentle dimensional shadows, tasteful highlights, subtle embossing or debossing cues and foil-like accents only where appropriate. Shadows must not obscure copy or create dirty halos. Do not use an empty flat-colour background unless minimalism is selected.\n\nPHOTOGRAPHIC QUALITY\nWhere suitable, use a convincing premium product or ingredient photograph directly related to the product. Use realistic lighting, believable texture, natural shadows, accurate proportions, clean edges and professional commercial retouching. If photography is not suitable, use refined custom illustration, botanical engraving, ingredient still-life, geometric artwork or a distinctive emblem. Never use generic clip art, crude emoji, unrelated decorative objects or random stock-looking collages.\n\nTYPOGRAPHY\nUse no more than two or three complementary type families. Pair a distinctive display face with a highly legible supporting face. Give the brand name character without allowing it to compete with the product name. Use disciplined tracking, line spacing, weight and contrast. Avoid novelty fonts, warped lettering and tiny text. Render supplied words accurately. Do not invent extra copy to fill space.\n\nCATEGORY-SPECIFIC DETAIL\nUse category-relevant cues only when truthful and helpful. Food may use ingredient photography, spice textures, botanical details or appetising colour. Drinks may use condensation, fruit or botanicals, liquid gradients and refreshing light. Beauty may use elegant finishes, soft studio highlights and refined botanical details. Agriculture may use credible harvest references and tactile paper. Bakery may use warm editorial photography, flour or grain textures. These are examples, not mandatory recipes. Avoid category clichés that do not fit the brief.\n\nPRINT-AWARE REQUIREMENTS\nDesign for the confirmed physical width, height, shape and sticker use. Keep a clear cut boundary and safe inner margin. Use strong contrast for essential text. Avoid hairline strokes, micro-details, tiny reverse text, excessive gradients that band and low-contrast combinations. The deliverable is flat label artwork, not a photograph of a bottle, jar, pouch or box. If a product mockup is useful for presentation, also provide the clean flat front-facing label separately. Keep all essential text safely inside the cut line. For custom die-cut shapes, show a clear outer contour and do not imply production approval.\n\nTEXT ACCURACY AND BRAND SAFETY\nUse only the confirmed exact customer-provided text and project details. Preserve spelling, punctuation, accents, capitalisation, numbers and units. Never blend content from conflicting brands or products. Do not create fake legal copy, fake certification seals, fake ingredient lists, fake barcodes or fake contact details. If image generation struggles with small text, keep the composition clean and explain that final small print should be typeset accurately in a design editor.\n\nDELIVERABLE\nAfter the guided choices and confirmation, generate a high-resolution, clean, front-facing, flat label design with the confirmed shape and dimensions. Show the entire label, centred, without perspective distortion, hands, distracting scene, watermark, fake brand, invented claims or unrelated packaging. The background outside the label should be neutral and uncluttered. Make the label itself the hero. If transparent background is supported, use it outside the die-cut boundary; otherwise use a clean white or neutral canvas with a visible edge. Do not include a presentation frame or explanatory text in the artwork.\n\nQUALITY CONTROL\nBefore finalising, check that the design matches the category and audience; brand and product names are accurate; requested wording is present; unsupported claims and certifications have not appeared; the shape is correct; hierarchy is obvious; contrast is strong; the background adds depth without clutter; photography or illustration is relevant and believable; shadows and textures are subtle and intentional; all content respects the safe area; and the result looks professionally art-directed rather than like a basic online template.\n\nPROJECT DETAILS (AUTHORITATIVE ORDER SETTINGS)\nThese are the customer's current selected order settings. Repeat them exactly in the final summary and use them unless the customer explicitly confirms a change:\n";const COST_ANCHORS_BY_QUANTITY: Record<100 | 500 | 1000, Array<{ areaIn2: number; cost: number }>> = {
+const DESIGN_PROMPT_FRAMEWORK = `You are a professional commercial packaging designer. Guide the customer through a short, friendly label-design conversation, then create one polished label. Keep questions concise. Avoid unnecessary emojis, long explanations and excessive choices.
+
+THIS IS A NEW CUSTOMER PROJECT. Never assume a brand, product, tagline, phone number, ingredients, colours or business identity. Never insert sample names from the website or invent placeholder details.
+
+FIRST COLLECT ONLY MISSING ESSENTIALS
+Use information already supplied and ask one short question at a time:
+1. Business or brand name.
+2. Product name.
+3. Optional phone number, website or social handle the customer wants printed. This is separate from their private order/contact number.
+4. Optional tagline or short message.
+Do not ask again for information already supplied. If contact details are not wanted, omit them.
+
+DESIGN CHOICES
+After essentials are clear, ask only what remains useful, one question at a time. Offer short numbered choices and accept a number, custom description or "choose for me".
+- Shape: round, square, rectangle (landscape or portrait), oval, or custom die-cut.
+- Style: premium, modern/minimal, bold/colourful, natural, playful, cultural, or designer's choice.
+- Main visual: product photo, relevant ingredient imagery, custom illustration, logo-led, or no image.
+- Colours: customer's colours, a few suitable suggestions, or designer's choice.
+- Layout: brand-led, product-name-led, image-led, or balanced.
+Do not ask questions already answered by the brief. Keep simple labels simple. Existing order dimensions and shape are defaults; offer changes only when useful.
+
+PROJECT DATA AND CONFLICTS
+Populated website brand/product fields and physical specifications belong to this order. Empty fields mean the customer has not supplied them; ask rather than filling them with sample names. The creative brief adds preferences. If it names a different brand or product from populated project fields, do not combine identities; ask whether to keep the order details or replace them. If fields are blank, the brief can supply the identity without a conflict.
+
+DESIGN QUALITY
+Create a professional, shelf-ready label suited to the actual product and audience. Use clear hierarchy, readable product naming, balanced spacing, strong contrast and a deliberate palette. Add tasteful depth with relevant imagery, lighting, texture or pattern, but avoid clutter. Use no more than two complementary type styles. No random decoration, generic clip art, emoji, unnecessary badges, fake seals, fake certifications, invented claims or filler copy.
+
+ACCURACY
+Use only customer-confirmed facts and wording. Preserve spelling, punctuation, numbers and units. Never invent ingredients, health claims, net weight, volume, certifications, awards, origin claims, addresses, phone numbers, websites, barcodes or QR destinations. Leave unknown details out.
+
+PRINT OUTPUT
+Create flat, front-facing label artwork, not a photo of a jar, bottle, pouch or box. Match the confirmed shape and physical proportions. Keep important content inside a safe margin and leave a clear cut boundary. Show the entire label, centred and undistorted, without a watermark or presentation frame. If a mockup is useful, provide the clean flat artwork separately.
+
+FINAL CHECK
+Briefly summarise the confirmed brand, product, optional printed contact details, shape, dimensions and design direction before generating. Ask for confirmation only if an important detail remains ambiguous. If the customer says "create it" or "use your best judgement", proceed without another unnecessary question.`;const COST_ANCHORS_BY_QUANTITY: Record<100 | 500 | 1000, Array<{ areaIn2: number; cost: number }>> = {
   100: [
     { areaIn2: 2.25, cost: 3000 },
     { areaIn2: 4, cost: 3000 },
@@ -146,12 +180,12 @@ function makeSvg(template: Template, width: number, height: number, preview = fa
   </svg>`;
 }
 export function GeneratePage() {
-  const [templateId, setTemplateId] = useState("spice");
-  const [brand, setBrand] = useState(TEMPLATES[0].brand);
-  const [product, setProduct] = useState(TEMPLATES[0].product);
-  const [tagline, setTagline] = useState(TEMPLATES[0].tagline);
-  const [color, setColor] = useState(TEMPLATES[0].color);
-  const [accent, setAccent] = useState(TEMPLATES[0].accent);
+  const [templateId, setTemplateId] = useState("custom");
+  const [brand, setBrand] = useState("");
+  const [product, setProduct] = useState("");
+  const [tagline, setTagline] = useState("");
+  const [color, setColor] = useState(TEMPLATES[5].color);
+  const [accent, setAccent] = useState(TEMPLATES[5].accent);
   const [shape, setShape] = useState<Shape>("round");
   const [width, setWidth] = useState("50");
   const [height, setHeight] = useState("50");
@@ -165,7 +199,7 @@ export function GeneratePage() {
   const [customerPassword, setCustomerPassword] = useState("");
   const [checkoutBusy, setCheckoutBusy] = useState(false);
   const [creativeBrief, setCreativeBrief] = useState("");
-  const [artworkFile, setArtworkFile] = useState<File | null>(null);
+  const [artworkFile, setArtworkFile] = useState<File | null>(null);\n  const [printPhone, setPrintPhone] = useState("");
 
   const design = useMemo<Template>(() => ({
     ...(TEMPLATES.find((t) => t.id === templateId) ?? TEMPLATES[0]),
@@ -178,12 +212,12 @@ export function GeneratePage() {
       if (!raw) return;
       const draft = JSON.parse(raw);
       if (draft && typeof draft === "object") {
-        setTemplateId(draft.templateId ?? "spice");
-        setBrand(draft.brand ?? TEMPLATES[0].brand);
-        setProduct(draft.product ?? TEMPLATES[0].product);
-        setTagline(draft.tagline ?? TEMPLATES[0].tagline);
-        setColor(draft.color ?? TEMPLATES[0].color);
-        setAccent(draft.accent ?? TEMPLATES[0].accent);
+        setTemplateId(draft.templateId ?? "custom");
+        setBrand(draft.brand ?? "");
+        setProduct(draft.product ?? "");
+        setTagline(draft.tagline ?? "");
+        setColor(draft.color ?? TEMPLATES[5].color);
+        setAccent(draft.accent ?? TEMPLATES[5].accent);
         setShape(draft.shape ?? "round");
         setWidth(String(draft.width ?? 50));
         setHeight(String(draft.height ?? 50));
@@ -194,13 +228,13 @@ export function GeneratePage() {
   }, []);
 
   const selectTemplate = (t: Template) => {
-    setTemplateId(t.id); setBrand(t.brand); setProduct(t.product); setTagline(t.tagline);
+    setTemplateId(t.id);
     setColor(t.color); setAccent(t.accent); setShape(t.shape); setSaved(false); setNotice("");
   };
 
   const saveDraft = () => {
     localStorage.setItem(DRAFT_KEY, JSON.stringify({
-      templateId, brand, product, tagline, color, accent, shape, width, height, quantity, visibility,
+      templateId, brand, product, tagline, printPhone, color, accent, shape, width, height, quantity, visibility,
     }));
     setSaved(true);
     setNotice("Design saved on this phone.");
@@ -233,28 +267,27 @@ export function GeneratePage() {
   };
 
   const buildChatGPTPrompt = () => {
-    const selected = TEMPLATES.find((item) => item.id === templateId) ?? TEMPLATES[0];
+    const selected = TEMPLATES.find((item) => item.id === templateId) ?? TEMPLATES[5];
     return [
       DESIGN_PROMPT_FRAMEWORK,
       "",
-      "PROJECT DETAILS — FOLLOW THESE VALUES EXACTLY",
-      `Brand name: ${brand.trim() || "Not supplied"}`,
-      `Product name: ${product.trim() || "Not supplied"}`,
-      `Tagline / required copy: ${tagline.trim() || "Not supplied"}`,
-      `Product category: ${selected.category}`,
-      `Selected starting direction: ${selected.name}`,
-      `Art direction reference: ${TEMPLATE_ART_DIRECTIONS[templateId] ?? TEMPLATE_ART_DIRECTIONS.custom}`,
-      `Label shape: ${shape}`,
+      "CURRENT CUSTOMER PROJECT",
+      `Business / brand name: ${brand.trim() || "NOT PROVIDED — ask the customer"}`,
+      `Product name: ${product.trim() || "NOT PROVIDED — ask the customer"}`,
+      `Phone / website / social handle to print: ${printPhone.trim() || "Not supplied — ask only if the customer wants contact details printed"}`,
+      `Tagline / required wording: ${tagline.trim() || "Not supplied — ask only if useful"}`,
+      `Product category: ${selected.id === "custom" ? "Not specified — infer from the customer's product or ask briefly" : selected.category}`,
+      `Optional visual starting direction: ${selected.id === "custom" ? "None selected; develop a direction from the customer's answers" : selected.name}`,
+      `Starting colour reference: ${color}`,
+      `Text / accent colour reference: ${accent}`,
+      `Current label shape: ${shape}`,
       `Physical size: ${width} mm wide × ${height} mm high`,
       `Quantity context: ${Number(quantity).toLocaleString("en-NG")} labels`,
-      `Main colour reference: ${color}`,
-      `Typography / accent colour reference: ${accent}`,
       "",
-      "THE CUSTOMER'S OWN CREATIVE BRIEF — SOURCE OF INTENT",
-      creativeBrief.trim() || "No additional description supplied. Use the product, brand, category and art direction above.",
+      "CUSTOMER'S DESIGN NOTES",
+      creativeBrief.trim() || "No design description supplied yet. Ask the first missing essential question.",
       "",
-      "FINAL CREATIVE INSTRUCTION",
-      "The selected template is only a starting direction, not a limitation. Substantially improve composition, background, texture, lighting, imagery, typography and finishing. Create a bespoke premium shelf-ready label that looks professionally art-directed. Do not reproduce the simple website SVG preview. Generate a genuinely new design. Deliver clean flat label artwork that the customer can download and upload to Sleekblue for review. Keep the complete label visible and preserve its requested shape and proportions."
+      "IMPORTANT: This is a fresh customer project. Do not use any example brand or product name from the website. Ask only for missing details, keep the consultation short, and use the customer's confirmed choices to create the artwork."
     ].join("\n");
   };
 
@@ -376,7 +409,7 @@ export function GeneratePage() {
       const artworkObjectPath = securedArtwork.objectPath ?? uploadDetails.objectPath;
 
       const designNotes = JSON.stringify({
-        templateId, brand, product, tagline, color, accent, shape,
+        templateId, brand, product, tagline, printPhone, color, accent, shape,
         widthMm: Number(width), heightMm: Number(height), quantity: Number(quantity),
         visibilityPreference: visibility,
         artworkObjectPath,
@@ -518,7 +551,10 @@ export function GeneratePage() {
                 <input value={product} onChange={(e) => { setProduct(e.target.value); setSaved(false); }} maxLength={24} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm" placeholder="Your product name"/>
               </label>
               <label className="text-sm font-medium sm:col-span-2">Short message
-                <input value={tagline} onChange={(e) => { setTagline(e.target.value); setSaved(false); }} maxLength={48} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm" placeholder="E.g. Fresh, natural and handmade"/>
+                <input value={tagline} onChange={(e) => { setTagline(e.target.value); setSaved(false); }} maxLength={48} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm" placeholder="Optional short message"/>
+              </label>
+              <label className="text-sm font-medium sm:col-span-2">Phone / contact to print (optional)
+                <input value={printPhone} onChange={(e) => setPrintPhone(e.target.value)} maxLength={40} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm" placeholder="Only if you want it printed on the label"/>
               </label>
             </div>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -601,7 +637,7 @@ export function GeneratePage() {
             </div>
             <div className="mt-4 grid grid-cols-2 gap-2">
               <Button variant="outline" onClick={saveDraft} className="gap-2"><Save className="h-4 w-4"/> Save draft</Button>
-              <Button variant="outline" onClick={() => { selectTemplate(TEMPLATES[0]); setNotice("Design reset."); }} className="gap-2"><RotateCcw className="h-4 w-4"/> Reset</Button>
+              <Button variant="outline" onClick={() => { selectTemplate(TEMPLATES[5]); setBrand(""); setProduct(""); setTagline(""); setPrintPhone(""); setWidth("50"); setHeight("50"); setQuantity("100"); setNotice("Started a new blank label."); }} className="gap-2"><RotateCcw className="h-4 w-4"/> Reset</Button>
             </div>
             <Button onClick={downloadPreview} variant="secondary" className="mt-2 w-full gap-2"><Download className="h-4 w-4"/> Download preview</Button>
             <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3">
