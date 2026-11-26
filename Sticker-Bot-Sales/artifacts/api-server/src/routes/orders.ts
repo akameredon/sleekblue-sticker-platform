@@ -1,4 +1,5 @@
 import { Router, type IRouter } from "express";
+import { randomBytes } from "crypto";
 import { eq } from "drizzle-orm";
 import {
   CreateOrderBody,
@@ -13,7 +14,7 @@ const router: IRouter = Router();
 
 function generateReference(): string {
   const ts = Date.now().toString(36).toUpperCase().slice(-5);
-  const rand = Math.random().toString(36).toUpperCase().slice(2, 6);
+  const rand = randomBytes(4).toString("hex").toUpperCase();
   return `SL-${ts}${rand}`;
 }
 
