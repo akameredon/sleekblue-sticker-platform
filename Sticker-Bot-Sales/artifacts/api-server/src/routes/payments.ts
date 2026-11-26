@@ -49,6 +49,12 @@ router.post("/payments/initialize", async (req, res) => {
     .limit(1);
   if (!order) { res.status(404).json({ error: "Order not found" }); return; }
 
+  // Match the payer to the email supplied with the order where one exists.
+  if (order.customerEmail && order.customerEmail.toLowerCase() !== customerEmail.toLowerCase()) {
+    res.status(403).json({ error: "The payment email does not match this order." });
+    return;
+  }
+
   // Prevent double-payment on confirmed orders
   if (order.status === "confirmed" || order.status === "paid") {
     res.status(409).json({ error: "Order is already paid" });
@@ -131,28 +137,31 @@ router.post("/payments/webhook", async (req, res) => {
     if (event.event !== "charge.success") return;
 
     const reference = event.data.reference;
-    // Verify server-side — never trust webhook data alone
-    const verified = await verifyPayment(reference);
-    if (verified.status !== "success") return;
+    const [payment] = await db
+      .select()
+      .from(schema.payments)
+      .where(eq(schema.payments.paystackReference, reference))
+      .limit(1);
+    if (!payment || payment.status === "success") return;
 
-    // Update payment record
+    // Verify status, reference and exact amount server-side. Never trust
+    // webhook payload alone, and never confirm an underpaid/mismatched order.
+    const verified = await verifyPayment(reference);
+    if (
+      verified.status !== "success" ||
+      verified.reference !== reference ||
+      verified.amount !== Number(payment.amountKobo)
+    ) return;
+
     await db
       .update(schema.payments)
       .set({ status: "success", paidAt: new Date(), webhookPayload: rawBody })
       .where(eq(schema.payments.paystackReference, reference));
 
-    // Update order status to confirmed
-    const [payment] = await db
-      .select({ orderId: schema.payments.orderId })
-      .from(schema.payments)
-      .where(eq(schema.payments.paystackReference, reference))
-      .limit(1);
-    if (payment) {
-      await db
-        .update(schema.orders)
-        .set({ status: "confirmed" })
-        .where(eq(schema.orders.id, payment.orderId));
-    }
+    await db
+      .update(schema.orders)
+      .set({ status: "confirmed" })
+      .where(eq(schema.orders.id, payment.orderId));
   } catch (err) {
     console.error("[Paystack Webhook] Error:", err);
   }
