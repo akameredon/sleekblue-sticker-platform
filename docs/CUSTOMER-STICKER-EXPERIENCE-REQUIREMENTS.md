@@ -92,3 +92,18 @@ Rounds 3–5 have not yet been answered. Do not infer or implement decisions abo
 
 **Round 5 experience principle:** Keep checkout straightforward and transparent. Make the order's approval, payment, production and fulfilment stages clear; do not release an order to production until both artwork approval and payment confirmation are complete.
 
+## Implementation decisions — Question set 1 (confirmed)
+
+1. **External AI handoff:** Provide both a copy-prompt action and direct links to AI image tools.
+2. **Artwork return:** Customers upload finished artwork from their phone or computer.
+3. **Accepted artwork formats:** PNG, JPG/JPEG and PDF.
+4. **Artwork editing:** Customers download artwork, edit it externally, then upload the revised version.
+5. **Reference gallery management:** Staff selects and uploads approved Pinterest-inspired references.
+6. **Materials and finishes:** Staff configures all available material and finish options.
+7. **Pricing administration:** Staff manages prices in an admin panel; the app calculates customer totals.
+8. **Online payment provider:** Paystack.
+9. **Bank-transfer verification:** Customers upload proof of payment; staff manually verifies it before production.
+10. **Order tracking access:** Provide both a private tracking link and a customer account.
+
+**Implementation principle:** Keep the customer workflow straightforward while giving staff control over the reference gallery, available materials/finishes and pricing. External artwork editing is supported through download-and-reupload rather than a complex in-app editor.
+
