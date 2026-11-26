@@ -155,6 +155,11 @@ export function GeneratePage() {
   const [printPhone, setPrintPhone] = useState("");
   const [printSocials, setPrintSocials] = useState("");
   const [printWebsite, setPrintWebsite] = useState("");
+  const [includePrintPhone, setIncludePrintPhone] = useState(false);
+  const [includePrintSocials, setIncludePrintSocials] = useState(false);
+  const [includePrintWebsite, setIncludePrintWebsite] = useState(false);
+  const [includeTagline, setIncludeTagline] = useState(false);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
 
   const design = useMemo<Template>(() => ({
     ...(TEMPLATES.find((t) => t.id === templateId) ?? TEMPLATES[0]),
@@ -174,6 +179,10 @@ export function GeneratePage() {
         setPrintPhone(draft.printPhone ?? "");
         setPrintSocials(draft.printSocials ?? "");
         setPrintWebsite(draft.printWebsite ?? "");
+        setIncludePrintPhone(Boolean(draft.includePrintPhone));
+        setIncludePrintSocials(Boolean(draft.includePrintSocials));
+        setIncludePrintWebsite(Boolean(draft.includePrintWebsite));
+        setIncludeTagline(Boolean(draft.includeTagline));
         setColor(draft.color ?? TEMPLATES[0].color);
         setAccent(draft.accent ?? TEMPLATES[0].accent);
         setShape(draft.shape ?? "round");
@@ -192,7 +201,7 @@ export function GeneratePage() {
 
   const saveDraft = () => {
     localStorage.setItem(DRAFT_KEY, JSON.stringify({
-      templateId, brand, product, tagline, printPhone, printSocials, printWebsite, color, accent, shape, width, height, quantity, visibility,
+      templateId, brand, product, tagline, printPhone, printSocials, printWebsite, includePrintPhone, includePrintSocials, includePrintWebsite, includeTagline, color, accent, shape, width, height, quantity, visibility,
     }));
     setSaved(true);
     setNotice("Design saved on this phone.");
@@ -228,8 +237,9 @@ export function GeneratePage() {
     const selected = TEMPLATES.find((item) => item.id === templateId) ?? TEMPLATES[0];
     const details = [
       ["Business / brand", brand], ["Product", product],
-      ["Printed phone", printPhone], ["Printed social handle", printSocials],
-      ["Printed website", printWebsite], ["Tagline", tagline],
+      ["Printed phone", includePrintPhone ? printPhone : ""], ["Printed social handle", includePrintSocials ? printSocials : ""],
+      ["Printed website", includePrintWebsite ? printWebsite : ""], ["Tagline", includeTagline ? tagline : ""],
+      ["Logo file supplied separately", logoFile?.name ?? ""],
       ["Label shape", shape], ["Finished size", `${width} mm × ${height} mm`],
       ["Quantity", quantity], ["Colour preference", `${color} background, ${accent} text/accent`],
       ["Selected gallery reference", selected.name], ["Visual direction", selected.direction],
@@ -239,6 +249,7 @@ export function GeneratePage() {
       "Create THREE distinct, original sticker artwork concepts from the customer details and selected visual direction. Present them as three separate flat artwork outputs, not a collage.",
       "Ask only for missing essentials, one concise question at a time: business/brand name and product name. If printed phone, social handle, website or tagline fields are blank, ask briefly whether the customer wants any of them printed. Never invent names, contact details, ingredients, claims or certifications.",
       "If information is already supplied, do not ask again. Offer short numbered choices only for unresolved decisions. The customer may say 'choose for me'.",
+      "Only include optional phone, social handle, website and tagline text if the customer has explicitly selected its print checkbox. If a logo file is supplied, use it exactly as provided; do not redraw, distort or recolour it. The customer must attach the logo file in the external AI tool alongside this prompt."
       "Use the selected style direction as inspiration, creating original artwork rather than copying any Pinterest reference. Preserve the confirmed shape and exact physical proportions. Keep all text readable and inside a safe margin. No filler text, emojis, random icons, fake badges or unsupported claims.",
       "Show only flat, front-facing sticker artwork on a plain neutral background. Never show bottles, jars, cups, boxes, packaging, products, hands, scenes or lifestyle mockups. Show the complete sticker, undistorted. Use only confirmed customer details.",
       "", "CUSTOMER PROJECT", ...details,
@@ -297,13 +308,17 @@ export function GeneratePage() {
       setNotice("Enter your name, a valid phone number and email to continue to secure payment.");
       return;
     }
+    if (!brand.trim() || !product.trim()) {
+      setNotice("Business/brand name and product name are required before checkout.");
+      return;
+    }
     if (!artworkFile) {
       setNotice("Download your generated design from ChatGPT and select the artwork file here before checkout.");
       return;
     }
-    const allowedArtworkTypes = new Set(["image/png", "image/jpeg", "image/webp", "image/svg+xml", "application/pdf", "application/postscript"]);
+    const allowedArtworkTypes = new Set(["image/png", "image/jpeg", "application/pdf"]);
     if (artworkFile.size > 20 * 1024 * 1024 || !allowedArtworkTypes.has(artworkFile.type.toLowerCase())) {
-      setNotice("Choose a PNG, JPG, WEBP, SVG, PDF or EPS artwork file up to 20 MB.");
+      setNotice("Choose a PNG, JPG/JPEG or PDF artwork file up to 20 MB.");
       return;
     }
     if (retailEstimate == null) {
@@ -362,7 +377,7 @@ export function GeneratePage() {
       const artworkObjectPath = securedArtwork.objectPath ?? uploadDetails.objectPath;
 
       const designNotes = JSON.stringify({
-        templateId, brand, product, tagline, printPhone, printSocials, printWebsite, color, accent, shape,
+        templateId, brand, product, tagline, printPhone: includePrintPhone ? printPhone : "", printSocials: includePrintSocials ? printSocials : "", printWebsite: includePrintWebsite ? printWebsite : "", includeTagline, includePrintPhone, includePrintSocials, includePrintWebsite, logoFilename: logoFile?.name ?? null, color, accent, shape,
         widthMm: Number(width), heightMm: Number(height), quantity: Number(quantity),
         visibilityPreference: visibility,
         artworkObjectPath,
@@ -497,24 +512,32 @@ export function GeneratePage() {
           <div className="rounded-2xl border border-border p-4 md:p-5">
             <h2 className="font-semibold">2. Put your business details</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <label className="text-sm font-medium">Business name
-                <input value={brand} onChange={(e) => { setBrand(e.target.value); setSaved(false); }} maxLength={32} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm" placeholder="Your business name"/>
+              <label className="text-sm font-medium">Business / brand name <span className="text-destructive">*</span>
+                <input required value={brand} onChange={(e) => { setBrand(e.target.value); setSaved(false); }} maxLength={32} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm" placeholder="Your business name"/>
               </label>
-              <label className="text-sm font-medium">Product name
-                <input value={product} onChange={(e) => { setProduct(e.target.value); setSaved(false); }} maxLength={24} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm" placeholder="Your product name"/>
+              <label className="text-sm font-medium">Product name <span className="text-destructive">*</span>
+                <input required value={product} onChange={(e) => { setProduct(e.target.value); setSaved(false); }} maxLength={24} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm" placeholder="Your product name"/>
               </label>
               <label className="text-sm font-medium sm:col-span-2">Short message
                 <input value={tagline} onChange={(e) => { setTagline(e.target.value); setSaved(false); }} maxLength={48} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm" placeholder="Optional short message"/>
               </label>
-              <label className="text-sm font-medium sm:col-span-2">Phone / contact to print (optional)
-                <input value={printPhone} onChange={(e) => setPrintPhone(e.target.value)} maxLength={40} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm" placeholder="Only if you want it printed on the label"/>
+              <label className="text-sm font-medium sm:col-span-2">Phone / contact (optional)
+                <input value={printPhone} onChange={(e) => setPrintPhone(e.target.value)} maxLength={40} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm" placeholder="Your business phone"/>
+                <span className="mt-1 flex items-center gap-2 text-xs font-normal"><input type="checkbox" checked={includePrintPhone} onChange={(e) => setIncludePrintPhone(e.target.checked)} disabled={!printPhone.trim()}/> Print this phone number on my sticker</span>
               </label>
-              <label className="text-sm font-medium">Social handle to print (optional)
+              <label className="text-sm font-medium">Social handle (optional)
                 <input value={printSocials} onChange={(e) => setPrintSocials(e.target.value)} maxLength={60} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm" placeholder="@yourbusiness"/>
+                <span className="mt-1 flex items-center gap-2 text-xs font-normal"><input type="checkbox" checked={includePrintSocials} onChange={(e) => setIncludePrintSocials(e.target.checked)} disabled={!printSocials.trim()}/> Print this handle</span>
               </label>
-              <label className="text-sm font-medium">Website to print (optional)
+              <label className="text-sm font-medium">Website (optional)
                 <input value={printWebsite} onChange={(e) => setPrintWebsite(e.target.value)} maxLength={100} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm" placeholder="www.yourbusiness.com"/>
+                <span className="mt-1 flex items-center gap-2 text-xs font-normal"><input type="checkbox" checked={includePrintWebsite} onChange={(e) => setIncludePrintWebsite(e.target.checked)} disabled={!printWebsite.trim()}/> Print this website</span>
               </label>
+              <label className="text-sm font-medium sm:col-span-2">Business logo (optional)
+                <input type="file" accept=".png,.jpg,.jpeg,.pdf,image/png,image/jpeg,application/pdf" onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)} className="mt-1.5 block w-full text-xs"/>
+                <span className="mt-1 block text-xs font-normal text-muted-foreground">{logoFile ? "Logo selected. Attach it separately when using the external AI designer." : "You can supply a logo and ask the external designer to use it unchanged."}</span>
+              </label>
+              <label className="flex items-center gap-2 text-sm sm:col-span-2"><input type="checkbox" checked={includeTagline} onChange={(e) => setIncludeTagline(e.target.checked)} disabled={!tagline.trim()}/> Print my short message on the sticker</label>
             </div>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <label className="text-sm font-medium">Main colour
@@ -548,7 +571,7 @@ export function GeneratePage() {
               </label>
               <label className="text-sm font-medium col-span-2">How many?
                 <select value={quantity} onChange={(e) => setQuantity(e.target.value)} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3">
-                  {["20","50","100","250","500","1000","2000","5000","10000","20000","50000","100000"].map((n) => <option key={n} value={n}>{Number(n).toLocaleString("en-NG")} pieces</option>)}
+                  {["50","100","200","500","1000"].map((n) => <option key={n} value={n}>{Number(n).toLocaleString("en-NG")} pieces</option>)}
                 </select>
               </label>
             </div>
