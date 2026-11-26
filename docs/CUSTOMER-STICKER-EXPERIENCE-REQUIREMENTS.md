@@ -152,3 +152,18 @@ Rounds 3–5 have not yet been answered. Do not infer or implement decisions abo
 
 **Admin and reliability principle:** Give staff operational control through the admin panel while protecting customer data and artwork. Design payment and upload retries to be safe and prevent duplicate orders.
 
+## Implementation decisions — Question set 5 (confirmed)
+
+1. **Existing architecture:** Preserve the existing GitHub project, Render, Supabase and working features. Do not rebuild without a demonstrated need.
+2. **Prompt generator:** Use reusable prompt templates populated with customer details; no AI API is required.
+3. **External AI tool links:** Staff manages tool names, links and instructions in the admin panel.
+4. **CDR production:** Generate PDF and SVG automatically; staff opens the suitable output and saves CDR through CorelDRAW.
+5. **Pre-launch testing:** Test every customer journey, payment, admin function, export and physical cutting workflow.
+6. **Release process:** Test changes in staging, obtain approval, then deploy to production.
+7. **Privacy and legal:** Provide privacy policy, terms, refund policy and customer consent before collecting personal data.
+8. **Operational monitoring:** Provide admin-visible order/payment monitoring, error logs and alerts.
+9. **Launch sequence:** Private staff test, then a small customer pilot, then public launch.
+10. **Operating costs:** Prefer free-first services and existing infrastructure; use paid services only when necessary and approved.
+
+**Architecture and release principle:** Preserve working infrastructure and data, avoid unnecessary AI/API subscriptions, and make staging validation and explicit production approval mandatory. PDF/SVG-to-CDR handling is a staff-operated CorelDRAW step, not a claim of automatic CDR generation.
+
