@@ -17,8 +17,12 @@ import { Router, type IRouter } from "express";
 import { asc, desc, gte, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "../lib/db";
+import { requireAdmin } from "./auth";
 
 const router: IRouter = Router();
+
+// All admin endpoints require a verified admin JWT.
+router.use(requireAdmin);
 
 // ─── Analytics ───────────────────────────────────────────────────────────────
 
