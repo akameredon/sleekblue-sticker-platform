@@ -281,6 +281,7 @@ async function handleToolCall(
     const prompt = `A professional sticker design mockup${brandNote}: ${description}. Style: ${style}. Die-cut shape, clean edges, on white background, high detail, print-ready, flat lay product photo${finishNote}. No text unless specified in description.`;
 
     try {
+      const openai = createOpenAIClient();
       const response = await openai.images.generate({
         model: "gpt-image-1",
         prompt,
