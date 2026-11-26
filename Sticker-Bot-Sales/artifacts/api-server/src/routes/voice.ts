@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { z } from "zod";
-import { openai } from "@workspace/integrations-openai-ai-server";
+import { createOpenAIClient } from "@workspace/integrations-openai-ai-server";
 import { db, schema } from "../lib/db";
 import { asc, eq } from "drizzle-orm";
 import { getShopSettingsRow } from "../lib/shop";
@@ -67,6 +67,7 @@ router.post("/voice/command", async (req, res) => {
   let quote: { unitPrice: number; total: number; savingsNote?: string } | null = null;
 
   try {
+    const openai = createOpenAIClient();
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [

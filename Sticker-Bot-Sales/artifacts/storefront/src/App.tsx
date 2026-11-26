@@ -7,17 +7,17 @@ import { HomePage } from "@/pages/Home";
 import { ShopPage } from "@/pages/Shop";
 import { ProductDetailPage } from "@/pages/ProductDetail";
 import { CartPage } from "@/pages/Cart";
-import { OrderDetailPage } from "@/pages/OrderDetail";
-import { ChatPage } from "@/pages/Chat";
 import { TrackPage } from "@/pages/Track";
 import { WishlistPage } from "@/pages/Wishlist";
-import { GeneratePage } from "@/pages/Generate";
+import { GeneratePage } from "@/pages/DesignStudio";
+import { ProductionArtworkPage } from "@/pages/ProductionArtwork";
 import { BatchPage } from "@/pages/Batch";
 import { AdminPage } from "@/pages/Admin";
 import { QuickOrderPage } from "@/pages/QuickOrder";
 import { LoginPage } from "@/pages/Login";
 import { RegisterPage } from "@/pages/Register";
 import { AccountPage } from "@/pages/Account";
+import { PaymentReturnPage } from "@/pages/PaymentReturn";
 import NotFound from "@/pages/not-found";
 import { queryClient } from "@/lib/queryClient";
 
@@ -28,17 +28,18 @@ function Routes() {
       <Route path="/shop" component={ShopPage} />
       <Route path="/p/:slug" component={ProductDetailPage} />
       <Route path="/cart" component={CartPage} />
-      <Route path="/orders/:id" component={OrderDetailPage} />
+      <Route path="/orders/:id" component={TrackPage} />
       <Route path="/track" component={TrackPage} />
       <Route path="/wishlist" component={WishlistPage} />
-      <Route path="/chat" component={ChatPage} />
       <Route path="/generate" component={GeneratePage} />
       <Route path="/batch" component={BatchPage} />
       <Route path="/admin" component={AdminPage} />
+      <Route path="/admin/production-artwork" component={ProductionArtworkPage} />
       <Route path="/quick-order" component={QuickOrderPage} />
       <Route path="/login" component={LoginPage} />
       <Route path="/register" component={RegisterPage} />
       <Route path="/account" component={AccountPage} />
+      <Route path="/payment/return" component={PaymentReturnPage} />
       <Route component={NotFound} />
     </Switch>
   );

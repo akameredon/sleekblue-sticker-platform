@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { z } from "zod";
-import { openai } from "@workspace/integrations-openai-ai-server";
+import { createOpenAIClient } from "@workspace/integrations-openai-ai-server";
 
 const router: IRouter = Router();
 
@@ -29,6 +29,7 @@ router.post("/generate/sticker", async (req, res) => {
   const prompt = `Sticker design artwork: ${description}. Style: ${styleGuide[style]}. Product photo quality. Square format. No text unless requested.`;
 
   try {
+    const openai = createOpenAIClient();
     const response = await openai.images.generate({
       model: "dall-e-3",
       prompt,

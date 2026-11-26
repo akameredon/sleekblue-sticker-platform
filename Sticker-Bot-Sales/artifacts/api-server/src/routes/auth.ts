@@ -20,13 +20,13 @@ const router: IRouter = Router();
 
 const RegisterBody = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
-  email: z.email("Invalid email"),
+  email: z.string().email("Invalid email"),
   phone: z.string().min(7, "Invalid phone").max(20),
   password: z.string().min(8, "Password must be at least 8 characters").max(128),
 });
 
 const LoginBody = z.object({
-  email: z.email("Invalid email"),
+  email: z.string().email("Invalid email"),
   password: z.string().min(1, "Password required"),
 });
 
@@ -46,12 +46,23 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     res.status(401).json({ error: "Invalid or expired token" });
     return;
   }
-  // Attach to request for downstream handlers
-  (req as Request & { user: { id: number; isAdmin: boolean } }).user = {
-    id: payload.userId as number,
-    isAdmin: Boolean(payload.isAdmin),
-  };
-  next();
+  // Revalidate the account on every request so deleted users and revoked admin
+  // privileges cannot continue using a still-unexpired JWT.
+  try {
+    const [account] = await db
+      .select({ id: schema.users.id, isAdmin: schema.users.isAdmin })
+      .from(schema.users)
+      .where(eq(schema.users.id, payload.userId as number))
+      .limit(1);
+    if (!account) { res.status(401).json({ error: "Invalid or expired token" }); return; }
+    (req as Request & { user: { id: number; isAdmin: boolean } }).user = {
+      id: account.id,
+      isAdmin: account.isAdmin,
+    };
+    next();
+  } catch (error) {
+    res.status(503).json({ error: "Authentication service temporarily unavailable" });
+  }
 }
 
 /** Like requireAuth but also checks isAdmin flag */

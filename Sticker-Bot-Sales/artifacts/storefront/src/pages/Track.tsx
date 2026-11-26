@@ -1,16 +1,17 @@
-import { useState } from "react";
-import { Link } from "wouter";
+import { useEffect, useState } from "react";
 import { useLookupOrder } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatNGN } from "@/lib/format";
-import { Search, Package, MessageCircle, ChevronRight } from "lucide-react";
+import { apiUrl } from "@/lib/paths";
+import { Search, Package, MessageCircle } from "lucide-react";
 import { format } from "date-fns";
 
 const STATUS_LABEL: Record<string, { label: string; tone: string }> = {
+  pending_payment: { label: "Awaiting payment", tone: "bg-primary/15 text-foreground" },
   pending_whatsapp: { label: "Awaiting WhatsApp confirmation", tone: "bg-primary/15 text-foreground" },
-  confirmed: { label: "Confirmed", tone: "bg-accent/15 text-foreground" },
+  confirmed: { label: "Paid — awaiting production", tone: "bg-accent/15 text-foreground" },
   in_production: { label: "In production", tone: "bg-primary/20 text-foreground" },
   ready: { label: "Ready for pickup / shipping", tone: "bg-accent/25 text-foreground" },
   shipped: { label: "Shipped", tone: "bg-accent/30 text-foreground" },
@@ -22,6 +23,13 @@ export function TrackPage() {
   const [reference, setReference] = useState("");
   const [phone, setPhone] = useState("");
   const [submitErr, setSubmitErr] = useState<string | null>(null);
+  const [paymentBusy, setPaymentBusy] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("reference") || params.get("ref");
+    if (ref) setReference(ref);
+  }, []);
 
   const lookup = useLookupOrder({
     mutation: {
@@ -33,7 +41,7 @@ export function TrackPage() {
   });
 
   const order = lookup.data;
-  const canSubmit = reference.trim().length > 3 && phone.replace(/\D/g, "").length >= 4 && !lookup.isPending;
+  const canSubmit = reference.trim().length > 3 && phone.replace(/\D/g, "").length >= 10 && !lookup.isPending;
 
   const submit = () => {
     setSubmitErr(null);
@@ -42,6 +50,37 @@ export function TrackPage() {
   };
 
   const statusInfo = order ? STATUS_LABEL[order.status] ?? { label: order.status, tone: "bg-muted text-foreground" } : null;
+
+  const retryPayment = async () => {
+    if (!order?.customerEmail || !order.customerPhone || paymentBusy) return;
+    setPaymentBusy(true);
+    setSubmitErr(null);
+    try {
+      const response = await fetch(apiUrl("/payments/initialize"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: order.id,
+          customerEmail: order.customerEmail,
+          customerPhone: order.customerPhone,
+        }),
+      });
+      const payment = await response.json();
+      if (!response.ok) throw new Error(payment.error || "Could not restart payment.");
+      try {
+        sessionStorage.setItem("labelflow-pending-payment", JSON.stringify({
+          reference: payment.reference,
+          phone: order.customerPhone,
+          orderReference: order.reference,
+        }));
+      } catch { /* payment can continue without session storage */ }
+      window.location.assign(payment.authorizationUrl);
+    } catch (error) {
+      setSubmitErr(error instanceof Error ? error.message : "Could not restart payment.");
+    } finally {
+      setPaymentBusy(false);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 md:px-6 md:py-16">
@@ -66,11 +105,11 @@ export function TrackPage() {
             />
           </div>
           <div>
-            <Label className="text-xs font-medium text-muted-foreground">Phone (last 4 digits ok)</Label>
+            <Label className="text-xs font-medium text-muted-foreground">Phone number (enter at least 10 digits)</Label>
             <Input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="0000"
+              placeholder="08012345678"
               className="mt-1"
               data-testid="input-track-phone"
             />
@@ -132,6 +171,11 @@ export function TrackPage() {
           </div>
 
           <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+            {order.status === "pending_payment" && order.customerEmail ? (
+              <Button className="flex-1" size="lg" onClick={retryPayment} disabled={paymentBusy}>
+                {paymentBusy ? "Opening payment…" : "Retry secure payment"}
+              </Button>
+            ) : null}
             <a
               href={order.whatsappUrl}
               target="_blank"
@@ -144,11 +188,7 @@ export function TrackPage() {
                 Open in WhatsApp
               </Button>
             </a>
-            <Link href={`/orders/${order.id}?ref=${encodeURIComponent(order.reference)}`} className="flex-1">
-              <Button variant="outline" className="w-full" size="lg">
-                Full order details <ChevronRight className="h-4 w-4" />
-              </Button>
-            </Link>
+
           </div>
         </div>
       ) : null}

@@ -18,10 +18,11 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatNGN } from "@/lib/format";
 import { apiUrl } from "@/lib/paths";
+import { authHeaders } from "@/lib/auth";
 import {
   BarChart2, ChevronLeft, ExternalLink, Package, ShoppingBag,
   TrendingUp, Users, Zap, MessageSquare, Bot, Settings,
-  CheckCircle2, Edit2, Trash2, Plus, Save, X,
+  CheckCircle2, Edit2, Trash2, Plus, Save, X, Printer,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -55,12 +56,12 @@ type ShopSettings = { businessName: string; tagline: string; whatsappNumber: str
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const STATUS_COLORS: Record<string, string> = {
-  pending_whatsapp: "hsl(48 100% 52%)", confirmed: "hsl(145 65% 48%)",
-  in_production: "hsl(210 80% 56%)", shipped: "hsl(270 60% 58%)",
+  pending_payment: "hsl(35 90% 55%)", pending_whatsapp: "hsl(48 100% 52%)", confirmed: "hsl(145 65% 48%)",
+  in_production: "hsl(210 80% 56%)", ready: "hsl(175 60% 45%)", shipped: "hsl(270 60% 58%)",
   delivered: "hsl(150 60% 46%)", cancelled: "hsl(0 70% 55%)",
 };
 const CHART_COLORS = ["hsl(48 100% 52%)", "hsl(330 80% 60%)", "hsl(210 80% 56%)", "hsl(145 65% 48%)", "hsl(270 60% 58%)", "hsl(30 90% 55%)", "hsl(190 70% 50%)", "hsl(0 70% 55%)"];
-const ALL_STATUSES = ["pending_whatsapp", "confirmed", "in_production", "shipped", "delivered", "cancelled"];
+const ALL_STATUSES = ["pending_payment", "pending_whatsapp", "confirmed", "in_production", "ready", "shipped", "delivered", "cancelled"];
 
 function shortDate(iso: string) { const d = new Date(iso); return `${d.getMonth() + 1}/${d.getDate()}`; }
 
@@ -96,12 +97,12 @@ export function AdminPage() {
     setLoading(true);
     try {
       const [a, o, ai, c, p, s] = await Promise.all([
-        fetch(apiUrl("/admin/analytics")).then((r) => r.json()),
-        fetch(apiUrl("/admin/orders?limit=50")).then((r) => r.json()),
-        fetch(apiUrl("/admin/ai-metrics")).then((r) => r.json()),
-        fetch(apiUrl("/admin/customers")).then((r) => r.json()),
-        fetch(apiUrl("/admin/products")).then((r) => r.json()),
-        fetch(apiUrl("/admin/settings")).then((r) => r.json()),
+        fetch(apiUrl("/admin/analytics"), { headers: authHeaders() }).then((r) => r.json()),
+        fetch(apiUrl("/admin/orders?limit=50"), { headers: authHeaders() }).then((r) => r.json()),
+        fetch(apiUrl("/admin/ai-metrics"), { headers: authHeaders() }).then((r) => r.json()),
+        fetch(apiUrl("/admin/customers"), { headers: authHeaders() }).then((r) => r.json()),
+        fetch(apiUrl("/admin/products"), { headers: authHeaders() }).then((r) => r.json()),
+        fetch(apiUrl("/admin/settings"), { headers: authHeaders() }).then((r) => r.json()),
       ]);
       setAnalytics(a);
       setOrders(Array.isArray(o.orders) ? o.orders : []);
@@ -123,7 +124,7 @@ export function AdminPage() {
     try {
       const res = await fetch(apiUrl(`/admin/orders/${id}`), {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...authHeaders(), "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
       if (res.ok) {
@@ -138,7 +139,7 @@ export function AdminPage() {
     try {
       const res = await fetch(apiUrl("/admin/settings"), {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...authHeaders(), "Content-Type": "application/json" },
         body: JSON.stringify(settingsDraft),
       });
       const updated = await res.json();
@@ -148,7 +149,7 @@ export function AdminPage() {
 
   const deleteProduct = async (id: number) => {
     if (!confirm("Delete this product?")) return;
-    await fetch(apiUrl(`/admin/products/${id}`), { method: "DELETE" });
+    await fetch(apiUrl(`/admin/products/${id}`), { method: "DELETE", headers: authHeaders() });
     setProducts((prev) => prev.filter((p) => p.id !== id));
   };
 
@@ -198,6 +199,7 @@ export function AdminPage() {
         <div>
           <h1 className="font-serif text-2xl font-semibold md:text-3xl">Studio Dashboard</h1>
           <p className="text-xs text-muted-foreground">Full-stack operations · AI sales · WhatsApp CRM</p>
+          <Link href="/admin/production-artwork" className="mt-2 inline-flex items-center gap-2 text-xs font-semibold text-primary hover:underline"><Printer className="h-3.5 w-3.5"/> Production artwork exporter</Link>
         </div>
       </header>
 
