@@ -73,6 +73,7 @@ export type VerifyResponse = {
   status: string;      // "success" | "failed" | "abandoned"
   reference: string;
   amount: number;      // kobo
+  currency: string;
   paid_at: string;
   customer: { email: string; phone: string | null };
 };
