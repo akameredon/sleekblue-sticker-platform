@@ -1,13 +1,11 @@
 import { Link, useLocation } from "wouter";
-import { BarChart2, Heart, Layers, Menu, MessageCircle, ShoppingBag, Wand2, X, Zap, User, LogIn } from "lucide-react";
+import { BarChart2, Heart, Layers, Menu, MessageCircle, ShoppingBag, Palette, X, Zap, User, LogIn } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useGetShopInfo } from "@workspace/api-client-react";
 import { useCartCount, useHasMounted } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
 import { Button } from "@/components/ui/button";
 import { whatsappUrl } from "@/lib/whatsapp";
-import { VoiceAssistant } from "@/components/VoiceAssistant";
-import { FloatingChat } from "@/components/FloatingChat";
 import { getUser, clearAuth, type AuthUser } from "@/lib/auth";
 
 const NAV = [
@@ -15,7 +13,6 @@ const NAV = [
   { href: "/shop", label: "Shop" },
   { href: "/quick-order", label: "Quick Order" },
   { href: "/track", label: "Track" },
-  { href: "/chat", label: "AI Chat" },
   { href: "/generate", label: "Design stickers" },
   { href: "/batch", label: "Batch Quote" },
 ];
@@ -204,9 +201,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <ul className="mt-3 space-y-2 text-sm">
                 <li><Link href="/shop" className="hover:underline">All stickers</Link></li>
                 <li><Link href="/quick-order" className="hover:underline flex items-center gap-1"><Zap className="h-3 w-3" />Quick order</Link></li>
-                <li><Link href="/generate" className="hover:underline flex items-center gap-1"><Wand2 className="h-3 w-3" />AI sticker generator</Link></li>
+                <li><Link href="/generate" className="hover:underline flex items-center gap-1"><Palette className="h-3 w-3" />Design your label</Link></li>
                 <li><Link href="/batch" className="hover:underline flex items-center gap-1"><Layers className="h-3 w-3" />Batch quote</Link></li>
-                <li><Link href="/chat" className="hover:underline">AI shopping chat</Link></li>
                 <li><Link href="/track" className="hover:underline">Track an order</Link></li>
                 <li><Link href="/account" className="hover:underline flex items-center gap-1"><User className="h-3 w-3" />My account</Link></li>
                 <li><Link href="/admin" className="hover:underline flex items-center gap-1"><BarChart2 className="h-3 w-3" />Admin dashboard</Link></li>
@@ -220,8 +216,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </footer>
 
-      <FloatingChat />
-      <VoiceAssistant />
     </div>
   );
 }
