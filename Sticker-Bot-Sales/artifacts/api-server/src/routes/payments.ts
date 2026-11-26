@@ -63,9 +63,9 @@ router.post("/payments/initialize", async (req, res) => {
     return;
   }
 
-  // Prevent double-payment on confirmed orders
-  if (order.status === "confirmed" || order.status === "paid") {
-    res.status(409).json({ error: "Order is already paid" });
+  // Only unpaid orders awaiting payment/confirmation may start a new charge.
+  if (!["pending_payment", "pending_whatsapp"].includes(order.status)) {
+    res.status(409).json({ error: "This order is not available for payment." });
     return;
   }
 
