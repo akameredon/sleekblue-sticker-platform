@@ -5,9 +5,10 @@ export function path(p: string): string {
   return base + p;
 }
 
-/** Build an API URL prefixed with the artifact base path + /api. */
+/** Build an API URL against the deployed API service, never the static-site host. */
 export function apiUrl(p: string): string {
   const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const apiBase = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "") ?? "";
   if (!p.startsWith("/")) p = "/" + p;
-  return base + "/api" + p;
+  return apiBase + base + "/api" + p;
 }
