@@ -5,7 +5,7 @@ import { getToken, setAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Save, Sparkles, Lock, Globe2, RotateCcw, Download, ChevronLeft, CheckCircle2 } from "lucide-react";
 
-type Shape = "round" | "rectangle" | "oval";
+type Shape = "round" | "square" | "rectangle" | "oval" | "custom";
 type Template = {
   id: string;
   name: string;
@@ -16,62 +16,26 @@ type Template = {
   color: string;
   accent: string;
   shape: Shape;
+  referenceImage: string;
+  sourceUrl: string;
+  direction: string;
 };
 
 const TEMPLATES: Template[] = [
-  { id: "spice", name: "Naija Spice", category: "Food & spices", brand: "MAMA'S KITCHEN", product: "JOLLOF SPICE", tagline: "Made with love • 100% natural", color: "#F7E7C6", accent: "#B83B25", shape: "round" },
-  { id: "glow", name: "Glow Care", category: "Beauty & skincare", brand: "GLOW BY NENE", product: "BODY BUTTER", tagline: "Soft skin. Everyday glow.", color: "#F4DDE6", accent: "#7A3154", shape: "oval" },
-  { id: "sip", name: "Fresh Sip", category: "Drinks", brand: "FRESH SIP", product: "Z O B O", tagline: "Natural • Chilled • Refreshing", color: "#F5E8C7", accent: "#7C3E24", shape: "rectangle" },
-  { id: "honey", name: "Honey Gold", category: "Agriculture", brand: "GOLDEN HARVEST", product: "PURE HONEY", tagline: "100% natural • No additives", color: "#F8E7A8", accent: "#8B5A13", shape: "round" },
-  { id: "bake", name: "Sweet Batch", category: "Bakery", brand: "SWEET BATCH", product: "FRESHLY BAKED", tagline: "A little joy in every bite", color: "#F4E1D1", accent: "#8D493B", shape: "rectangle" },
-  { id: "custom", name: "Start blank", category: "Custom", brand: "YOUR BRAND", product: "YOUR PRODUCT", tagline: "Add your own details", color: "#F2F3F5", accent: "#243B53", shape: "round" },
+  { id: "botanical-jar", name: "Botanical jar", category: "Natural food, skincare & wellness", brand: "", product: "", tagline: "", color: "#E7DDC9", accent: "#3D5142", shape: "round", referenceImage: "https://images.pexels.com/photos/11159158/pexels-photo-11159158.jpeg?auto=compress&cs=tinysrgb&w=900", sourceUrl: "https://www.pexels.com/photo/jar-with-blank-label-11159158/", direction: "Natural premium jar label, warm rustic styling, botanical ingredients, tactile cream paper, earthy greens and browns, elegant readable typography." },
+  { id: "botanical-bottle", name: "Botanical bottle", category: "Oils, drinks & natural products", brand: "", product: "", tagline: "", color: "#DCE4D9", accent: "#355447", shape: "rectangle", referenceImage: "https://images.pexels.com/photos/11441227/pexels-photo-11441227.jpeg?auto=compress&cs=tinysrgb&w=900", sourceUrl: "https://www.pexels.com/photo/bottle-with-blank-label-11441227/", direction: "Refined brown-glass bottle label, botanical styling, natural textures, deep green and warm neutral colours, clean hierarchy and premium editorial typography." },
+  { id: "minimal-bottle", name: "Minimal bottle", category: "Beauty, fragrance & premium drinks", brand: "", product: "", tagline: "", color: "#F1EDE5", accent: "#343434", shape: "rectangle", referenceImage: "https://images.pexels.com/photos/6800931/pexels-photo-6800931.jpeg?auto=compress&cs=tinysrgb&w=900", sourceUrl: "https://www.pexels.com/photo/glass-transparent-brown-mockup-6800931/", direction: "Minimal premium bottle label, generous negative space, crisp alignment, restrained monochrome palette, refined typography and subtle material detail." },
+  { id: "floral-skincare", name: "Floral skincare", category: "Beauty & personal care", brand: "", product: "", tagline: "", color: "#E9D9D5", accent: "#79594F", shape: "round", referenceImage: "https://images.pexels.com/photos/36898534/pexels-photo-36898534.jpeg?auto=compress&cs=tinysrgb&w=900", sourceUrl: "https://www.pexels.com/photo/elegant-skincare-cream-jar-with-floral-decor-36898534/", direction: "Soft botanical skincare label, delicate floral elements, muted blush and warm neutrals, elegant typography and clean premium cosmetic finish." },
+  { id: "clean-range", name: "Clean product range", category: "Skincare & wellness", brand: "", product: "", tagline: "", color: "#EEECE6", accent: "#4C514C", shape: "rectangle", referenceImage: "https://images.pexels.com/photos/8100691/pexels-photo-8100691.jpeg?auto=compress&cs=tinysrgb&w=900", sourceUrl: "https://www.pexels.com/photo/white-and-brown-bottles-on-white-textile-8100691/", direction: "Coordinated clean-label identity, soft neutral background, balanced information hierarchy, subtle texture, understated typography and premium spacing." },
+  { id: "artisan-jar", name: "Artisan jar", category: "Food, body butter & handmade goods", brand: "", product: "", tagline: "", color: "#E8D9C7", accent: "#694B3A", shape: "round", referenceImage: "https://images.pexels.com/photos/7795851/pexels-photo-7795851.jpeg?auto=compress&cs=tinysrgb&w=900", sourceUrl: "https://www.pexels.com/photo/brown-glass-jar-with-a-blank-label-7795851/", direction: "Artisan jar label with tactile paper, warm natural tones, clear product naming, handmade character and restrained premium layout." },
+  { id: "bold-colour", name: "Bold colour", category: "Food, confectionery & lifestyle", brand: "", product: "", tagline: "", color: "#DDE6F4", accent: "#243B68", shape: "square", referenceImage: "https://images.pexels.com/photos/8947557/pexels-photo-8947557.jpeg?auto=compress&cs=tinysrgb&w=900", sourceUrl: "https://www.pexels.com/photo/close-up-of-blue-container-8947557/", direction: "Bold contemporary label, confident colour blocking, strong contrast, expressive but readable typography and a clear focal point." },
+  { id: "candle", name: "Candle & home", category: "Candles, home fragrance & gifts", brand: "", product: "", tagline: "", color: "#E5DDD2", accent: "#4D4037", shape: "rectangle", referenceImage: "https://images.pexels.com/photos/6311860/pexels-photo-6311860.jpeg?auto=compress&cs=tinysrgb&w=900", sourceUrl: "https://www.pexels.com/photo/assorted-glass-containers-with-candles-6311860/", direction: "Refined candle or home-fragrance label, warm ambient mood, understated typography, tactile stock appearance and elegant spacing." },
+  { id: "clean-tub", name: "Clean tub label", category: "Food, wellness & household", brand: "", product: "", tagline: "", color: "#F1F0EA", accent: "#394A50", shape: "rectangle", referenceImage: "https://images.pexels.com/photos/8066772/pexels-photo-8066772.jpeg?auto=compress&cs=tinysrgb&w=900", sourceUrl: "https://www.pexels.com/photo/white-plastic-container-with-no-label-on-white-background-8066772/", direction: "Clean modern tub label, strong legibility, simple grid, calm neutral colours and practical retail-ready finish." },
 ];
 
 const WHATSAPP_NUMBER = "2348058162036";
 const DRAFT_KEY = "labelflow-design-draft-v1";
-const TEMPLATE_ART_DIRECTIONS: Record<string, string> = {
-  spice: "premium Nigerian spice packaging; pepper-red and toasted-cream palette; woven-paper grain, engraved spice botanicals, appetising ingredient still-life, editorial serif typography and restrained copper accents",
-  glow: "premium botanical skincare; muted rose and plum palette; satin-like tonal background, delicate botanical line art, diffused studio highlights, refined editorial typography and subtle embossing",
-  sip: "premium beverage identity; refreshing hibiscus tones; liquid-inspired gradients, fine condensation texture, crisp ingredient photography and confident modern typography",
-  honey: "artisan honey identity; deep amber and harvest gold; honeycomb geometry, warm backlit honey texture, botanical engraving, tactile paper and elegant serif typography",
-  bake: "premium artisan bakery; oat and terracotta palette; flour-dusted paper texture, grain illustration, appetising bakery photography and soft natural light",
-  custom: "bespoke packaging art direction chosen from the customer's brief; original palette, strong focal image, sophisticated typography and tactile background finish",
-};
-const DESIGN_PROMPT_FRAMEWORK = `You are a professional commercial packaging designer. Guide the customer through a short, friendly label-design conversation, then create one polished label. Keep questions concise. Avoid unnecessary emojis, long explanations and excessive choices.
-
-THIS IS A NEW CUSTOMER PROJECT. Never assume a brand, product, tagline, phone number, ingredients, colours or business identity. Never insert sample names from the website or invent placeholder details.
-
-FIRST COLLECT ONLY MISSING ESSENTIALS
-Use information already supplied and ask one short question at a time:
-1. Business or brand name.
-2. Product name.
-3. Optional phone number, website or social handle the customer wants printed. This is separate from their private order/contact number.
-4. Optional tagline or short message.
-Do not ask again for information already supplied. If contact details are not wanted, omit them.
-
-DESIGN CHOICES
-After essentials are clear, ask only what remains useful, one question at a time. Offer short numbered choices and accept a number, custom description or "choose for me".
-- Shape: round, square, rectangle (landscape or portrait), oval, or custom die-cut.
-- Style: premium, modern/minimal, bold/colourful, natural, playful, cultural, or designer's choice.
-- Main visual: product photo, relevant ingredient imagery, custom illustration, logo-led, or no image.
-- Colours: customer's colours, a few suitable suggestions, or designer's choice.
-- Layout: brand-led, product-name-led, image-led, or balanced.
-Do not ask questions already answered by the brief. Keep simple labels simple. Existing order dimensions and shape are defaults; offer changes only when useful.
-
-PROJECT DATA AND CONFLICTS
-Populated website brand/product fields and physical specifications belong to this order. Empty fields mean the customer has not supplied them; ask rather than filling them with sample names. The creative brief adds preferences. If it names a different brand or product from populated project fields, do not combine identities; ask whether to keep the order details or replace them. If fields are blank, the brief can supply the identity without a conflict.
-
-DESIGN QUALITY
-Create a professional, shelf-ready label suited to the actual product and audience. Use clear hierarchy, readable product naming, balanced spacing, strong contrast and a deliberate palette. Add tasteful depth with relevant imagery, lighting, texture or pattern, but avoid clutter. Use no more than two complementary type styles. No random decoration, generic clip art, emoji, unnecessary badges, fake seals, fake certifications, invented claims or filler copy.
-
-ACCURACY
-Use only customer-confirmed facts and wording. Preserve spelling, punctuation, numbers and units. Never invent ingredients, health claims, net weight, volume, certifications, awards, origin claims, addresses, phone numbers, websites, barcodes or QR destinations. Leave unknown details out.
-
-PRINT OUTPUT
-Create flat, front-facing label artwork, not a photo of a jar, bottle, pouch or box. Match the confirmed shape and physical proportions. Keep important content inside a safe margin and leave a clear cut boundary. Show the entire label, centred and undistorted, without a watermark or presentation frame. If a mockup is useful, provide the clean flat artwork separately.
-
-FINAL CHECK
-Briefly summarise the confirmed brand, product, optional printed contact details, shape, dimensions and design direction before generating. Ask for confirmation only if an important detail remains ambiguous. If the customer says "create it" or "use your best judgement", proceed without another unnecessary question.`;const COST_ANCHORS_BY_QUANTITY: Record<100 | 500 | 1000, Array<{ areaIn2: number; cost: number }>> = {
+const COST_ANCHORS_BY_QUANTITY: Record<100 | 500 | 1000, Array<{ areaIn2: number; cost: number }>> = {
   100: [
     { areaIn2: 2.25, cost: 3000 },
     { areaIn2: 4, cost: 3000 },
@@ -180,12 +144,12 @@ function makeSvg(template: Template, width: number, height: number, preview = fa
   </svg>`;
 }
 export function GeneratePage() {
-  const [templateId, setTemplateId] = useState("custom");
+  const [templateId, setTemplateId] = useState("botanical-jar");
   const [brand, setBrand] = useState("");
   const [product, setProduct] = useState("");
   const [tagline, setTagline] = useState("");
-  const [color, setColor] = useState(TEMPLATES[5].color);
-  const [accent, setAccent] = useState(TEMPLATES[5].accent);
+  const [color, setColor] = useState(TEMPLATES[0].color);
+  const [accent, setAccent] = useState(TEMPLATES[0].accent);
   const [shape, setShape] = useState<Shape>("round");
   const [width, setWidth] = useState("50");
   const [height, setHeight] = useState("50");
@@ -199,7 +163,10 @@ export function GeneratePage() {
   const [customerPassword, setCustomerPassword] = useState("");
   const [checkoutBusy, setCheckoutBusy] = useState(false);
   const [creativeBrief, setCreativeBrief] = useState("");
-  const [artworkFile, setArtworkFile] = useState<File | null>(null);\n  const [printPhone, setPrintPhone] = useState("");
+  const [artworkFile, setArtworkFile] = useState<File | null>(null);
+  const [printPhone, setPrintPhone] = useState("");
+  const [printSocials, setPrintSocials] = useState("");
+  const [printWebsite, setPrintWebsite] = useState("");
 
   const design = useMemo<Template>(() => ({
     ...(TEMPLATES.find((t) => t.id === templateId) ?? TEMPLATES[0]),
@@ -212,12 +179,14 @@ export function GeneratePage() {
       if (!raw) return;
       const draft = JSON.parse(raw);
       if (draft && typeof draft === "object") {
-        setTemplateId(draft.templateId ?? "custom");
+        setTemplateId(draft.templateId ?? "botanical-jar");
         setBrand(draft.brand ?? "");
         setProduct(draft.product ?? "");
         setTagline(draft.tagline ?? "");\n        setPrintPhone(draft.printPhone ?? "");
-        setColor(draft.color ?? TEMPLATES[5].color);
-        setAccent(draft.accent ?? TEMPLATES[5].accent);
+        setPrintSocials(draft.printSocials ?? "");
+        setPrintWebsite(draft.printWebsite ?? "");
+        setColor(draft.color ?? TEMPLATES[0].color);
+        setAccent(draft.accent ?? TEMPLATES[0].accent);
         setShape(draft.shape ?? "round");
         setWidth(String(draft.width ?? 50));
         setHeight(String(draft.height ?? 50));
@@ -234,7 +203,7 @@ export function GeneratePage() {
 
   const saveDraft = () => {
     localStorage.setItem(DRAFT_KEY, JSON.stringify({
-      templateId, brand, product, tagline, printPhone, color, accent, shape, width, height, quantity, visibility,
+      templateId, brand, product, tagline, printPhone, printSocials, printWebsite, color, accent, shape, width, height, quantity, visibility,
     }));
     setSaved(true);
     setNotice("Design saved on this phone.");
@@ -267,27 +236,26 @@ export function GeneratePage() {
   };
 
   const buildChatGPTPrompt = () => {
-    const selected = TEMPLATES.find((item) => item.id === templateId) ?? TEMPLATES[5];
+    const selected = TEMPLATES.find((item) => item.id === templateId) ?? TEMPLATES[0];
+    const details = [
+      ["Business / brand", brand], ["Product", product],
+      ["Printed phone", printPhone], ["Printed social handle", printSocials],
+      ["Printed website", printWebsite], ["Tagline", tagline],
+      ["Label shape", shape], ["Finished size", `${width} mm × ${height} mm`],
+      ["Quantity", quantity], ["Colour preference", `${color} background, ${accent} text/accent`],
+      ["Selected gallery reference", selected.name], ["Visual direction", selected.direction],
+      ["Customer's extra instructions", creativeBrief],
+    ].filter(([, value]) => String(value ?? "").trim()).map(([key, value]) => `${key}: ${value}`);
     return [
-      DESIGN_PROMPT_FRAMEWORK,
-      "",
-      "CURRENT CUSTOMER PROJECT",
-      `Business / brand name: ${brand.trim() || "NOT PROVIDED — ask the customer"}`,
-      `Product name: ${product.trim() || "NOT PROVIDED — ask the customer"}`,
-      `Phone / website / social handle to print: ${printPhone.trim() || "Not supplied — ask only if the customer wants contact details printed"}`,
-      `Tagline / required wording: ${tagline.trim() || "Not supplied — ask only if useful"}`,
-      `Product category: ${selected.id === "custom" ? "Not specified — infer from the customer's product or ask briefly" : selected.category}`,
-      `Optional visual starting direction: ${selected.id === "custom" ? "None selected; develop a direction from the customer's answers" : selected.name}`,
-      `Starting colour reference: ${color}`,
-      `Text / accent colour reference: ${accent}`,
-      `Current label shape: ${shape}`,
-      `Physical size: ${width} mm wide × ${height} mm high`,
-      `Quantity context: ${Number(quantity).toLocaleString("en-NG")} labels`,
-      "",
-      "CUSTOMER'S DESIGN NOTES",
-      creativeBrief.trim() || "No design description supplied yet. Ask the first missing essential question.",
-      "",
-      "IMPORTANT: This is a fresh customer project. Do not use any example brand or product name from the website. Ask only for missing details, keep the consultation short, and use the customer's confirmed choices to create the artwork."
+      "Create an original, professional, print-ready flat product label using the customer details and selected visual reference below.",
+      "Ask only for missing essentials, one concise question at a time: business/brand name and product name. If printed phone, social handle, website or tagline fields are blank, ask briefly whether the customer wants any of them printed. Never invent names, contact details, ingredients, claims or certifications.",
+      "If information is already supplied, do not ask again. Offer short numbered choices only for unresolved decisions. The customer may say 'choose for me'.",
+      "Follow the selected reference's overall composition, mood, palette, typography and material feel, while creating original artwork rather than copying the reference image. Preserve the confirmed shape and exact physical proportions. Keep all text readable and inside a safe margin. No filler text, emojis, random icons, fake badges or unsupported claims.",
+      "Output clean front-facing flat label artwork, not a product mockup. Show the entire label, undistorted and ready for print review. Use only confirmed customer details.",
+      "", "CUSTOMER PROJECT", ...details,
+      `Reference image: ${selected.referenceImage}`,
+      `Reference source: ${selected.sourceUrl}`,
+      "", "If the business or product name is missing, begin by asking for the business/brand name."
     ].join("\n");
   };
 
@@ -409,7 +377,7 @@ export function GeneratePage() {
       const artworkObjectPath = securedArtwork.objectPath ?? uploadDetails.objectPath;
 
       const designNotes = JSON.stringify({
-        templateId, brand, product, tagline, printPhone, color, accent, shape,
+        templateId, brand, product, tagline, printPhone, printSocials, printWebsite, color, accent, shape,
         widthMm: Number(width), heightMm: Number(height), quantity: Number(quantity),
         visibilityPreference: visibility,
         artworkObjectPath,
@@ -491,7 +459,7 @@ export function GeneratePage() {
           </div>
           <h1 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">Make your product label.</h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground md:text-base">
-            Describe the label you imagine, open your detailed brief in ChatGPT, then download the artwork and submit it to Sleekblue. No design skills or image API required.
+            Describe the label you imagine, open your tailored design prompt in ChatGPT, then download the artwork and submit it to Sleekblue. No design skills or image API required.
           </p>
         </div>
         <div className="rounded-2xl border border-accent/30 bg-accent/5 p-4 text-sm">
@@ -510,26 +478,24 @@ export function GeneratePage() {
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {TEMPLATES.map((t) => (
-                <button key={t.id} type="button" onClick={() => selectTemplate(t)}
-                  className={`rounded-2xl border p-3 text-left transition ${templateId === t.id ? "border-primary ring-2 ring-primary/20" : "border-border hover:border-primary/50"}`}>
-                  <div className="relative mb-2 grid aspect-[4/3] place-items-center overflow-hidden rounded-xl shadow-inner" style={{ background: `radial-gradient(circle at 22% 18%, #ffffffaa, transparent 36%), linear-gradient(135deg, ${t.color}, ${t.accent}55)` }}>
-                    <div className="absolute inset-2 rounded-lg border border-white/60 opacity-50"/>
-                    <div className="absolute -right-4 -top-5 h-20 w-20 rounded-full border-[10px] border-white/40"/>
-                    <div className="relative flex h-[72px] w-[72px] items-center justify-center rounded-full border-[5px] bg-white/25 px-2 text-center text-[9px] font-black leading-tight shadow-xl backdrop-blur-sm" style={{ borderColor: "#ffffffcc", color: t.accent, boxShadow: `0 10px 22px ${t.accent}44` }}>
-                      {t.product}
+                <div key={t.id} className={`overflow-hidden rounded-2xl border bg-card transition ${templateId === t.id ? "border-primary ring-2 ring-primary/20" : "border-border hover:border-primary/50"}`}>
+                  <button type="button" onClick={() => selectTemplate(t)} className="block w-full text-left">
+                    <img src={t.referenceImage} alt={t.name + " label inspiration"} loading="lazy" className="aspect-[4/3] w-full object-cover"/>
+                    <div className="p-3">
+                      <div className="text-sm font-semibold">{t.name}</div>
+                      <div className="mt-1 text-xs text-muted-foreground">{t.category}</div>
+                      <div className="mt-2 text-xs font-semibold text-primary">{templateId === t.id ? "Selected reference" : "Use this style"}</div>
                     </div>
-                    <span className="absolute bottom-2 left-3 right-3 h-px bg-white/60"/>
-                  </div>
-                  <div className="text-sm font-semibold">{t.name}</div>
-                  <div className="text-xs text-muted-foreground">{t.category}</div>
-                </button>
+                  </button>
+                  <div className="border-t px-3 py-2 text-[11px] text-muted-foreground">Photo: <a href={t.sourceUrl} target="_blank" rel="noreferrer" className="underline">Pexels source</a></div>
+                </div>
               ))}
             </div>
           </div>
 
           <div className="rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/5 via-card to-accent/10 p-4 shadow-sm md:p-5">
             <div className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary"/><h2 className="font-semibold">Describe the design you want</h2></div>
-            <p className="mt-2 text-sm text-muted-foreground">Write naturally. Describe the product, style, colours, imagery, background, texture, mood and anything you want included. Our design harness converts your notes into a detailed professional brief for ChatGPT.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Write naturally. Describe the product, style, colours, imagery, background, texture, mood and anything you want included. Choose a visual reference, add your business details and open a short, tailored design prompt in ChatGPT.</p>
             <textarea value={creativeBrief} onChange={(event) => setCreativeBrief(event.target.value)} rows={5} maxLength={4000} placeholder="Example: I make premium ginger and hibiscus drink. I want a bold, refreshing label with a rich burgundy-to-ruby background, realistic hibiscus flowers and fresh ginger, subtle condensation, elegant cream typography, a premium glass-bottle feel, and a clean space for ingredients." className="mt-3 w-full resize-y rounded-xl border border-border bg-background px-3 py-3 text-sm leading-6 outline-none focus:ring-2 focus:ring-primary/30"/>
             <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
               <span className="text-xs text-muted-foreground">{creativeBrief.length}/4,000 characters · no image API used</span>
@@ -538,7 +504,7 @@ export function GeneratePage() {
                 <Button type="button" variant="outline" onClick={copyFullDesignPrompt}>Copy full prompt</Button>
               </div>
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">ChatGPT opens with the full design prompt prepared. The customer presses Send in ChatGPT, downloads the generated image, then returns here to submit it for artwork review.</p>
+            <p className="mt-2 text-xs text-muted-foreground">ChatGPT opens with your selected design reference and customer details prepared. The customer presses Send in ChatGPT, downloads the generated image, then returns here to submit it for artwork review.</p>
           </div>
 
           <div className="rounded-2xl border border-border p-4 md:p-5">
@@ -555,6 +521,12 @@ export function GeneratePage() {
               </label>
               <label className="text-sm font-medium sm:col-span-2">Phone / contact to print (optional)
                 <input value={printPhone} onChange={(e) => setPrintPhone(e.target.value)} maxLength={40} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm" placeholder="Only if you want it printed on the label"/>
+              </label>
+              <label className="text-sm font-medium">Social handle to print (optional)
+                <input value={printSocials} onChange={(e) => setPrintSocials(e.target.value)} maxLength={60} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm" placeholder="@yourbusiness"/>
+              </label>
+              <label className="text-sm font-medium">Website to print (optional)
+                <input value={printWebsite} onChange={(e) => setPrintWebsite(e.target.value)} maxLength={100} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm" placeholder="www.yourbusiness.com"/>
               </label>
             </div>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -576,6 +548,11 @@ export function GeneratePage() {
           <div className="rounded-2xl border border-border p-4 md:p-5">
             <h2 className="font-semibold">3. Choose size and quantity</h2>
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <label className="text-sm font-medium">Label shape
+                <select value={shape} onChange={(e) => setShape(e.target.value as Shape)} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3">
+                  <option value="round">Round</option><option value="square">Square</option><option value="rectangle">Rectangle</option><option value="oval">Oval</option><option value="custom">Custom die-cut</option>
+                </select>
+              </label>
               <label className="text-sm font-medium">Width (mm)
                 <input type="number" min="20" max="300" value={width} onChange={(e) => setWidth(e.target.value)} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3"/>
               </label>
@@ -637,7 +614,7 @@ export function GeneratePage() {
             </div>
             <div className="mt-4 grid grid-cols-2 gap-2">
               <Button variant="outline" onClick={saveDraft} className="gap-2"><Save className="h-4 w-4"/> Save draft</Button>
-              <Button variant="outline" onClick={() => { selectTemplate(TEMPLATES[5]); setBrand(""); setProduct(""); setTagline(""); setPrintPhone(""); setWidth("50"); setHeight("50"); setQuantity("100"); setNotice("Started a new blank label."); }} className="gap-2"><RotateCcw className="h-4 w-4"/> Reset</Button>
+              <Button variant="outline" onClick={() => { selectTemplate(TEMPLATES[0]); setBrand(""); setProduct(""); setTagline(""); setPrintPhone(""); setPrintSocials(""); setPrintWebsite(""); setWidth("50"); setHeight("50"); setQuantity("100"); setNotice("Started a new blank label."); }} className="gap-2"><RotateCcw className="h-4 w-4"/> Reset</Button>
             </div>
             <Button onClick={downloadPreview} variant="secondary" className="mt-2 w-full gap-2"><Download className="h-4 w-4"/> Download preview</Button>
             <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3">
