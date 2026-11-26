@@ -313,7 +313,29 @@ router.put("/admin/settings", async (req, res) => {
   const parse = SettingsBody.safeParse(req.body);
   if (!parse.success) { res.status(400).json({ error: "Validation failed", issues: parse.error.issues }); return; }
   const [existing] = await db.select({ id: schema.shopSettings.id }).from(schema.shopSettings).limit(1);
-  if (!existing) { res.status(404).json({ error: "Settings not found" }); return; }
+  if (!existing) {
+    const required = ["businessName", "whatsappNumber", "whatsappDisplay", "location", "hours", "leadTimeDays"] as const;
+    if (required.some((key) => parse.data[key] === undefined)) {
+      res.status(400).json({ error: "Initial shop setup requires business name, WhatsApp number/display, service location, opening-hours guidance and lead time." });
+      return;
+    }
+    const [created] = await db.insert(schema.shopSettings).values({
+      businessName: parse.data.businessName!,
+      tagline: parse.data.tagline ?? "",
+      whatsappNumber: parse.data.whatsappNumber!,
+      whatsappDisplay: parse.data.whatsappDisplay!,
+      email: parse.data.email ?? null,
+      location: parse.data.location!,
+      hours: parse.data.hours!,
+      currency: "NGN",
+      currencySymbol: "₦",
+      instagram: parse.data.instagram ?? null,
+      deliveryNote: parse.data.deliveryNote ?? null,
+      leadTimeDays: parse.data.leadTimeDays!,
+    }).returning();
+    res.status(201).json(created);
+    return;
+  }
   const [updated] = await db.update(schema.shopSettings).set(parse.data).where(eq(schema.shopSettings.id, existing.id)).returning();
   res.json(updated);
 });
