@@ -1,11 +1,13 @@
 /**
- * auth.ts — JWT signing/verifying + bcrypt password helpers.
+ * auth.ts — JWT signing/verifying + PBKDF2 password helpers.
  *
  * JWT_SECRET must be set in environment.
  * Tokens expire in 30 days (customer-friendly, non-sensitive data).
  */
-import { createHmac, randomBytes, timingSafeEqual } from "crypto";
+import { createHmac, randomBytes, timingSafeEqual, pbkdf2 } from "crypto";
+import { promisify } from "util";
 
+const pbkdf2Async = promisify(pbkdf2);
 const JWT_SECRET = process.env.JWT_SECRET ?? (process.env.NODE_ENV === "production" ? "" : "local-development-only-secret");
 if (!JWT_SECRET) {
   throw new Error("JWT_SECRET must be configured with a strong random value in production.");
@@ -15,7 +17,7 @@ const EXPIRY_SECONDS = 60 * 60 * 24 * 30; // 30 days
 /** Minimal JWT implementation — no external dep needed for HS256 */
 function b64url(str: string | Buffer): string {
   const b = typeof str === "string" ? Buffer.from(str) : str;
-  return b.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+  return b.toString("base64").replace(/\\+/g, "-").replace(/\\//g, "_").replace(/=/g, "");
 }
 
 export function signToken(payload: Record<string, unknown>): string {
@@ -31,7 +33,6 @@ export function verifyToken(token: string): Record<string, unknown> | null {
     if (parts.length !== 3) return null;
     const [header, body, sig] = parts as [string, string, string];
     const expected = b64url(createHmac("sha256", JWT_SECRET).update(`${header}.${body}`).digest());
-    // Timing-safe comparison
     const sigBuf = Buffer.from(sig);
     const expBuf = Buffer.from(expected);
     if (sigBuf.length !== expBuf.length || !timingSafeEqual(sigBuf, expBuf)) return null;
@@ -43,40 +44,32 @@ export function verifyToken(token: string): Record<string, unknown> | null {
   }
 }
 
-/** bcrypt-compatible using Node crypto (PBKDF2 — no native bcrypt dep needed) */
 const ITERATIONS = 100_000;
 const KEY_LEN = 64;
 const DIGEST = "sha512";
 
 export async function hashPassword(password: string): Promise<string> {
   const salt = randomBytes(16).toString("hex");
-  return new Promise((resolve, reject) => {
-    // Use dynamic import of built-in crypto pbkdf2
-    const { pbkdf2 } = require("crypto") as typeof import("crypto");
-    pbkdf2(password, salt, ITERATIONS, KEY_LEN, DIGEST, (err, key) => {
-      if (err) reject(err);
-      else resolve(`pbkdf2$${ITERATIONS}$${salt}$${key.toString("hex")}`);
-    });
-  });
+  const key = await pbkdf2Async(password, salt, ITERATIONS, KEY_LEN, DIGEST);
+  return `pbkdf2$${ITERATIONS}$${salt}$${key.toString("hex")}`;
 }
 
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
   const parts = hash.split("$");
   if (parts.length !== 4 || parts[0] !== "pbkdf2") return false;
   const [, iters, salt, storedKey] = parts as [string, string, string, string];
-  return new Promise((resolve, reject) => {
-    const { pbkdf2, timingSafeEqual } = require("crypto") as typeof import("crypto");
-    pbkdf2(password, salt, Number(iters), KEY_LEN, DIGEST, (err, key) => {
-      if (err) reject(err);
-      else {
-        try {
-          resolve(timingSafeEqual(Buffer.from(storedKey, "hex"), key));
-        } catch {
-          resolve(false);
-        }
-      }
-    });
-  });
+  const iterations = Number(iters);
+  if (!Number.isInteger(iterations) || iterations < 1 || iterations > 1_000_000 ||
+      !/^[a-f0-9]{32}$/i.test(salt) || !/^[a-f0-9]{128}$/i.test(storedKey)) {
+    return false;
+  }
+  try {
+    const derivedKey = await pbkdf2Async(password, salt, iterations, KEY_LEN, DIGEST);
+    const expectedKey = Buffer.from(storedKey, "hex");
+    return expectedKey.length === derivedKey.length && timingSafeEqual(expectedKey, derivedKey);
+  } catch {
+    return false;
+  }
 }
 
 /** Middleware: parse Bearer token from Authorization header */
