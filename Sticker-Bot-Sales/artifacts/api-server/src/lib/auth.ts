@@ -17,7 +17,7 @@ const EXPIRY_SECONDS = 60 * 60 * 24 * 30; // 30 days
 /** Minimal JWT implementation — no external dep needed for HS256 */
 function b64url(str: string | Buffer): string {
   const b = typeof str === "string" ? Buffer.from(str) : str;
-  return b.toString("base64").replace(/\\+/g, "-").replace(/\\//g, "_").replace(/=/g, "");
+  return b.toString("base64").replaceAll("+", "-").replaceAll("/", "_").replace(/=/g, "");
 }
 
 export function signToken(payload: Record<string, unknown>): string {
