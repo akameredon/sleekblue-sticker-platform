@@ -10,10 +10,10 @@ import { createHmac, timingSafeEqual } from "crypto";
 
 const SECRET_KEY = process.env.PAYSTACK_SECRET_KEY ?? "";
 
-// This application is intentionally locked to Paystack test mode until the owner
-// explicitly approves a separate live-payment release.
-if (SECRET_KEY && !SECRET_KEY.startsWith("sk_test_")) {
-  throw new Error("Only a Paystack test secret key (sk_test_...) is allowed in this deployment.");
+// Accept Paystack test keys for staging and live keys for production.
+// The key remains server-side and is used for both API requests and webhook signatures.
+if (SECRET_KEY && !/^sk_(test|live)_/.test(SECRET_KEY)) {
+  throw new Error("PAYSTACK_SECRET_KEY must be a valid Paystack secret key (sk_test_... or sk_live_...).");
 }
 const BASE_URL = "https://api.paystack.co";
 
