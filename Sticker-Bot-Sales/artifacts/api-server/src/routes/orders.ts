@@ -226,7 +226,12 @@ router.post("/orders", async (req, res) => {
 });
 
 router.post("/orders/lookup", async (req, res) => {
-  const body = LookupOrderBody.parse(req.body);
+  const parsed = LookupOrderBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(404).json({ error: "Order not found" });
+    return;
+  }
+  const body = parsed.data;
   const refNorm = body.reference.trim().toUpperCase();
   const phoneDigits = body.phone.replace(/\D/g, "");
   if (!refNorm || phoneDigits.length < 10) {
