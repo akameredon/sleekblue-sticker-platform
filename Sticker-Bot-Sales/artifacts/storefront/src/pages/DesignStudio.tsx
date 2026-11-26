@@ -168,6 +168,7 @@ export function GeneratePage() {
   const [customerPassword, setCustomerPassword] = useState("");
   const [checkoutBusy, setCheckoutBusy] = useState(false);
   const [creativeBrief, setCreativeBrief] = useState("");
+  const [artworkFile, setArtworkFile] = useState<File | null>(null);
 
   const design = useMemo<Template>(() => ({
     ...(TEMPLATES.find((t) => t.id === templateId) ?? TEMPLATES[0]),
@@ -297,6 +298,15 @@ export function GeneratePage() {
       setNotice("Enter your name, a valid phone number and email to continue to secure payment.");
       return;
     }
+    if (!artworkFile) {
+      setNotice("Download your generated design from ChatGPT and select the artwork file here before checkout.");
+      return;
+    }
+    const allowedArtworkTypes = new Set(["image/png", "image/jpeg", "image/webp", "image/svg+xml", "application/pdf", "application/postscript"]);
+    if (artworkFile.size > 20 * 1024 * 1024 || !allowedArtworkTypes.has(artworkFile.type.toLowerCase())) {
+      setNotice("Choose a PNG, JPG, WEBP, SVG, PDF or EPS artwork file up to 20 MB.");
+      return;
+    }
     if (retailEstimate == null) {
       setNotice("This quantity or size needs a confirmed manual quote. Please use WhatsApp to request one.");
       return;
@@ -327,11 +337,38 @@ export function GeneratePage() {
         }
         setAuth(account.token, account.user);
       }
+      // Upload the customer's ChatGPT-generated artwork directly to private object storage.
+      const uploadRequest = await fetch(apiUrl("/storage/uploads/request-url"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+        body: JSON.stringify({ name: artworkFile.name, size: artworkFile.size, contentType: artworkFile.type }),
+      });
+      const uploadDetails = await uploadRequest.json();
+      if (!uploadRequest.ok) throw new Error(uploadDetails.error ?? "Could not prepare your private artwork upload.");
+
+      const fileUpload = await fetch(uploadDetails.uploadURL, {
+        method: "PUT",
+        headers: { "Content-Type": artworkFile.type },
+        body: artworkFile,
+      });
+      if (!fileUpload.ok) throw new Error("Your artwork could not be uploaded. Please try again.");
+
+      const uploadComplete = await fetch(apiUrl("/storage/uploads/complete"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+        body: JSON.stringify({ objectPath: uploadDetails.objectPath }),
+      });
+      const securedArtwork = await uploadComplete.json();
+      if (!uploadComplete.ok) throw new Error(securedArtwork.error ?? "Your artwork upload could not be secured.");
+      const artworkObjectPath = securedArtwork.objectPath ?? uploadDetails.objectPath;
+
       const designNotes = JSON.stringify({
         templateId, brand, product, tagline, color, accent, shape,
         widthMm: Number(width), heightMm: Number(height), quantity: Number(quantity),
         visibilityPreference: visibility,
-        artworkStatus: "Watermarked preview only; production artwork must be prepared and approved by Sleekblue.",
+        artworkObjectPath,
+        artworkFilename: artworkFile.name,
+        artworkStatus: "Customer-generated artwork uploaded privately; production file requires Sleekblue review and approval.",
       });
       const orderResponse = await fetch(apiUrl("/orders"), {
         method: "POST",
@@ -350,7 +387,7 @@ export function GeneratePage() {
             widthMm: Number(width),
             heightMm: Number(height),
             unitPrice: Math.ceil((retailEstimate / Number(quantity)) * 100) / 100,
-            notes: `Brand: ${brand}; Product: ${product}; Shape: ${shape}`,
+            notes: `Brand: ${brand}; Product: ${product}; Shape: ${shape}; Artwork: ${artworkObjectPath}`,
           }],
         }),
       });
@@ -551,6 +588,12 @@ export function GeneratePage() {
               <Button variant="outline" onClick={() => { selectTemplate(TEMPLATES[0]); setNotice("Design reset."); }} className="gap-2"><RotateCcw className="h-4 w-4"/> Reset</Button>
             </div>
             <Button onClick={downloadPreview} variant="secondary" className="mt-2 w-full gap-2"><Download className="h-4 w-4"/> Download preview</Button>
+            <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3">
+              <h3 className="font-semibold">Upload your ChatGPT artwork</h3>
+              <p className="mt-1 text-xs text-muted-foreground">After generating in ChatGPT, download the image and select it here. It will be uploaded privately to your customer account during checkout. PNG, JPG, WEBP, SVG, PDF or EPS · maximum 20 MB.</p>
+              <input type="file" accept=".png,.jpg,.jpeg,.webp,.svg,.pdf,.eps,.ps,image/png,image/jpeg,image/webp,image/svg+xml,application/pdf,application/postscript" onChange={(event) => setArtworkFile(event.target.files?.[0] ?? null)} className="mt-3 block w-full text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-2 file:font-semibold file:text-primary-foreground"/>
+              {artworkFile && <p className="mt-2 break-all text-xs font-medium text-foreground">Selected: {artworkFile.name} · {(artworkFile.size / (1024 * 1024)).toFixed(2)} MB</p>}
+            </div>
             <div className="mt-4 border-t border-border pt-4">
               <h3 className="font-semibold">5. Place your print order</h3>
               <p className="mt-1 text-xs text-muted-foreground">For now, online checkout supports 100, 500 or 1,000 pieces at supported sizes. Sleekblue confirms material, finish and production artwork before printing.</p>
@@ -564,10 +607,10 @@ export function GeneratePage() {
                 <span className="text-muted-foreground">Estimated order total</span>
                 <strong>{retailEstimate == null ? "Manual quote" : `₦${(retailEstimate).toLocaleString("en-NG")}`}</strong>
               </div>
-              <Button onClick={placeOrderAndPay} disabled={checkoutBusy || retailEstimate == null} className="mt-3 w-full gap-2">
-                {checkoutBusy ? "Preparing secure checkout…" : "Create order & pay securely"}
+              <Button onClick={placeOrderAndPay} disabled={checkoutBusy || retailEstimate == null || !artworkFile} className="mt-3 w-full gap-2">
+                {checkoutBusy ? "Uploading artwork & preparing checkout…" : "Upload artwork, create order & pay"}
               </Button>
-              <p className="mt-2 text-[11px] text-muted-foreground">No print run begins until Sleekblue confirms the final production specifications. Your payment and order reference are handled separately.</p>
+              <p className="mt-2 text-[11px] text-muted-foreground">Your artwork is stored privately with your order. Sleekblue reviews the file and confirms production specifications before printing.</p>
             </div>
             <Button onClick={sendToWhatsApp} className="mt-2 w-full gap-2"><MessageCircle className="h-4 w-4"/> Send to Sleekblue on WhatsApp</Button>
             <p className="mt-2 text-center text-xs text-muted-foreground">WhatsApp: +234 805 816 2036</p>
