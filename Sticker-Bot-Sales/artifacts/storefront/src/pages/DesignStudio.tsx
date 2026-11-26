@@ -254,7 +254,7 @@ export function GeneratePage() {
             quantity: Number(quantity),
             widthMm: Number(width),
             heightMm: Number(height),
-            unitPrice: retailEstimate,
+            unitPrice: Math.ceil((retailEstimate / Number(quantity)) * 100) / 100,
             notes: `Brand: ${brand}; Product: ${product}; Shape: ${shape}`,
           }],
         }),
