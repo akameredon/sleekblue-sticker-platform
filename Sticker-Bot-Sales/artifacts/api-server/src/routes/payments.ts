@@ -236,7 +236,7 @@ router.get("/payments/:reference", requireAuth, async (req, res) => {
   if (!payment) { res.status(404).json({ error: "Payment not found" }); return; }
 
   const [order] = await db
-    .select({ status: schema.orders.status, reference: schema.orders.reference, customerPhone: schema.orders.customerPhone, userId: schema.orders.userId })
+    .select({ status: schema.orders.status, reference: schema.orders.reference, customerPhone: schema.orders.customerPhone, userId: schema.orders.userId, total: schema.orders.total, currency: schema.orders.currency })
     .from(schema.orders)
     .where(eq(schema.orders.id, payment.orderId))
     .limit(1);
