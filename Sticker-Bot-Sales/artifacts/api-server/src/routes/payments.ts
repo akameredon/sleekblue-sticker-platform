@@ -28,7 +28,7 @@ const router: IRouter = Router();
 
 const InitializeBody = z.object({
   orderId: z.number().int().positive(),
-  customerEmail: z.email("Valid email required for payment"),
+  customerEmail: z.string().email("Valid email required for payment"),
   customerPhone: z.string().min(7).max(20),
 });
 
