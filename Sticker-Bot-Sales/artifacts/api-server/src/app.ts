@@ -77,6 +77,10 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
     res.status(403).json({ error: err.message });
     return;
   }
+  if (err.message.startsWith("Shop configuration is incomplete.")) {
+    res.status(503).json({ error: err.message });
+    return;
+  }
   logger.error(err);
   res.status(500).json({ error: "Internal server error" });
 });
