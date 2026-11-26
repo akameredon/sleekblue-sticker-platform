@@ -56,12 +56,12 @@ type ShopSettings = { businessName: string; tagline: string; whatsappNumber: str
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const STATUS_COLORS: Record<string, string> = {
-  pending_whatsapp: "hsl(48 100% 52%)", confirmed: "hsl(145 65% 48%)",
-  in_production: "hsl(210 80% 56%)", shipped: "hsl(270 60% 58%)",
+  pending_payment: "hsl(35 90% 55%)", pending_whatsapp: "hsl(48 100% 52%)", confirmed: "hsl(145 65% 48%)",
+  in_production: "hsl(210 80% 56%)", ready: "hsl(175 60% 45%)", shipped: "hsl(270 60% 58%)",
   delivered: "hsl(150 60% 46%)", cancelled: "hsl(0 70% 55%)",
 };
 const CHART_COLORS = ["hsl(48 100% 52%)", "hsl(330 80% 60%)", "hsl(210 80% 56%)", "hsl(145 65% 48%)", "hsl(270 60% 58%)", "hsl(30 90% 55%)", "hsl(190 70% 50%)", "hsl(0 70% 55%)"];
-const ALL_STATUSES = ["pending_whatsapp", "confirmed", "in_production", "shipped", "delivered", "cancelled"];
+const ALL_STATUSES = ["pending_payment", "pending_whatsapp", "confirmed", "in_production", "ready", "shipped", "delivered", "cancelled"];
 
 function shortDate(iso: string) { const d = new Date(iso); return `${d.getMonth() + 1}/${d.getDate()}`; }
 
