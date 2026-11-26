@@ -18,6 +18,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatNGN } from "@/lib/format";
 import { apiUrl } from "@/lib/paths";
+import { authHeaders } from "@/lib/auth";
 import {
   BarChart2, ChevronLeft, ExternalLink, Package, ShoppingBag,
   TrendingUp, Users, Zap, MessageSquare, Bot, Settings,
@@ -96,12 +97,12 @@ export function AdminPage() {
     setLoading(true);
     try {
       const [a, o, ai, c, p, s] = await Promise.all([
-        fetch(apiUrl("/admin/analytics")).then((r) => r.json()),
-        fetch(apiUrl("/admin/orders?limit=50")).then((r) => r.json()),
-        fetch(apiUrl("/admin/ai-metrics")).then((r) => r.json()),
-        fetch(apiUrl("/admin/customers")).then((r) => r.json()),
-        fetch(apiUrl("/admin/products")).then((r) => r.json()),
-        fetch(apiUrl("/admin/settings")).then((r) => r.json()),
+        fetch(apiUrl("/admin/analytics"), { headers: authHeaders() }).then((r) => r.json()),
+        fetch(apiUrl("/admin/orders?limit=50"), { headers: authHeaders() }).then((r) => r.json()),
+        fetch(apiUrl("/admin/ai-metrics"), { headers: authHeaders() }).then((r) => r.json()),
+        fetch(apiUrl("/admin/customers"), { headers: authHeaders() }).then((r) => r.json()),
+        fetch(apiUrl("/admin/products"), { headers: authHeaders() }).then((r) => r.json()),
+        fetch(apiUrl("/admin/settings"), { headers: authHeaders() }).then((r) => r.json()),
       ]);
       setAnalytics(a);
       setOrders(Array.isArray(o.orders) ? o.orders : []);
@@ -123,7 +124,7 @@ export function AdminPage() {
     try {
       const res = await fetch(apiUrl(`/admin/orders/${id}`), {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...authHeaders(), "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
       if (res.ok) {
@@ -138,7 +139,7 @@ export function AdminPage() {
     try {
       const res = await fetch(apiUrl("/admin/settings"), {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...authHeaders(), "Content-Type": "application/json" },
         body: JSON.stringify(settingsDraft),
       });
       const updated = await res.json();
@@ -148,7 +149,7 @@ export function AdminPage() {
 
   const deleteProduct = async (id: number) => {
     if (!confirm("Delete this product?")) return;
-    await fetch(apiUrl(`/admin/products/${id}`), { method: "DELETE" });
+    await fetch(apiUrl(`/admin/products/${id}`), { method: "DELETE", headers: authHeaders() });
     setProducts((prev) => prev.filter((p) => p.id !== id));
   };
 
