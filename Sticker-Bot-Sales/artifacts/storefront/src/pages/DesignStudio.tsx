@@ -323,6 +323,10 @@ export function GeneratePage() {
       setNotice("Choose a PNG, JPG/JPEG or PDF artwork file up to 20 MB.");
       return;
     }
+    if (logoFile && (logoFile.size > 20 * 1024 * 1024 || !allowedArtworkTypes.has(logoFile.type.toLowerCase()))) {
+      setNotice("Your optional logo must be a PNG, JPG/JPEG or PDF file up to 20 MB.");
+      return;
+    }
     if (retailEstimate == null) {
       setNotice("This quantity or size needs a confirmed manual quote. Please use WhatsApp to request one.");
       return;
@@ -353,33 +357,39 @@ export function GeneratePage() {
         }
         setAuth(account.token, account.user);
       }
-      // Upload the customer's ChatGPT-generated artwork directly to private object storage.
-      const uploadRequest = await fetch(apiUrl("/storage/uploads/request-url"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
-        body: JSON.stringify({ name: artworkFile.name, size: artworkFile.size, contentType: artworkFile.type }),
-      });
-      const uploadDetails = await uploadRequest.json();
-      if (!uploadRequest.ok) throw new Error(uploadDetails.error ?? "Could not prepare your private artwork upload.");
+      // Store customer artwork and any supplied logo as separate private objects.
+      // Both use the existing owner-scoped upload and ACL flow.
+      const uploadPrivateFile = async (file: File, label: string): Promise<string> => {
+        const uploadRequest = await fetch(apiUrl("/storage/uploads/request-url"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+          body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type }),
+        });
+        const uploadDetails = await uploadRequest.json();
+        if (!uploadRequest.ok) throw new Error(uploadDetails.error ?? `Could not prepare your private ${label} upload.`);
 
-      const fileUpload = await fetch(uploadDetails.uploadURL, {
-        method: "PUT",
-        headers: { "Content-Type": artworkFile.type },
-        body: artworkFile,
-      });
-      if (!fileUpload.ok) throw new Error("Your artwork could not be uploaded. Please try again.");
+        const fileUpload = await fetch(uploadDetails.uploadURL, {
+          method: "PUT",
+          headers: { "Content-Type": file.type },
+          body: file,
+        });
+        if (!fileUpload.ok) throw new Error(`Your ${label} could not be uploaded. Please try again.`);
 
-      const uploadComplete = await fetch(apiUrl("/storage/uploads/complete"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
-        body: JSON.stringify({ objectPath: uploadDetails.objectPath }),
-      });
-      const securedArtwork = await uploadComplete.json();
-      if (!uploadComplete.ok) throw new Error(securedArtwork.error ?? "Your artwork upload could not be secured.");
-      const artworkObjectPath = securedArtwork.objectPath ?? uploadDetails.objectPath;
+        const uploadComplete = await fetch(apiUrl("/storage/uploads/complete"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+          body: JSON.stringify({ objectPath: uploadDetails.objectPath }),
+        });
+        const securedFile = await uploadComplete.json();
+        if (!uploadComplete.ok) throw new Error(securedFile.error ?? `Your ${label} upload could not be secured.`);
+        return securedFile.objectPath ?? uploadDetails.objectPath;
+      };
+
+      const artworkObjectPath = await uploadPrivateFile(artworkFile, "artwork");
+      const logoObjectPath = logoFile ? await uploadPrivateFile(logoFile, "logo") : null;
 
       const designNotes = JSON.stringify({
-        templateId, brand, product, tagline: includeTagline ? tagline : "", printPhone: includePrintPhone ? printPhone : "", printSocials: includePrintSocials ? printSocials : "", printWebsite: includePrintWebsite ? printWebsite : "", includeTagline, includePrintPhone, includePrintSocials, includePrintWebsite, logoFilename: logoFile?.name ?? null, color, accent, shape,
+        templateId, brand, product, tagline: includeTagline ? tagline : "", printPhone: includePrintPhone ? printPhone : "", printSocials: includePrintSocials ? printSocials : "", printWebsite: includePrintWebsite ? printWebsite : "", includeTagline, includePrintPhone, includePrintSocials, includePrintWebsite, logoFilename: logoFile?.name ?? null, logoObjectPath, color, accent, shape,
         widthMm: Number(width), heightMm: Number(height), quantity: Number(quantity),
         visibilityPreference: visibility,
         artworkObjectPath,
@@ -403,7 +413,7 @@ export function GeneratePage() {
             widthMm: Number(width),
             heightMm: Number(height),
             unitPrice: Math.ceil((retailEstimate / Number(quantity)) * 100) / 100,
-            notes: `Brand: ${brand}; Product: ${product}; Shape: ${shape}; Artwork: ${artworkObjectPath}`,
+            notes: `Brand: ${brand}; Product: ${product}; Shape: ${shape}; Artwork: ${artworkObjectPath}; Logo: ${logoObjectPath ?? "not supplied"}`,
           }],
         }),
       });
