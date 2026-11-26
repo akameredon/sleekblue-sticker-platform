@@ -107,3 +107,18 @@ Rounds 3–5 have not yet been answered. Do not infer or implement decisions abo
 
 **Implementation principle:** Keep the customer workflow straightforward while giving staff control over the reference gallery, available materials/finishes and pricing. External artwork editing is supported through download-and-reupload rather than a complex in-app editor.
 
+## Implementation decisions — Question set 2 (confirmed)
+
+1. **Production file formats:** Prepare PDF, SVG and CorelDRAW-compatible CDR files for staff.
+2. **Bleed and cutting guides:** Automatically add bleed and cut lines.
+3. **Raster resolution:** Target 300 DPI.
+4. **Colour mode:** Use CMYK for print, converting RGB artwork where necessary.
+5. **New-order handling:** Provide a central admin dashboard with a new-order queue.
+6. **Customer-visible order statuses:** Order received; awaiting payment; payment confirmed; artwork review; approved; printing; ready for pickup/dispatched; completed.
+7. **Artwork revisions:** Allow 3 revision rounds before staff assistance is required.
+8. **Pre-print quality check:** Staff checks dimensions, resolution, bleed, cut line and artwork quality before printing.
+9. **Retention:** Keep order records; retain artwork for 12 months.
+10. **Admin permissions:** Owner, production staff and customer support have different role-based permissions.
+
+**Production principle:** The system should prepare consistent print-production files and require a documented staff quality check before printing. Actual CDR compatibility, colour conversion, bleed and cut-line output must be validated against the production software and equipment during end-to-end testing.
+
