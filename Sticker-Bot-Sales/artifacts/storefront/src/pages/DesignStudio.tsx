@@ -41,10 +41,67 @@ const PRODUCTION_COSTS: Record<string, Record<number, number>> = {
   "50.8x203.2": { 100: 9000, 500: 42500, 1000: 80000 },
 };
 
+const COST_ANCHORS_BY_QUANTITY = {
+  100: [
+    { areaIn2: 2.25, cost: 3000 },
+    { areaIn2: 4, cost: 3000 },
+    { areaIn2: 6.25, cost: 4500 },
+    { areaIn2: 9, cost: 5000 },
+    { areaIn2: 12, cost: 6500 },
+    { areaIn2: 16, cost: 9000 },
+  ],
+  500: [
+    { areaIn2: 2.25, cost: 12500 },
+    { areaIn2: 4, cost: 12500 },
+    { areaIn2: 6.25, cost: 20000 },
+    { areaIn2: 9, cost: 22500 },
+    { areaIn2: 12, cost: 30000 },
+    { areaIn2: 16, cost: 42500 },
+  ],
+  1000: [
+    { areaIn2: 2.25, cost: 20000 },
+    { areaIn2: 4, cost: 20000 },
+    { areaIn2: 6.25, cost: 35000 },
+    { areaIn2: 9, cost: 40000 },
+    { areaIn2: 12, cost: 55000 },
+    { areaIn2: 16, cost: 80000 },
+  ],
+} as const;
+
+// The supplied cost sheet prices by the listed dimensions. For unlisted dimensions,
+// estimate production cost by interpolating/extrapolating between its area anchors.
+// This is an estimate only; material, shape, cutting and wastage can change the final quote.
+function estimateProductionCost(areaIn2: number, qty: number): number | null {
+  const anchors = COST_ANCHORS_BY_QUANTITY[qty as keyof typeof COST_ANCHORS_BY_QUANTITY];
+  if (!anchors || !Number.isFinite(areaIn2) || areaIn2 <= 0) return null;
+
+  let left = anchors[0];
+  let right = anchors[1];
+
+  if (areaIn2 <= anchors[0].areaIn2) {
+    left = anchors[0];
+    right = anchors[1];
+  } else {
+    for (let i = 1; i < anchors.length; i++) {
+      if (areaIn2 <= anchors[i].areaIn2) {
+        left = anchors[i - 1];
+        right = anchors[i];
+        break;
+      }
+      left = anchors[anchors.length - 2];
+      right = anchors[anchors.length - 1];
+    }
+  }
+
+  const ratio = (areaIn2 - left.areaIn2) / (right.areaIn2 - left.areaIn2);
+  return Math.max(0, Math.ceil(left.cost + ratio * (right.cost - left.cost)));
+}
+
 function getRetailEstimate(widthMm: number, heightMm: number, qty: number) {
-  const key = `${widthMm.toFixed(1)}x${heightMm.toFixed(1)}`;
-  const reverseKey = `${heightMm.toFixed(1)}x${widthMm.toFixed(1)}`;
-  const cost = PRODUCTION_COSTS[key]?.[qty] ?? PRODUCTION_COSTS[reverseKey]?.[qty];
+  if (!Number.isFinite(widthMm) || !Number.isFinite(heightMm) ||
+      widthMm < 20 || heightMm < 20 || widthMm > 300 || heightMm > 300) return null;
+  const areaIn2 = (widthMm / 25.4) * (heightMm / 25.4);
+  const cost = estimateProductionCost(areaIn2, qty);
   if (cost == null) return null;
   return Math.ceil((cost / 0.7) / 100) * 100;
 }
@@ -271,10 +328,10 @@ export function GeneratePage() {
               {retailEstimate != null ? (
                 <>
                   <div className="mt-1 text-2xl font-extrabold">₦{retailEstimate.toLocaleString("en-NG")}</div>
-                  <p className="mt-1 text-xs text-muted-foreground">Based on the supplied Sleekblue production cost and our initial 30% gross-margin target. Delivery, packaging, payment fees and special requirements are not included and may change the final quote.</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Estimate uses label area and the supplied Sleekblue cost-sheet anchors, with a 30% gross-margin target. Unlisted dimensions are estimates, not confirmed production prices. Delivery, packaging, payment fees, material, cutting and wastage may change the final quote.</p>
                 </>
               ) : (
-                <p className="mt-1 text-xs text-muted-foreground">We’ll confirm a price on WhatsApp for this size or quantity. The current cost sheet covers selected sizes at 100, 500 and 1,000 pieces.</p>
+                <p className="mt-1 text-xs text-muted-foreground">An automatic estimate is available for any valid size at 100, 500 or 1,000 pieces. For other quantities, we’ll confirm production cost before accepting the order.</p>
               )}
             </div>
             <div className="mt-3 rounded-xl bg-muted/50 p-3 text-sm">
