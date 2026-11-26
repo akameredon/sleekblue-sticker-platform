@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { count, gte } from "drizzle-orm";
+import { count, gte, sql } from "drizzle-orm";
 import {
   GetShopInfoResponse,
   GetShopStatsResponse,
@@ -8,6 +8,7 @@ import { db, schema } from "../lib/db";
 import { getShopSettingsRow } from "../lib/shop";
 
 const router: IRouter = Router();
+const sqlDistinctPhones = sql`distinct ${schema.orders.customerPhone}`;
 
 router.get("/shop/info", async (_req, res) => {
   const settings = await getShopSettingsRow();
@@ -46,12 +47,15 @@ router.get("/shop/stats", async (_req, res) => {
   const [{ value: totalOrders }] = await db
     .select({ value: count() })
     .from(schema.orders);
+  const [{ value: happyCustomers }] = await db
+    .select({ value: count(sqlDistinctPhones) })
+    .from(schema.orders);
 
   const data = GetShopStatsResponse.parse({
     totalProducts,
     totalCategories,
     ordersThisWeek,
-    happyCustomers: 1240 + totalOrders,
+    happyCustomers,
     averageLeadTimeDays: settings.leadTimeDays,
   });
   res.json(data);
