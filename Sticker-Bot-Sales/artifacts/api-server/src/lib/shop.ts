@@ -7,7 +7,7 @@ export async function getShopSettingsRow() {
   const [created] = await db
     .insert(schema.shopSettings)
     .values({
-      businessName: "Label Studio",
+      businessName: "Product Label Studio",
       tagline: "Design your product labels easily. We print, cut and package your stickers with Sleekblue Media Houz.",
       whatsappNumber: "2348058162036",
       whatsappDisplay: "+234 805 816 2036",
