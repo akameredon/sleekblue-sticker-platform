@@ -217,7 +217,7 @@ const ProductBody = z.object({
   name: z.string().min(2).max(100),
   slug: z.string().min(2).max(100),
   tagline: z.string().max(200),
-  description: z.string().max(2000).optional(),
+  description: z.string().max(2000).default(""),
   categorySlug: z.string(),
   basePrice: z.number().positive(),
   imageUrl: z.string().nullable().optional(),
@@ -245,10 +245,10 @@ router.put("/admin/products/:id", async (req, res) => {
   if (!id) { res.status(400).json({ error: "Invalid product ID" }); return; }
   const parse = ProductBody.partial().safeParse(req.body);
   if (!parse.success) { res.status(400).json({ error: "Validation failed", issues: parse.error.issues }); return; }
-  const data = parse.data;
+  const { basePrice, ...data } = parse.data;
   const [row] = await db
     .update(schema.products)
-    .set({ ...data, ...(data.basePrice !== undefined ? { basePrice: String(data.basePrice) } : {}) })
+    .set({ ...data, ...(basePrice !== undefined ? { basePrice: String(basePrice) } : {}) })
     .where(eq(schema.products.id, id))
     .returning();
   if (!row) { res.status(404).json({ error: "Product not found" }); return; }
