@@ -16,21 +16,30 @@ type Template = {
   color: string;
   accent: string;
   shape: Shape;
-  referenceImage: string;
-  sourceUrl: string;
   direction: string;
 };
 
 const TEMPLATES: Template[] = [
-  { id: "botanical-jar", name: "Botanical jar", category: "Natural food, skincare & wellness", brand: "", product: "", tagline: "", color: "#E7DDC9", accent: "#3D5142", shape: "round", referenceImage: "https://images.pexels.com/photos/11159158/pexels-photo-11159158.jpeg?auto=compress&cs=tinysrgb&w=900", sourceUrl: "https://www.pexels.com/photo/jar-with-blank-label-11159158/", direction: "Natural premium jar label, warm rustic styling, botanical ingredients, tactile cream paper, earthy greens and browns, elegant readable typography." },
-  { id: "botanical-bottle", name: "Botanical bottle", category: "Oils, drinks & natural products", brand: "", product: "", tagline: "", color: "#DCE4D9", accent: "#355447", shape: "rectangle", referenceImage: "https://images.pexels.com/photos/11441227/pexels-photo-11441227.jpeg?auto=compress&cs=tinysrgb&w=900", sourceUrl: "https://www.pexels.com/photo/bottle-with-blank-label-11441227/", direction: "Refined brown-glass bottle label, botanical styling, natural textures, deep green and warm neutral colours, clean hierarchy and premium editorial typography." },
-  { id: "minimal-bottle", name: "Minimal bottle", category: "Beauty, fragrance & premium drinks", brand: "", product: "", tagline: "", color: "#F1EDE5", accent: "#343434", shape: "rectangle", referenceImage: "https://images.pexels.com/photos/6800931/pexels-photo-6800931.jpeg?auto=compress&cs=tinysrgb&w=900", sourceUrl: "https://www.pexels.com/photo/glass-transparent-brown-mockup-6800931/", direction: "Minimal premium bottle label, generous negative space, crisp alignment, restrained monochrome palette, refined typography and subtle material detail." },
-  { id: "floral-skincare", name: "Floral skincare", category: "Beauty & personal care", brand: "", product: "", tagline: "", color: "#E9D9D5", accent: "#79594F", shape: "round", referenceImage: "https://images.pexels.com/photos/36898534/pexels-photo-36898534.jpeg?auto=compress&cs=tinysrgb&w=900", sourceUrl: "https://www.pexels.com/photo/elegant-skincare-cream-jar-with-floral-decor-36898534/", direction: "Soft botanical skincare label, delicate floral elements, muted blush and warm neutrals, elegant typography and clean premium cosmetic finish." },
-  { id: "clean-range", name: "Clean product range", category: "Skincare & wellness", brand: "", product: "", tagline: "", color: "#EEECE6", accent: "#4C514C", shape: "rectangle", referenceImage: "https://images.pexels.com/photos/8100691/pexels-photo-8100691.jpeg?auto=compress&cs=tinysrgb&w=900", sourceUrl: "https://www.pexels.com/photo/white-and-brown-bottles-on-white-textile-8100691/", direction: "Coordinated clean-label identity, soft neutral background, balanced information hierarchy, subtle texture, understated typography and premium spacing." },
-  { id: "artisan-jar", name: "Artisan jar", category: "Food, body butter & handmade goods", brand: "", product: "", tagline: "", color: "#E8D9C7", accent: "#694B3A", shape: "round", referenceImage: "https://images.pexels.com/photos/7795851/pexels-photo-7795851.jpeg?auto=compress&cs=tinysrgb&w=900", sourceUrl: "https://www.pexels.com/photo/brown-glass-jar-with-a-blank-label-7795851/", direction: "Artisan jar label with tactile paper, warm natural tones, clear product naming, handmade character and restrained premium layout." },
-  { id: "bold-colour", name: "Bold colour", category: "Food, confectionery & lifestyle", brand: "", product: "", tagline: "", color: "#DDE6F4", accent: "#243B68", shape: "square", referenceImage: "https://images.pexels.com/photos/8947557/pexels-photo-8947557.jpeg?auto=compress&cs=tinysrgb&w=900", sourceUrl: "https://www.pexels.com/photo/close-up-of-blue-container-8947557/", direction: "Bold contemporary label, confident colour blocking, strong contrast, expressive but readable typography and a clear focal point." },
-  { id: "candle", name: "Candle & home", category: "Candles, home fragrance & gifts", brand: "", product: "", tagline: "", color: "#E5DDD2", accent: "#4D4037", shape: "rectangle", referenceImage: "https://images.pexels.com/photos/6311860/pexels-photo-6311860.jpeg?auto=compress&cs=tinysrgb&w=900", sourceUrl: "https://www.pexels.com/photo/assorted-glass-containers-with-candles-6311860/", direction: "Refined candle or home-fragrance label, warm ambient mood, understated typography, tactile stock appearance and elegant spacing." },
-  { id: "clean-tub", name: "Clean tub label", category: "Food, wellness & household", brand: "", product: "", tagline: "", color: "#F1F0EA", accent: "#394A50", shape: "rectangle", referenceImage: "https://images.pexels.com/photos/8066772/pexels-photo-8066772.jpeg?auto=compress&cs=tinysrgb&w=900", sourceUrl: "https://www.pexels.com/photo/white-plastic-container-with-no-label-on-white-background-8066772/", direction: "Clean modern tub label, strong legibility, simple grid, calm neutral colours and practical retail-ready finish." },
+  { id: "botanical-jar", name: "Botanical minimal", category: "Food & natural products", brand: "", product: "", tagline: "", color: "#E7DDC9", accent: "#3D5142", shape: "round", direction: "Minimal botanical composition, elegant leaf line art, warm cream background, deep forest-green typography and generous whitespace." },
+  { id: "bold-colour", name: "Bold colour block", category: "Food & beverages", brand: "", product: "", tagline: "", color: "#DDE6F4", accent: "#243B68", shape: "square", direction: "Bold geometric colour blocking, high contrast, confident sans-serif typography and a strong central product name." },
+  { id: "floral-skincare", name: "Soft floral", category: "Beauty & personal care", brand: "", product: "", tagline: "", color: "#E9D9D5", accent: "#79594F", shape: "round", direction: "Delicate botanical line illustrations, muted blush palette, refined serif typography and balanced negative space." },
+  { id: "artisan-heritage", name: "Artisan heritage", category: "Food & handmade goods", brand: "", product: "", tagline: "", color: "#E8D9C7", accent: "#694B3A", shape: "rectangle", direction: "Warm artisan identity, restrained ornamental border, earthy colours, heritage-inspired typography and clear information hierarchy." },
+  { id: "modern-monochrome", name: "Modern monochrome", category: "Beauty & premium goods", brand: "", product: "", tagline: "", color: "#F1EDE5", accent: "#242424", shape: "rectangle", direction: "Minimal monochrome layout, strong typographic hierarchy, fine rules, precise alignment and generous white space." },
+  { id: "citrus-fresh", name: "Citrus fresh", category: "Drinks & food", brand: "", product: "", tagline: "", color: "#F7E8A8", accent: "#315B42", shape: "round", direction: "Fresh citrus-inspired palette, simple fruit slice illustrations, lively but legible typography and energetic composition." },
+  { id: "luxury-gold", name: "Luxury gold", category: "Beauty & gifts", brand: "", product: "", tagline: "", color: "#F2E8D2", accent: "#725522", shape: "oval", direction: "Elegant luxury label, fine gold-toned ornamental lines, sophisticated serif typography and restrained premium spacing." },
+  { id: "playful-kids", name: "Playful colour", category: "Kids & family products", brand: "", product: "", tagline: "", color: "#F9D5D8", accent: "#7B3D70", shape: "square", direction: "Friendly playful shapes, cheerful balanced colours, rounded typography and a clear readable product title." },
+  { id: "afro-modern", name: "Afro-modern pattern", category: "Food, fashion & culture", brand: "", product: "", tagline: "", color: "#F0D6A7", accent: "#713B2C", shape: "round", direction: "Original contemporary African-inspired geometric pattern, warm earth palette, modern bold typography and uncluttered layout." },
+  { id: "organic-earth", name: "Organic earth", category: "Natural & wellness products", brand: "", product: "", tagline: "", color: "#DCE4D9", accent: "#355447", shape: "rectangle", direction: "Organic natural palette, delicate leaf and seed illustrations, calm typography and clean editorial spacing." },
+  { id: "premium-black", name: "Premium dark", category: "Fragrance & premium goods", brand: "", product: "", tagline: "", color: "#252525", accent: "#E9D8AC", shape: "rectangle", direction: "Deep charcoal field, warm ivory and muted gold typography, minimal fine-line details and premium contrast." },
+  { id: "watercolour", name: "Watercolour softness", category: "Beauty & handmade goods", brand: "", product: "", tagline: "", color: "#E7E3F2", accent: "#55486F", shape: "oval", direction: "Soft watercolour-inspired abstract botanical accents, gentle lavender palette and graceful readable typography." },
+  { id: "tech-clean", name: "Clean technology", category: "Electronics & technology", brand: "", product: "", tagline: "", color: "#E3EDF2", accent: "#214A60", shape: "square", direction: "Precise grid, crisp technical sans-serif typography, subtle line icons and cool clean colours." },
+  { id: "farm-fresh", name: "Farm fresh", category: "Agriculture & food", brand: "", product: "", tagline: "", color: "#E6E3C8", accent: "#465A32", shape: "rectangle", direction: "Farm-fresh visual language, original crop and leaf illustrations, natural green palette and highly readable product information." },
+  { id: "elegant-script", name: "Elegant script", category: "Events & gifts", brand: "", product: "", tagline: "", color: "#F2E1E4", accent: "#805766", shape: "oval", direction: "Graceful script accent paired with readable serif typography, delicate divider lines and a soft romantic palette." },
+  { id: "street-bold", name: "Street bold", category: "Fashion & lifestyle", brand: "", product: "", tagline: "", color: "#F4D84A", accent: "#202020", shape: "square", direction: "High-energy graphic composition, oversized bold lettering, sharp geometric accents and strong black-yellow contrast." },
+  { id: "clean-medical", name: "Clean care", category: "Health & personal care", brand: "", product: "", tagline: "", color: "#E4F0EB", accent: "#285D50", shape: "rectangle", direction: "Calm clinical clarity, simple iconography, structured information zones and reassuring green-white palette." },
+  { id: "coffee-craft", name: "Coffee craft", category: "Coffee & beverages", brand: "", product: "", tagline: "", color: "#E6D3BD", accent: "#563A2C", shape: "round", direction: "Craft coffee identity, original coffee botanical line art, rich roasted-brown palette and confident editorial typography." },
+  { id: "minimal-grid", name: "Minimal grid", category: "Business & retail", brand: "", product: "", tagline: "", color: "#F4F2EC", accent: "#343C45", shape: "rectangle", direction: "Swiss-inspired grid, strong alignment, restrained colour palette, clean sans-serif typography and ample breathing room." },
+  { id: "celebration", name: "Celebration", category: "Events & party favours", brand: "", product: "", tagline: "", color: "#F5D9B8", accent: "#8A4B36", shape: "round", direction: "Joyful celebratory composition, tasteful confetti geometry, warm festive colours and clear central typography." },
 ];
 
 const WHATSAPP_NUMBER = "2348058162036";
@@ -104,41 +113,22 @@ function getRetailEstimate(widthMm: number, heightMm: number, qty: number) {
 
 function makeSvg(template: Template, width: number, height: number, preview = false) {
   const safe = (value: string) => value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" })[c] ?? c);
-  const labelShape = template.shape === "round"
-    ? '<circle cx="450" cy="450" r="390" fill="url(#labelBase)" stroke="url(#labelRim)" stroke-width="18" filter="url(#labelShadow)"/>'
-    : `<rect x="58" y="88" width="784" height="724" rx="${template.shape === "oval" ? 350 : template.shape === "square" ? 24 : 48}" fill="url(#labelBase)" stroke="url(#labelRim)" stroke-width="18" filter="url(#labelShadow)"/>`;
-  const motif = template.id === "glow"
-    ? '<path d="M160 650 C250 500 250 350 175 245 M175 430 C90 390 100 300 175 245 M175 430 C265 390 280 315 175 245" fill="none" stroke="#ffffff" stroke-width="12" opacity=".48"/><circle cx="700" cy="230" r="92" fill="#ffffff" opacity=".16"/>'
-    : template.id === "sip"
-    ? '<path d="M110 650 C280 530 330 780 510 630 S730 560 810 660" fill="none" stroke="#ffffff" stroke-width="28" opacity=".26"/><circle cx="720" cy="230" r="86" fill="#ffffff" opacity=".2"/>'
-    : template.id === "honey"
-    ? '<g fill="none" stroke="#ffffff" stroke-width="8" opacity=".32"><path d="M710 180 l55 32 v64 l-55 32 -55 -32 v-64z M765 276 l55 32 v64 l-55 32 -55 -32 v-64z M655 276 l55 32 v64 l-55 32 -55 -32 v-64z"/></g>'
-    : template.id === "bake"
-    ? '<path d="M120 220 Q450 90 780 220 M120 680 Q450 810 780 680" fill="none" stroke="#ffffff" stroke-width="10" opacity=".42"/><g fill="#ffffff" opacity=".28"><circle cx="190" cy="320" r="9"/><circle cx="710" cy="580" r="12"/><circle cx="690" cy="350" r="7"/><circle cx="230" cy="590" r="8"/></g>'
-    : '<g fill="none" stroke="#ffffff" stroke-width="7" opacity=".28"><circle cx="450" cy="450" r="300"/><circle cx="450" cy="450" r="270"/></g><path d="M155 710 Q450 600 745 710" fill="none" stroke="#ffffff" stroke-width="12" opacity=".25"/>';
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}mm" height="${height}mm" viewBox="0 0 900 900">
-    <defs>
-      <linearGradient id="labelBase" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${template.color}"/><stop offset=".58" stop-color="${template.color}"/><stop offset="1" stop-color="${template.accent}" stop-opacity=".24"/></linearGradient>
-      <linearGradient id="labelRim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".48" stop-color="${template.accent}"/><stop offset="1" stop-color="#ffffff"/></linearGradient>
-      <radialGradient id="labelLight" cx="25%" cy="18%" r="85%"><stop offset="0" stop-color="#ffffff" stop-opacity=".7"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
-      <filter id="labelShadow" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur in="SourceAlpha" stdDeviation="18"/><feOffset dx="0" dy="18" result="offset"/><feComponentTransfer><feFuncA type="linear" slope=".3"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      <filter id="softTexture"><feTurbulence type="fractalNoise" baseFrequency=".72" numOctaves="2" seed="8"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="table" tableValues="0 .08"/></feComponentTransfer></filter>
-      <clipPath id="labelClip">${template.shape === "round" ? '<circle cx="450" cy="450" r="390"/>' : `<rect x="58" y="88" width="784" height="724" rx="${template.shape === "oval" ? 350 : 48}"/>`}</clipPath>
-    </defs>
-    <rect width="900" height="900" fill="#f4f1ec"/>
-    <ellipse cx="450" cy="820" rx="280" ry="28" fill="#111111" opacity=".12"/>
-    ${labelShape}
-    <g clip-path="url(#labelClip)">
-      <rect x="40" y="60" width="820" height="780" fill="url(#labelLight)"/>
-      ${motif}
-      <rect x="40" y="60" width="820" height="780" filter="url(#softTexture)" opacity=".34"/>
-    </g>
-    <rect x="105" y="145" width="690" height="610" rx="28" fill="none" stroke="${template.accent}" stroke-width="3" opacity=".35"/>
-    <text x="450" y="245" text-anchor="middle" font-family="Georgia,serif" font-size="28" font-weight="700" letter-spacing="4" fill="${template.accent}">${safe(template.brand.slice(0, 28))}</text>
-    <path d="M250 285 H650" stroke="${template.accent}" stroke-width="3" opacity=".48"/>
-    <text x="450" y="420" text-anchor="middle" font-family="Georgia,serif" font-size="60" font-weight="700" fill="${template.accent}">${safe(template.product.slice(0, 22))}</text>
-    <text x="450" y="485" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" fill="#30343b">${safe(template.tagline.slice(0, 48))}</text>
-    ${preview ? '<g opacity=".13" transform="rotate(-28 450 450)"><text x="450" y="470" text-anchor="middle" font-family="Arial,sans-serif" font-size="74" font-weight="800" fill="#111111">DESIGN PREVIEW</text><text x="450" y="555" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" fill="#111111">NOT A PRINT FILE</text></g>' : ""}
+  const shape = template.shape === "round"
+    ? '<circle cx="450" cy="450" r="410"'
+    : template.shape === "oval"
+      ? '<ellipse cx="450" cy="450" rx="410" ry="350"'
+      : `<rect x="35" y="35" width="830" height="830" rx="${template.shape === "square" ? 24 : 54}"`;
+  const motif = `<path d="M150 700 L750 700 M150 730 L750 730" stroke="${template.accent}" stroke-width="5" opacity=".22"/><circle cx="170" cy="170" r="18" fill="${template.accent}" opacity=".18"/><circle cx="730" cy="730" r="18" fill="${template.accent}" opacity=".18"/>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}mm" height="${height}mm" viewBox="0 0 900 900" role="img" aria-label="Flat sticker artwork preview">
+    <rect width="900" height="900" fill="#ffffff"/>
+    <g>${shape} fill="${template.color}" stroke="${template.accent}" stroke-width="8"/></g>
+    <g>${motif}</g>
+    <rect x="135" y="135" width="630" height="630" rx="24" fill="none" stroke="${template.accent}" stroke-width="3" opacity=".35"/>
+    <text x="450" y="300" text-anchor="middle" font-family="Arial,sans-serif" font-size="30" font-weight="700" letter-spacing="3" fill="${template.accent}">${safe(template.brand.slice(0, 28) || "YOUR BRAND")}</text>
+    <path d="M260 340 H640" stroke="${template.accent}" stroke-width="3" opacity=".5"/>
+    <text x="450" y="470" text-anchor="middle" font-family="Georgia,serif" font-size="58" font-weight="700" fill="${template.accent}">${safe(template.product.slice(0, 22) || "PRODUCT NAME")}</text>
+    <text x="450" y="535" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" fill="${template.accent}">${safe(template.tagline.slice(0, 48) || "YOUR MESSAGE")}</text>
+    ${preview ? '<text x="450" y="680" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" letter-spacing="2" fill="#555555">FLAT ARTWORK PREVIEW</text>' : ""}
   </svg>`;
 }
 export function GeneratePage() {
@@ -246,14 +236,14 @@ export function GeneratePage() {
       ["Customer's extra instructions", creativeBrief],
     ].filter(([, value]) => String(value ?? "").trim()).map(([key, value]) => `${key}: ${value}`);
     return [
-      "Create an original, professional, print-ready flat product label using the customer details and selected visual reference below.",
+      "Create THREE distinct, original sticker artwork concepts from the customer details and selected visual direction. Present them as three separate flat artwork outputs, not a collage.",
       "Ask only for missing essentials, one concise question at a time: business/brand name and product name. If printed phone, social handle, website or tagline fields are blank, ask briefly whether the customer wants any of them printed. Never invent names, contact details, ingredients, claims or certifications.",
       "If information is already supplied, do not ask again. Offer short numbered choices only for unresolved decisions. The customer may say 'choose for me'.",
-      "Follow the selected reference's overall composition, mood, palette, typography and material feel, while creating original artwork rather than copying the reference image. Preserve the confirmed shape and exact physical proportions. Keep all text readable and inside a safe margin. No filler text, emojis, random icons, fake badges or unsupported claims.",
-      "Output clean front-facing flat label artwork, not a product mockup. Show the entire label, undistorted and ready for print review. Use only confirmed customer details.",
+      "Use the selected style direction as inspiration, creating original artwork rather than copying any Pinterest reference. Preserve the confirmed shape and exact physical proportions. Keep all text readable and inside a safe margin. No filler text, emojis, random icons, fake badges or unsupported claims.",
+      "Show only flat, front-facing sticker artwork on a plain neutral background. Never show bottles, jars, cups, boxes, packaging, products, hands, scenes or lifestyle mockups. Show the complete sticker, undistorted. Use only confirmed customer details.",
       "", "CUSTOMER PROJECT", ...details,
-      `Reference image: ${selected.referenceImage}`,
-      `Reference source: ${selected.sourceUrl}`,
+      `Selected visual style: ${selected.name}`,
+      `Style direction: ${selected.direction}`,
       "", "If the business or product name is missing, begin by asking for the business/brand name."
     ].join("\n");
   };
@@ -470,7 +460,7 @@ export function GeneratePage() {
             <div className="mb-3 flex items-center justify-between gap-3">
               <div>
                 <h2 className="font-semibold">1. Choose a visual reference</h2>
-                <p className="mt-1 text-xs text-muted-foreground">Select a look. ChatGPT receives its image, source and design direction.</p>
+                <p className="mt-1 text-xs text-muted-foreground">Select a flat sticker style. Your prompt uses its visual direction to create original artwork.</p>
               </div>
               <a href="https://www.pinterest.com/search/pins/?q=product%20label%20sticker%20design" target="_blank" rel="noreferrer" className="shrink-0 text-xs font-semibold text-primary underline">Pinterest ideas</a>
             </div>
@@ -478,14 +468,13 @@ export function GeneratePage() {
               {TEMPLATES.map((t) => (
                 <div key={t.id} className={`overflow-hidden rounded-2xl border bg-card transition ${templateId === t.id ? "border-primary ring-2 ring-primary/20" : "border-border hover:border-primary/50"}`}>
                   <button type="button" onClick={() => selectTemplate(t)} className="block w-full text-left">
-                    <img src={t.referenceImage} alt={t.name + " label inspiration"} loading="lazy" className="aspect-[4/3] w-full object-cover"/>
+                    <div className="aspect-[4/3] w-full overflow-hidden bg-white p-2" dangerouslySetInnerHTML={{ __html: makeSvg({ ...t, brand: "", product: "", tagline: "" }, 80, 60, false) }}/>
                     <div className="p-3">
                       <div className="text-sm font-semibold">{t.name}</div>
                       <div className="mt-1 text-xs text-muted-foreground">{t.category}</div>
-                      <div className="mt-2 text-xs font-semibold text-primary">{templateId === t.id ? "Selected reference" : "Use this style"}</div>
+                      <div className="mt-2 text-xs font-semibold text-primary">{templateId === t.id ? "Selected style" : "Use this style"}</div>
                     </div>
                   </button>
-                  <div className="border-t px-3 py-2 text-[11px] text-muted-foreground">Photo: <a href={t.sourceUrl} target="_blank" rel="noreferrer" className="underline">Pexels source</a></div>
                 </div>
               ))}
             </div>
@@ -493,7 +482,7 @@ export function GeneratePage() {
 
           <div className="rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/5 via-card to-accent/10 p-4 shadow-sm md:p-5">
             <div className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary"/><h2 className="font-semibold">Describe the design you want</h2></div>
-            <p className="mt-2 text-sm text-muted-foreground">Write naturally. Describe the product, style, colours, imagery, background, texture, mood and anything you want included. Choose a visual reference, add your business details and open a short, tailored design prompt in ChatGPT.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Write naturally. Describe the product, style, colours, imagery, background, texture, mood and anything you want included. Choose a flat sticker style, add your business details and generate a reusable prompt for an external AI design tool.</p>
             <textarea value={creativeBrief} onChange={(event) => setCreativeBrief(event.target.value)} rows={5} maxLength={4000} placeholder="Example: I make premium ginger and hibiscus drink. I want a bold, refreshing label with a rich burgundy-to-ruby background, realistic hibiscus flowers and fresh ginger, subtle condensation, elegant cream typography, a premium glass-bottle feel, and a clean space for ingredients." className="mt-3 w-full resize-y rounded-xl border border-border bg-background px-3 py-3 text-sm leading-6 outline-none focus:ring-2 focus:ring-primary/30"/>
             <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
               <span className="text-xs text-muted-foreground">{creativeBrief.length}/4,000 characters · no image API used</span>
@@ -502,7 +491,7 @@ export function GeneratePage() {
                 <Button type="button" variant="outline" onClick={copyFullDesignPrompt}>Copy full prompt</Button>
               </div>
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">ChatGPT opens with your selected design reference and customer details prepared. The customer presses Send in ChatGPT, downloads the generated image, then returns here to submit it for artwork review.</p>
+            <p className="mt-2 text-xs text-muted-foreground">Your selected style direction and customer details are included in the prompt. The customer presses Send in ChatGPT, downloads the generated image, then returns here to submit it for artwork review.</p>
           </div>
 
           <div className="rounded-2xl border border-border p-4 md:p-5">
@@ -617,8 +606,8 @@ export function GeneratePage() {
             <Button onClick={downloadPreview} variant="secondary" className="mt-2 w-full gap-2"><Download className="h-4 w-4"/> Download preview</Button>
             <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3">
               <h3 className="font-semibold">Upload your ChatGPT artwork</h3>
-              <p className="mt-1 text-xs text-muted-foreground">After generating in ChatGPT, download the image and select it here. It will be uploaded privately to your customer account during checkout. PNG, JPG, WEBP, SVG, PDF or EPS · maximum 20 MB.</p>
-              <input type="file" accept=".png,.jpg,.jpeg,.webp,.svg,.pdf,.eps,.ps,image/png,image/jpeg,image/webp,image/svg+xml,application/pdf,application/postscript" onChange={(event) => setArtworkFile(event.target.files?.[0] ?? null)} className="mt-3 block w-full text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-2 file:font-semibold file:text-primary-foreground"/>
+              <p className="mt-1 text-xs text-muted-foreground">After generating your artwork in an external AI tool, download it and select it here. It will be uploaded privately to your customer account during checkout. PNG, JPG, JPEG or PDF · maximum 20 MB.</p>
+              <input type="file" accept=".png,.jpg,.jpeg,.pdf,image/png,image/jpeg,application/pdf" onChange={(event) => setArtworkFile(event.target.files?.[0] ?? null)} className="mt-3 block w-full text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-2 file:font-semibold file:text-primary-foreground"/>
               {artworkFile && <p className="mt-2 break-all text-xs font-medium text-foreground">Selected: {artworkFile.name} · {(artworkFile.size / (1024 * 1024)).toFixed(2)} MB</p>}
             </div>
             <div className="mt-4 border-t border-border pt-4">
