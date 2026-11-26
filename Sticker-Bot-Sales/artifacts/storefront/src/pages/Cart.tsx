@@ -80,7 +80,7 @@ export function CartPage() {
         <p className="mt-2 text-muted-foreground">Browse the shop or chat with our AI to get a custom quote.</p>
         <div className="mt-6 flex justify-center gap-3">
           <Link href="/shop"><Button>Browse stickers</Button></Link>
-          <Link href="/chat"><Button variant="outline">Chat with AI</Button></Link>
+          <Link href="/generate"><Button variant="outline">Design a label</Button></Link>
         </div>
       </div>
     );
