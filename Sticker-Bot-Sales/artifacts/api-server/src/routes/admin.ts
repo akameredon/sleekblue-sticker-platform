@@ -186,7 +186,7 @@ router.get("/admin/orders", async (req, res) => {
 });
 
 const UpdateOrderBody = z.object({
-  status: z.enum(["pending_whatsapp", "confirmed", "in_production", "shipped", "delivered", "cancelled"]),
+  status: z.enum(["pending_payment", "pending_whatsapp", "confirmed", "in_production", "ready", "shipped", "delivered", "cancelled"]),
 });
 
 router.put("/admin/orders/:id", async (req, res) => {
@@ -195,6 +195,30 @@ router.put("/admin/orders/:id", async (req, res) => {
 
   const parse = UpdateOrderBody.safeParse(req.body);
   if (!parse.success) { res.status(400).json({ error: "Invalid status", issues: parse.error.issues }); return; }
+
+  const [current] = await db
+    .select({ status: schema.orders.status })
+    .from(schema.orders)
+    .where(eq(schema.orders.id, id))
+    .limit(1);
+  if (!current) { res.status(404).json({ error: "Order not found" }); return; }
+
+  const allowedNext: Record<string, string[]> = {
+    pending_payment: ["confirmed", "cancelled"],
+    pending_whatsapp: ["confirmed", "cancelled"],
+    confirmed: ["in_production", "cancelled"],
+    in_production: ["ready", "cancelled"],
+    ready: ["shipped", "delivered", "cancelled"],
+    shipped: ["delivered"],
+    delivered: [],
+    cancelled: [],
+  };
+  if (!(allowedNext[current.status] ?? []).includes(parse.data.status)) {
+    res.status(409).json({
+      error: `Invalid order transition: ${current.status} → ${parse.data.status}`,
+    });
+    return;
+  }
 
   const [updated] = await db
     .update(schema.orders)
