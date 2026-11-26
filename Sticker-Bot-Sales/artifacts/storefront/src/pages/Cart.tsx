@@ -34,7 +34,7 @@ export function CartPage() {
     mutation: {
       onSuccess: (order) => {
         cart.clear();
-        navigate(`/orders/${order.id}?ref=${encodeURIComponent(order.reference)}`);
+        navigate(`/track?reference=${encodeURIComponent(order.reference)}`);
       },
       onError: (err: unknown) => {
         const msg = err instanceof Error ? err.message : "Could not place order. Please try again.";
@@ -162,6 +162,8 @@ export function CartPage() {
               We'll send your order summary to WhatsApp so we can confirm the design and arrange delivery.
             </p>
 
+            <p className="mt-2 text-xs text-muted-foreground">Doorstep delivery is arranged separately after a location-based quote. Pickup is currently the only selectable checkout option.</p>
+
             <div className="mt-5 space-y-3">
               <Field label="Your name" required>
                 <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ada Okoye" data-testid="input-name" />
@@ -179,6 +181,7 @@ export function CartPage() {
                       key={opt}
                       type="button"
                       onClick={() => setDeliveryMethod(opt)}
+                      disabled={opt === "Doorstep delivery"}
                       className={`rounded-lg border px-3 py-2 text-sm font-medium hover-elevate ${
                         deliveryMethod === opt
                           ? "border-primary bg-primary text-primary-foreground"
@@ -211,7 +214,7 @@ export function CartPage() {
                   data-testid="input-notes"
                 />
               </Field>
-              <Field label="Artwork files (optional)">
+              <Field label="Artwork files (optional — sign in first)">
                 <label
                   className={`flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-background/40 px-3 py-3 text-sm hover-elevate ${
                     isUploading ? "opacity-60" : ""
