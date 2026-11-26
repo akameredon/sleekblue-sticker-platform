@@ -7,7 +7,6 @@ import { HomePage } from "@/pages/Home";
 import { ShopPage } from "@/pages/Shop";
 import { ProductDetailPage } from "@/pages/ProductDetail";
 import { CartPage } from "@/pages/Cart";
-import { OrderDetailPage } from "@/pages/OrderDetail";
 import { TrackPage } from "@/pages/Track";
 import { WishlistPage } from "@/pages/Wishlist";
 import { GeneratePage } from "@/pages/DesignStudio";
@@ -28,7 +27,7 @@ function Routes() {
       <Route path="/shop" component={ShopPage} />
       <Route path="/p/:slug" component={ProductDetailPage} />
       <Route path="/cart" component={CartPage} />
-      <Route path="/orders/:id" component={OrderDetailPage} />
+      <Route path="/orders/:id" component={TrackPage} />
       <Route path="/track" component={TrackPage} />
       <Route path="/wishlist" component={WishlistPage} />
       <Route path="/generate" component={GeneratePage} />
