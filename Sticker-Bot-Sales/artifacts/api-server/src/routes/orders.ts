@@ -244,7 +244,7 @@ router.post("/orders", requireAuth, async (req, res) => {
   res.status(201).json({ ...order, whatsappUrl, whatsappMessage });
 });
 
-router.post("/orders/lookup", async (req, res) => {
+router.post("/orders/lookup", requireAuth, async (req, res) => {
   const parsed = LookupOrderBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(404).json({ error: "Order not found" });
@@ -265,7 +265,8 @@ router.post("/orders/lookup", async (req, res) => {
 
   const storedPhoneDigits = row?.customerPhone.replace(/\D/g, "") ?? "";
   // Compare the full national number (last 10 digits supports local vs +234 format).
-  if (!row || storedPhoneDigits.slice(-10) !== phoneDigits.slice(-10)) {
+  const user = (req as typeof req & { user: { id: number; isAdmin: boolean } }).user;
+  if (!row || (!user.isAdmin && row.userId !== user.id) || storedPhoneDigits.slice(-10) !== phoneDigits.slice(-10)) {
     res.status(404).json({ error: "Order not found" });
     return;
   }
