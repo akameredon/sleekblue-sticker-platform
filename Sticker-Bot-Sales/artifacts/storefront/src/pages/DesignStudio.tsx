@@ -261,15 +261,31 @@ export function GeneratePage() {
     ].join("\n");
   };
 
+  const copyFullDesignPrompt = async () => {
+    try {
+      await navigator.clipboard.writeText(buildChatGPTPrompt());
+      setNotice("Full design prompt copied. Return to ChatGPT, paste it into the message box and press Send.");
+    } catch {
+      setNotice("Your browser blocked clipboard access. Use the Open ChatGPT Designer button to try the prepared prompt link.");
+    }
+  };
+
   const openChatGPTDesigner = () => {
     if (!creativeBrief.trim() && !brand.trim() && !product.trim()) {
       setNotice("Describe the label you want, or enter your brand and product details first.");
       return;
     }
     const prompt = buildChatGPTPrompt();
-    try { sessionStorage.setItem("labelflow-chatgpt-prompt", prompt); } catch { /* URL still carries the prompt. */ }
+    try { sessionStorage.setItem("labelflow-chatgpt-prompt", prompt); } catch { /* Clipboard and URL handoff remain available. */ }
+    // Copy the complete brief as a fallback in case ChatGPT's undocumented URL
+    // prefill truncates a long prompt or the customer is not signed in.
+    if (navigator.clipboard?.writeText) {
+      void navigator.clipboard.writeText(prompt).catch(() => {
+        setNotice("ChatGPT is opening. If the brief is not already in the message box, return here and use Copy full prompt.");
+      });
+    }
     window.open(`https://chatgpt.com/?q=${encodeURIComponent(prompt)}`, "_blank", "noopener,noreferrer");
-    setNotice("ChatGPT is opening with your full design brief prepared. Review it there and press Send to generate the artwork. Then download the result and return here to submit it.");
+    setNotice("Your full design brief has been copied and ChatGPT is opening. Check that the complete brief appears, then press Send. If it is missing or shortened, return here and use Copy full prompt. Download the generated artwork and upload it here.");
   };
 
   const sendToWhatsApp = () => {
@@ -487,7 +503,10 @@ export function GeneratePage() {
             <textarea value={creativeBrief} onChange={(event) => setCreativeBrief(event.target.value)} rows={5} maxLength={4000} placeholder="Example: I make premium ginger and hibiscus drink. I want a bold, refreshing label with a rich burgundy-to-ruby background, realistic hibiscus flowers and fresh ginger, subtle condensation, elegant cream typography, a premium glass-bottle feel, and a clean space for ingredients." className="mt-3 w-full resize-y rounded-xl border border-border bg-background px-3 py-3 text-sm leading-6 outline-none focus:ring-2 focus:ring-primary/30"/>
             <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
               <span className="text-xs text-muted-foreground">{creativeBrief.length}/4,000 characters · no image API used</span>
-              <Button type="button" onClick={openChatGPTDesigner} className="gap-2"><Sparkles className="h-4 w-4"/> Open ChatGPT Designer</Button>
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" onClick={openChatGPTDesigner} className="gap-2"><Sparkles className="h-4 w-4"/> Open ChatGPT Designer</Button>
+                <Button type="button" variant="outline" onClick={copyFullDesignPrompt}>Copy full prompt</Button>
+              </div>
             </div>
             <p className="mt-2 text-xs text-muted-foreground">ChatGPT opens with the full design prompt prepared. The customer presses Send in ChatGPT, downloads the generated image, then returns here to submit it for artwork review.</p>
           </div>
