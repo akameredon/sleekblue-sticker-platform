@@ -123,9 +123,9 @@ router.get("/storage/objects/*path", requireAuth, async (req: Request, res: Resp
     const wildcardPath = Array.isArray(raw) ? raw.join("/") : raw;
     const objectPath = `/objects/${wildcardPath}`;
     const objectFile = await objectStorageService.getObjectEntityFile(objectPath);
-    const userId = (req as Request & { user: { id: number } }).user.id;
-    const canAccess = await objectStorageService.canAccessObjectEntity({
-      userId: String(userId),
+    const user = (req as Request & { user: { id: number; isAdmin: boolean } }).user;
+    const canAccess = user.isAdmin || await objectStorageService.canAccessObjectEntity({
+      userId: String(user.id),
       objectFile,
       requestedPermission: ObjectPermission.READ,
     });
