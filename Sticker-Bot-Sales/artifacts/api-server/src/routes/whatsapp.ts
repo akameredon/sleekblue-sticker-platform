@@ -27,7 +27,7 @@ import {
   isWhatsAppConfigured,
   VERIFY_TOKEN,
 } from "../lib/whatsappCloud";
-import { openai } from "@workspace/integrations-openai-ai-server";
+import { createOpenAIClient } from "@workspace/integrations-openai-ai-server";
 import { getShopSettingsRow } from "../lib/shop";
 import { requireAdmin } from "./auth";
 import { calculateQuote } from "../lib/pricing";
@@ -42,7 +42,8 @@ const WA_MAX_CHARS = 4096;
 
 // ─── AI Tools (subset — no UI tools on WhatsApp, text-only) ──────────────────
 
-const WA_TOOLS: Parameters<typeof openai.chat.completions.create>[0]["tools"] = [
+type OpenAIClient = ReturnType<typeof createOpenAIClient>;
+const WA_TOOLS: Parameters<OpenAIClient["chat"]["completions"]["create"]>[0]["tools"] = [
   {
     type: "function",
     function: {
@@ -116,6 +117,8 @@ ${prodLines}`;
 
 /** Run AI agent against WhatsApp conversation context */
 async function runWaAgent(fromNumber: string, inboundText: string): Promise<string> {
+  // WhatsApp AI is optional; initialize its client only when an inbound message needs AI.
+  const openai = createOpenAIClient();
   const settings = await getShopSettingsRow();
 
   // Load recent message history for this phone number
