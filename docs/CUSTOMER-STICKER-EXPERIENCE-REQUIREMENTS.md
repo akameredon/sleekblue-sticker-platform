@@ -77,3 +77,18 @@ Rounds 3–5 have not yet been answered. Do not infer or implement decisions abo
 
 **Round 4 experience principle:** The app prepares clear, usable prompts rather than generating images itself. It should preserve supplied logos, encourage original designs inspired by references, offer three design directions, and support a customer review/edit/approval step before checkout.
 
+## Round 5 — Ordering, payment, printing and delivery (confirmed)
+
+1. **Order placement:** A simple checkout after the customer approves the artwork.
+2. **Pricing:** Automatically calculate prices based on size, shape, material and quantity.
+3. **Payment methods:** Online payment and bank transfer.
+4. **Production start:** Begin production only after payment is confirmed and artwork is approved.
+5. **Print-ready approval:** Customer approves the artwork; staff performs a final production check.
+6. **Order updates:** Send notifications through WhatsApp and email.
+7. **Fulfilment:** Offer both pickup and delivery.
+8. **Delivery charges:** Calculate delivery charges from the customer's delivery location.
+9. **Support:** Provide both WhatsApp support and an in-app support form for changes or problems.
+10. **After-order features:** Customers can view order status, reorder and access previous designs.
+
+**Round 5 experience principle:** Keep checkout straightforward and transparent. Make the order's approval, payment, production and fulfilment stages clear; do not release an order to production until both artwork approval and payment confirmation are complete.
+
