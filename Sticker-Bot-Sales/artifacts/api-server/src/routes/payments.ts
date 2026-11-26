@@ -28,6 +28,7 @@ const router: IRouter = Router();
 const InitializeBody = z.object({
   orderId: z.number().int().positive(),
   customerEmail: z.email("Valid email required for payment"),
+  customerPhone: z.string().min(7).max(20),
 });
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
@@ -39,7 +40,7 @@ router.post("/payments/initialize", async (req, res) => {
     res.status(400).json({ error: "Validation failed", issues: parse.error.issues });
     return;
   }
-  const { orderId, customerEmail } = parse.data;
+  const { orderId, customerEmail, customerPhone } = parse.data;
 
   // Load the order
   const [order] = await db
@@ -52,6 +53,12 @@ router.post("/payments/initialize", async (req, res) => {
   // Match the payer to the email supplied with the order where one exists.
   if (order.customerEmail && order.customerEmail.toLowerCase() !== customerEmail.toLowerCase()) {
     res.status(403).json({ error: "The payment email does not match this order." });
+    return;
+  }
+  const suppliedPhone = customerPhone.replace(/\D/g, "");
+  const storedPhone = order.customerPhone.replace(/\D/g, "");
+  if (suppliedPhone.length < 10 || storedPhone.slice(-10) !== suppliedPhone.slice(-10)) {
+    res.status(404).json({ error: "Order not found" });
     return;
   }
 
@@ -170,7 +177,8 @@ router.post("/payments/webhook", async (req, res) => {
 /** GET /payments/:reference — poll payment status */
 router.get("/payments/:reference", async (req, res) => {
   const reference = req.params.reference;
-  if (!reference) { res.status(400).json({ error: "Reference required" }); return; }
+  const phone = typeof req.query.phone === "string" ? req.query.phone.replace(/\D/g, "") : "";
+  if (!reference || phone.length < 10) { res.status(404).json({ error: "Payment not found" }); return; }
 
   const [payment] = await db
     .select()
@@ -181,10 +189,15 @@ router.get("/payments/:reference", async (req, res) => {
   if (!payment) { res.status(404).json({ error: "Payment not found" }); return; }
 
   const [order] = await db
-    .select({ status: schema.orders.status, reference: schema.orders.reference })
+    .select({ status: schema.orders.status, reference: schema.orders.reference, customerPhone: schema.orders.customerPhone })
     .from(schema.orders)
     .where(eq(schema.orders.id, payment.orderId))
     .limit(1);
+
+  if (!order || order.customerPhone.replace(/\D/g, "").slice(-10) !== phone.slice(-10)) {
+    res.status(404).json({ error: "Payment not found" });
+    return;
+  }
 
   res.json({
     reference: payment.paystackReference,
