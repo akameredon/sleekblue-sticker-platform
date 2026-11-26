@@ -163,7 +163,7 @@ async function runWaAgent(fromNumber: string, inboundText: string): Promise<stri
     if (finishReason === "tool_calls" && msg.tool_calls?.length) {
       chatMessages.push({ role: "assistant", content: msg.content ?? null, tool_calls: msg.tool_calls });
       for (const tc of msg.tool_calls) {
-        if (tc.type !== "function") continue;
+        if (!("function" in tc)) continue;
         let args: Record<string, unknown> = {};
         try { args = JSON.parse(tc.function.arguments); } catch { /* ignore */ }
         const result = await handleWaTool(tc.function.name, args, settings);
