@@ -8,7 +8,6 @@ import { ShopPage } from "@/pages/Shop";
 import { ProductDetailPage } from "@/pages/ProductDetail";
 import { CartPage } from "@/pages/Cart";
 import { OrderDetailPage } from "@/pages/OrderDetail";
-import { ChatPage } from "@/pages/Chat";
 import { TrackPage } from "@/pages/Track";
 import { WishlistPage } from "@/pages/Wishlist";
 import { GeneratePage } from "@/pages/DesignStudio";
@@ -31,7 +30,6 @@ function Routes() {
       <Route path="/orders/:id" component={OrderDetailPage} />
       <Route path="/track" component={TrackPage} />
       <Route path="/wishlist" component={WishlistPage} />
-      <Route path="/chat" component={ChatPage} />
       <Route path="/generate" component={GeneratePage} />
       <Route path="/batch" component={BatchPage} />
       <Route path="/admin" component={AdminPage} />
