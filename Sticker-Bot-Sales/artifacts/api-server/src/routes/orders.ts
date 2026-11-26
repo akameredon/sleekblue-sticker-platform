@@ -1,10 +1,7 @@
 import { Router, type IRouter } from "express";
-import { and, desc, eq, like } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import {
   CreateOrderBody,
-  GetOrderByIdParams,
-  GetOrderByIdResponse,
-  ListRecentOrdersResponse,
   LookupOrderBody,
 } from "@workspace/api-zod";
 import { db, schema } from "../lib/db";
@@ -165,21 +162,19 @@ router.post("/orders/lookup", async (req, res) => {
   const body = LookupOrderBody.parse(req.body);
   const refNorm = body.reference.trim().toUpperCase();
   const phoneDigits = body.phone.replace(/\D/g, "");
-  if (!refNorm || phoneDigits.length < 4) {
+  if (!refNorm || phoneDigits.length < 10) {
     res.status(404).json({ error: "Order not found" });
     return;
   }
   const [row] = await db
     .select()
     .from(schema.orders)
-    .where(
-      and(
-        eq(schema.orders.reference, refNorm),
-        like(schema.orders.customerPhone, `%${phoneDigits.slice(-4)}%`),
-      ),
-    )
+    .where(eq(schema.orders.reference, refNorm))
     .limit(1);
-  if (!row) {
+
+  const storedPhoneDigits = row?.customerPhone.replace(/\D/g, "") ?? "";
+  // Compare the full national number (last 10 digits supports local vs +234 format).
+  if (!row || storedPhoneDigits.slice(-10) !== phoneDigits.slice(-10)) {
     res.status(404).json({ error: "Order not found" });
     return;
   }
