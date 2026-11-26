@@ -166,10 +166,17 @@ router.post("/payments/webhook", async (req, res) => {
       .set({ status: "success", paidAt: new Date(), webhookPayload: rawBody })
       .where(eq(schema.payments.paystackReference, reference));
 
-    await db
-      .update(schema.orders)
-      .set({ status: "confirmed" })
-      .where(eq(schema.orders.id, payment.orderId));
+    const [linkedOrder] = await db
+      .select({ status: schema.orders.status })
+      .from(schema.orders)
+      .where(eq(schema.orders.id, payment.orderId))
+      .limit(1);
+    if (linkedOrder && ["pending_payment", "pending_whatsapp"].includes(linkedOrder.status)) {
+      await db
+        .update(schema.orders)
+        .set({ status: "confirmed" })
+        .where(eq(schema.orders.id, payment.orderId));
+    }
   } catch (err) {
     console.error("[Paystack Webhook] Error:", err);
   }
@@ -220,12 +227,14 @@ router.get("/payments/:reference", async (req, res) => {
           .update(schema.payments)
           .set({ status: "success", paidAt })
           .where(eq(schema.payments.paystackReference, reference));
-        await db
-          .update(schema.orders)
-          .set({ status: "confirmed" })
-          .where(eq(schema.orders.id, payment.orderId));
+        if (["pending_payment", "pending_whatsapp"].includes(order.status)) {
+          await db
+            .update(schema.orders)
+            .set({ status: "confirmed" })
+            .where(eq(schema.orders.id, payment.orderId));
+          orderStatus = "confirmed";
+        }
         paymentStatus = "success";
-        orderStatus = "confirmed";
       }
     } catch {
       // Leave the payment pending; the customer can retry the status check.
