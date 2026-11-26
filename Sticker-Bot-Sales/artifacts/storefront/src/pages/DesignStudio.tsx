@@ -89,6 +89,7 @@ function getRetailEstimate(widthMm: number, heightMm: number, qty: number) {
   if (!Number.isFinite(widthMm) || !Number.isFinite(heightMm) ||
       widthMm < 20 || heightMm < 20 || widthMm > 300 || heightMm > 300) return null;
   const areaIn2 = (widthMm / 25.4) * (heightMm / 25.4);
+  if (areaIn2 > 16) return null;
   const cost = estimateProductionCost(areaIn2, qty);
   if (cost == null) return null;
   return Math.ceil((cost / 0.7) / 100) * 100;
@@ -400,7 +401,7 @@ export function GeneratePage() {
                   <p className="mt-1 text-xs text-muted-foreground">Estimate uses label area and the supplied Sleekblue cost-sheet anchors, with a 30% gross-margin target. Unlisted dimensions are estimates, not confirmed production prices. Delivery, packaging, payment fees, material, cutting and wastage may change the final quote.</p>
                 </>
               ) : (
-                <p className="mt-1 text-xs text-muted-foreground">An automatic estimate is available for any valid size at 100, 500 or 1,000 pieces. For other quantities, we’ll confirm production cost before accepting the order.</p>
+                <p className="mt-1 text-xs text-muted-foreground">Automatic estimates cover supported sizes up to 16 sq in at 100, 500 or 1,000 pieces. Larger labels and other quantities need a factory-confirmed quote.</p>
               )}
             </div>
             <div className="mt-3 rounded-xl bg-muted/50 p-3 text-sm">
