@@ -18,14 +18,31 @@ This document records decisions explicitly approved by the product owner. Unansw
 9. **Starting point:** Customers choose a reference design first, rather than starting with a blank sticker.
 10. **Next customer step:** After choosing a reference design, customers enter their business details and generate the artwork prompt.
 
-## Experience principles established by Round 1
+## Round 2 of 5 — Customer information
+
+1. **Required information:** Business/brand name and product name.
+2. **Phone number:** Optional.
+3. **Social media handle:** Optional.
+4. **Website:** Optional.
+5. **Tagline or slogan:** Optional.
+6. **Business logo:** Optional logo upload.
+7. **Form layout:** One short form on one screen.
+8. **Review before prompt:** Show a simple review of the entered text before generating the prompt.
+9. **Contact details on sticker:** Customer chooses which supplied contact details appear using simple checkboxes.
+10. **Missing optional information:** Allow customers to continue without it.
+
+## Experience principles established by approved rounds
 
 - Keep the customer journey simple and low-effort.
 - The visual focus is the sticker artwork itself, not a staged product photograph or mockup.
 - Keep the gallery visual and easy to browse.
 - Use the selected reference to guide an original design.
-- Do not add extra customer steps or features unless they are approved in subsequent requirements rounds.
+- Keep customer information entry to one short screen.
+- Only business/brand name and product name are mandatory; optional fields must not block progress.
+- Let customers choose which optional contact information is printed.
+- Show a review before creating the artwork prompt.
+- Do not add extra customer steps or features unless approved in subsequent requirements rounds.
 
 ## Decisions still open
 
-Rounds 2–5 have not yet been answered. Do not infer or implement decisions about customer fields, dimensions, shapes, quantity, pricing, payment, artwork handoff, upload, revisions, production, or other workflow details until they are covered by approved answers.
+Rounds 3–5 have not yet been answered. Do not infer or implement decisions about sticker dimensions, shapes, quantity, pricing, payment, artwork handoff, upload, revisions, production, or other workflow details until they are covered by approved answers.
