@@ -455,11 +455,11 @@ export function GeneratePage() {
       <header className="mt-4 grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-            <Sparkles className="h-3.5 w-3.5" /> FREE LABEL DESIGN STUDIO
+            <Sparkles className="h-3.5 w-3.5" /> STICKER DESIGN STUDIO
           </div>
           <h1 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">Make your product label.</h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground md:text-base">
-            Describe the label you imagine, open your tailored design prompt in ChatGPT, then download the artwork and submit it to Sleekblue. No design skills or image API required.
+            Choose a sticker style, enter your business details, prepare your design prompt and upload the finished artwork for Sleekblue to review.
           </p>
         </div>
         <div className="rounded-2xl border border-accent/30 bg-accent/5 p-4 text-sm">
@@ -495,22 +495,8 @@ export function GeneratePage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/5 via-card to-accent/10 p-4 shadow-sm md:p-5">
-            <div className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary"/><h2 className="font-semibold">Describe the design you want</h2></div>
-            <p className="mt-2 text-sm text-muted-foreground">Write naturally. Describe the product, style, colours, imagery, background, texture, mood and anything you want included. Choose a flat sticker style, add your business details and generate a reusable prompt for an external AI design tool.</p>
-            <textarea value={creativeBrief} onChange={(event) => setCreativeBrief(event.target.value)} rows={5} maxLength={4000} placeholder="Example: I make premium ginger and hibiscus drink. I want a bold, refreshing label with a rich burgundy-to-ruby background, realistic hibiscus flowers and fresh ginger, subtle condensation, elegant cream typography, a premium glass-bottle feel, and a clean space for ingredients." className="mt-3 w-full resize-y rounded-xl border border-border bg-background px-3 py-3 text-sm leading-6 outline-none focus:ring-2 focus:ring-primary/30"/>
-            <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-              <span className="text-xs text-muted-foreground">{creativeBrief.length}/4,000 characters · no image API used</span>
-              <div className="flex flex-wrap gap-2">
-                <Button type="button" onClick={openChatGPTDesigner} className="gap-2"><Sparkles className="h-4 w-4"/> Open ChatGPT Designer</Button>
-                <Button type="button" variant="outline" onClick={copyFullDesignPrompt}>Copy full prompt</Button>
-              </div>
-            </div>
-            <p className="mt-2 text-xs text-muted-foreground">Your selected style direction and customer details are included in the prompt. The customer presses Send in ChatGPT, downloads the generated image, then returns here to submit it for artwork review.</p>
-          </div>
-
           <div className="rounded-2xl border border-border p-4 md:p-5">
-            <h2 className="font-semibold">2. Put your business details</h2>
+            <h2 className="font-semibold">2. Enter your business details</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <label className="text-sm font-medium">Business / brand name <span className="text-destructive">*</span>
                 <input required value={brand} onChange={(e) => { setBrand(e.target.value); setSaved(false); }} maxLength={32} className="mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm" placeholder="Your business name"/>
@@ -553,6 +539,27 @@ export function GeneratePage() {
                 </div>
               </label>
             </div>
+          </div>
+
+          <div className="rounded-xl border border-border bg-muted/40 p-4 text-sm">
+            <h3 className="font-semibold">Review your label details</h3>
+            <p className="mt-2 text-muted-foreground">Brand: <strong className="text-foreground">{brand.trim() || "Required — add your business name"}</strong></p>
+            <p className="text-muted-foreground">Product: <strong className="text-foreground">{product.trim() || "Required — add your product name"}</strong></p>
+            <p className="text-muted-foreground">Printed contact details: <strong className="text-foreground">{[includePrintPhone && printPhone, includePrintSocials && printSocials, includePrintWebsite && printWebsite, includeTagline && tagline].filter(Boolean).join(" · ") || "None selected"}</strong></p>
+            <p className="text-muted-foreground">Logo: <strong className="text-foreground">{logoFile ? "Supplied separately for the external design tool" : "Not supplied"}</strong></p>
+          </div>
+          <div className="rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/5 via-card to-accent/10 p-4 shadow-sm md:p-5">
+            <div className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary"/><h2 className="font-semibold">Generate your artwork prompt</h2></div>
+            <p className="mt-2 text-sm text-muted-foreground">Write naturally. Describe the product, style, colours, imagery, background, texture, mood and anything you want included. Choose a flat sticker style, add your business details and generate a reusable prompt for an external AI design tool.</p>
+            <textarea value={creativeBrief} onChange={(event) => setCreativeBrief(event.target.value)} rows={5} maxLength={4000} placeholder="Example: I make premium ginger and hibiscus drink. I want a bold, refreshing label with a rich burgundy-to-ruby background, realistic hibiscus flowers and fresh ginger, subtle condensation, elegant cream typography, a premium glass-bottle feel, and a clean space for ingredients." className="mt-3 w-full resize-y rounded-xl border border-border bg-background px-3 py-3 text-sm leading-6 outline-none focus:ring-2 focus:ring-primary/30"/>
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs text-muted-foreground">{creativeBrief.length}/4,000 characters · no image API used</span>
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" onClick={openChatGPTDesigner} className="gap-2"><Sparkles className="h-4 w-4"/> Open ChatGPT Designer</Button>
+                <Button type="button" variant="outline" onClick={copyFullDesignPrompt}>Copy full prompt</Button>
+              </div>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">Your selected style direction and customer details are included in the prompt. The customer presses Send in ChatGPT, downloads the generated image, then returns here to submit it for artwork review.</p>
           </div>
 
           <div className="rounded-2xl border border-border p-4 md:p-5">
