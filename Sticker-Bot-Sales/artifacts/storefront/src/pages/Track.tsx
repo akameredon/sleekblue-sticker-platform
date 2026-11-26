@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "wouter";
 import { useLookupOrder } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
