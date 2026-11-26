@@ -8,7 +8,6 @@ import { db, schema } from "../lib/db";
 import { getShopSettingsRow } from "../lib/shop";
 
 const router: IRouter = Router();
-const sqlDistinctPhones = sql`distinct ${schema.orders.customerPhone}`;
 
 router.get("/shop/info", async (_req, res) => {
   const settings = await getShopSettingsRow();
@@ -48,7 +47,7 @@ router.get("/shop/stats", async (_req, res) => {
     .select({ value: count() })
     .from(schema.orders);
   const [{ value: happyCustomers }] = await db
-    .select({ value: count(sqlDistinctPhones) })
+    .select({ value: sql<number>`count(distinct ${schema.orders.customerPhone})::int` })
     .from(schema.orders);
 
   const data = GetShopStatsResponse.parse({
