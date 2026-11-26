@@ -50,7 +50,7 @@ function serializeOrder(o: typeof schema.orders.$inferSelect) {
     currency: o.currency,
     currencySymbol: o.currencySymbol,
     status: o.status,
-    artworkUrls: o.artworkUrls ?? [],
+    artworkUrls: [], // Never expose private storage paths in customer order responses.
     createdAt: o.createdAt,
   };
 }
@@ -69,6 +69,10 @@ router.post("/orders", async (req, res) => {
     return;
   }
   const body = parsed.data;
+  if (body.customerName.trim().length < 2 || body.customerPhone.replace(/\D/g, "").length < 10) {
+    res.status(400).json({ error: "Enter a name and a valid phone number with at least 10 digits." });
+    return;
+  }
   if (body.deliveryMethod && body.deliveryMethod.toLowerCase() !== "pickup") {
     res.status(422).json({ error: "Delivery requires a separately confirmed delivery quote. Please select pickup or contact the team." });
     return;
