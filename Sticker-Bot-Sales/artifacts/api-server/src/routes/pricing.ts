@@ -16,7 +16,12 @@ router.post("/pricing/quote", async (req, res) => {
       .from(schema.products)
       .where(eq(schema.products.slug, body.productSlug))
       .limit(1);
-    product = row ?? null;
+    if (!row) { res.status(404).json({ error: "Product not found" }); return; }
+    if (!row.sizes?.length || !row.finishes?.length || !row.quantityTiers?.length) {
+      res.status(503).json({ error: "This product is not available for automatic pricing until its approved size, finish and quantity prices are configured." });
+      return;
+    }
+    product = row;
   }
   const settings = await getShopSettingsRow();
   const quote = calculateQuote(body, product, settings.leadTimeDays);
