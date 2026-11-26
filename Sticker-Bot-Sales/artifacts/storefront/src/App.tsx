@@ -10,6 +10,7 @@ import { CartPage } from "@/pages/Cart";
 import { TrackPage } from "@/pages/Track";
 import { WishlistPage } from "@/pages/Wishlist";
 import { GeneratePage } from "@/pages/DesignStudio";
+import { ProductionArtworkPage } from "@/pages/ProductionArtwork";
 import { BatchPage } from "@/pages/Batch";
 import { AdminPage } from "@/pages/Admin";
 import { QuickOrderPage } from "@/pages/QuickOrder";
@@ -33,6 +34,7 @@ function Routes() {
       <Route path="/generate" component={GeneratePage} />
       <Route path="/batch" component={BatchPage} />
       <Route path="/admin" component={AdminPage} />
+      <Route path="/admin/production-artwork" component={ProductionArtworkPage} />
       <Route path="/quick-order" component={QuickOrderPage} />
       <Route path="/login" component={LoginPage} />
       <Route path="/register" component={RegisterPage} />
