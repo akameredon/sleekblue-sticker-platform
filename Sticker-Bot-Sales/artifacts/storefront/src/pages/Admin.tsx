@@ -87,7 +87,7 @@ function getLabelDesignFiles(notes?: string) {
 }
 
 async function downloadPrivateOrderFile(objectPath: string, filename: string) {
-  const relativePath = objectPath.replace(/^\\/objects\\//, "");
+  const relativePath = objectPath.startsWith("/objects/") ? objectPath.slice("/objects/".length) : "";
   const response = await fetch(apiUrl(`/storage/objects/${relativePath}`), { headers: authHeaders() });
   if (!response.ok) throw new Error("The private customer file could not be downloaded. Check your staff access and try again.");
   const blob = await response.blob();
