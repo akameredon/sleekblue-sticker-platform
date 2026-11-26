@@ -7,7 +7,7 @@ import {
 import { db, schema } from "../lib/db";
 import { getShopSettingsRow } from "../lib/shop";
 import { buildWhatsappMessage, buildWhatsappUrl } from "../lib/whatsapp";
-import { calculateQuote } from "../lib/pricing";
+import { calculateLabelStudioUnitPrice } from "../lib/pricing";
 
 const router: IRouter = Router();
 
@@ -88,14 +88,15 @@ router.post("/orders", async (req, res) => {
       return;
     }
 
-    const quote = calculateQuote({
-      productSlug: item.productSlug,
-      sizeLabel: item.sizeLabel,
-      finishLabel: item.finishLabel,
-      quantity: item.quantity,
-      widthMm: item.widthMm,
-      heightMm: item.heightMm,
-    }, product, settings.leadTimeDays);
+    const widthMm = Number(item.widthMm ?? 0);
+    const heightMm = Number(item.heightMm ?? 0);
+    const unitPrice = calculateLabelStudioUnitPrice(widthMm, heightMm, item.quantity);
+    if (unitPrice == null) {
+      res.status(422).json({
+        error: "This size or quantity needs a manually confirmed production quote before ordering.",
+      });
+      return;
+    }
 
     items.push({
       productSlug: product.slug,
@@ -103,10 +104,10 @@ router.post("/orders", async (req, res) => {
       sizeLabel: item.sizeLabel,
       finishLabel: item.finishLabel,
       quantity: item.quantity,
-      widthMm: quote.widthMm,
-      heightMm: quote.heightMm,
-      unitPrice: quote.unitPrice,
-      lineTotal: quote.total,
+      widthMm,
+      heightMm,
+      unitPrice,
+      lineTotal: unitPrice * item.quantity,
       notes: item.notes,
     });
   }
