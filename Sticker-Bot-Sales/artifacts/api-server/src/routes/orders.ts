@@ -50,13 +50,6 @@ function serializeOrder(o: typeof schema.orders.$inferSelect) {
   };
 }
 
-function buildPublicArtworkUrl(req: { protocol: string; get: (h: string) => string | undefined }, objectPath: string) {
-  const host = req.get("x-forwarded-host") ?? req.get("host") ?? "";
-  const proto = req.get("x-forwarded-proto") ?? req.protocol ?? "https";
-  const path = objectPath.startsWith("/") ? objectPath : `/${objectPath}`;
-  return `${proto}://${host}/api/storage${path}`;
-}
-
 // Order lists contain customer names, phone numbers and delivery details.
 // They must only be exposed through an authenticated customer/admin endpoint.
 // Until that endpoint is wired to verified ownership, do not expose recent orders publicly.
@@ -123,8 +116,9 @@ router.post("/orders", async (req, res) => {
   const total = subtotal + deliveryFee;
 
   const reference = generateReference();
-  const artworkPaths = body.artworkUrls ?? [];
-  const artworkPublicUrls = artworkPaths.map((p) => buildPublicArtworkUrl(req, p));
+  // Do not accept arbitrary client-supplied storage paths. Artwork upload and
+  // private ownership checks must be implemented before production files are attached.
+  const artworkPublicUrls: string[] = [];
   const [row] = await db
     .insert(schema.orders)
     .values({
