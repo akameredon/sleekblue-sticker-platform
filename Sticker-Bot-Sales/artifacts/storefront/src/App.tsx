@@ -17,6 +17,7 @@ import { QuickOrderPage } from "@/pages/QuickOrder";
 import { LoginPage } from "@/pages/Login";
 import { RegisterPage } from "@/pages/Register";
 import { AccountPage } from "@/pages/Account";
+import { PaymentReturnPage } from "@/pages/PaymentReturn";
 import NotFound from "@/pages/not-found";
 import { queryClient } from "@/lib/queryClient";
 
@@ -37,6 +38,7 @@ function Routes() {
       <Route path="/login" component={LoginPage} />
       <Route path="/register" component={RegisterPage} />
       <Route path="/account" component={AccountPage} />
+      <Route path="/payment/return" component={PaymentReturnPage} />
       <Route component={NotFound} />
     </Switch>
   );
