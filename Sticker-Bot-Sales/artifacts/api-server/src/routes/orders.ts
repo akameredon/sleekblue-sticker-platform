@@ -10,6 +10,7 @@ import {
 import { db, schema } from "../lib/db";
 import { getShopSettingsRow } from "../lib/shop";
 import { buildWhatsappMessage, buildWhatsappUrl } from "../lib/whatsapp";
+import { calculateQuote } from "../lib/pricing";
 
 const router: IRouter = Router();
 
@@ -59,32 +60,67 @@ function buildPublicArtworkUrl(req: { protocol: string; get: (h: string) => stri
   return `${proto}://${host}/api/storage${path}`;
 }
 
-router.get("/orders", async (_req, res) => {
-  const rows = await db
-    .select()
-    .from(schema.orders)
-    .orderBy(desc(schema.orders.createdAt))
-    .limit(10);
-  const data = ListRecentOrdersResponse.parse(rows.map(serializeOrder));
-  res.json(data);
+// Order lists contain customer names, phone numbers and delivery details.
+// They must only be exposed through an authenticated customer/admin endpoint.
+// Until that endpoint is wired to verified ownership, do not expose recent orders publicly.
+router.get("/orders", (_req, res) => {
+  res.status(401).json({ error: "Authentication required" });
 });
 
 router.post("/orders", async (req, res) => {
   const body = CreateOrderBody.parse(req.body);
   const settings = await getShopSettingsRow();
 
-  const items = body.items.map((it) => ({
-    productSlug: it.productSlug,
-    productName: it.productName,
-    sizeLabel: it.sizeLabel,
-    finishLabel: it.finishLabel,
-    quantity: it.quantity,
-    widthMm: it.widthMm,
-    heightMm: it.heightMm,
-    unitPrice: it.unitPrice,
-    lineTotal: Math.round(it.unitPrice * it.quantity),
-    notes: it.notes,
-  }));
+  // Never trust prices supplied by the browser. Recalculate every line from
+  // the server-side product catalogue before persisting an order.
+  const items: Array<{
+    productSlug: string;
+    productName: string;
+    sizeLabel: string;
+    finishLabel: string;
+    quantity: number;
+    widthMm?: number;
+    heightMm?: number;
+    unitPrice: number;
+    lineTotal: number;
+    notes?: string;
+  }> = [];
+
+  for (const item of body.items) {
+    const [product] = await db
+      .select()
+      .from(schema.products)
+      .where(eq(schema.products.slug, item.productSlug))
+      .limit(1);
+
+    if (!product) {
+      res.status(400).json({ error: `Unknown product: ${item.productSlug}` });
+      return;
+    }
+
+    const quote = calculateQuote({
+      productSlug: item.productSlug,
+      sizeLabel: item.sizeLabel,
+      finishLabel: item.finishLabel,
+      quantity: item.quantity,
+      widthMm: item.widthMm,
+      heightMm: item.heightMm,
+    }, product, settings.leadTimeDays);
+
+    items.push({
+      productSlug: product.slug,
+      productName: product.name,
+      sizeLabel: item.sizeLabel,
+      finishLabel: item.finishLabel,
+      quantity: item.quantity,
+      widthMm: quote.widthMm,
+      heightMm: quote.heightMm,
+      unitPrice: quote.unitPrice,
+      lineTotal: quote.total,
+      notes: item.notes,
+    });
+  }
+
   const subtotal = items.reduce((sum, it) => sum + it.lineTotal, 0);
   const deliveryFee = 0;
   const total = subtotal + deliveryFee;
@@ -154,27 +190,10 @@ router.post("/orders/lookup", async (req, res) => {
   res.json({ ...serializeOrder(row), whatsappUrl, whatsappMessage });
 });
 
-router.get("/orders/:id", async (req, res) => {
-  const { id } = GetOrderByIdParams.parse(req.params);
-  const [row] = await db
-    .select()
-    .from(schema.orders)
-    .where(eq(schema.orders.id, id))
-    .limit(1);
-  if (!row) {
-    res.status(404).json({ error: "Order not found" });
-    return;
-  }
-  const settings = await getShopSettingsRow();
-  const whatsappMessage =
-    row.whatsappMessage ?? buildWhatsappMessage(row, settings.businessName);
-  const whatsappUrl = buildWhatsappUrl(settings.whatsappNumber, whatsappMessage);
-  const data = GetOrderByIdResponse.parse({
-    ...serializeOrder(row),
-    whatsappUrl,
-    whatsappMessage,
-  });
-  res.json(data);
+// Sequential database IDs are not authorization. Do not return order PII
+// through this route until a signed-in owner/admin check is implemented.
+router.get("/orders/:id", (_req, res) => {
+  res.status(401).json({ error: "Authentication required" });
 });
 
 export default router;
