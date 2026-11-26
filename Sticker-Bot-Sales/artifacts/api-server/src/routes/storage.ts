@@ -158,6 +158,9 @@ router.get("/storage/objects/*path", requireAuth, async (req: Request, res: Resp
 
     res.status(response.status);
     response.headers.forEach((value, key) => res.setHeader(key, value));
+    // Customer-supplied private artwork must download as an attachment rather
+    // than execute/render inline in the application's origin (especially SVG).
+    res.setHeader("Content-Disposition", "attachment");
 
     if (response.body) {
       const nodeStream = Readable.fromWeb(response.body as ReadableStream<Uint8Array>);
