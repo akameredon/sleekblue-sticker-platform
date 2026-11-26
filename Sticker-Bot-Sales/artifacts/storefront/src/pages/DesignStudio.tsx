@@ -249,7 +249,7 @@ export function GeneratePage() {
       "Create THREE distinct, original sticker artwork concepts from the customer details and selected visual direction. Present them as three separate flat artwork outputs, not a collage.",
       "Ask only for missing essentials, one concise question at a time: business/brand name and product name. If printed phone, social handle, website or tagline fields are blank, ask briefly whether the customer wants any of them printed. Never invent names, contact details, ingredients, claims or certifications.",
       "If information is already supplied, do not ask again. Offer short numbered choices only for unresolved decisions. The customer may say 'choose for me'.",
-      "Only include optional phone, social handle, website and tagline text if the customer has explicitly selected its print checkbox. If a logo file is supplied, use it exactly as provided; do not redraw, distort or recolour it. The customer must attach the logo file in the external AI tool alongside this prompt."
+      "Only include optional phone, social handle, website and tagline text if the customer has explicitly selected its print checkbox. If a logo file is supplied, use it exactly as provided; do not redraw, distort or recolour it. The customer must attach the logo file in the external AI tool alongside this prompt.",
       "Use the selected style direction as inspiration, creating original artwork rather than copying any Pinterest reference. Preserve the confirmed shape and exact physical proportions. Keep all text readable and inside a safe margin. No filler text, emojis, random icons, fake badges or unsupported claims.",
       "Show only flat, front-facing sticker artwork on a plain neutral background. Never show bottles, jars, cups, boxes, packaging, products, hands, scenes or lifestyle mockups. Show the complete sticker, undistorted. Use only confirmed customer details.",
       "", "CUSTOMER PROJECT", ...details,
@@ -260,6 +260,7 @@ export function GeneratePage() {
   };
 
   const copyFullDesignPrompt = async () => {
+    if (!brand.trim() || !product.trim()) { setNotice("Enter your business/brand name and product name before generating the prompt."); return; }
     try {
       await navigator.clipboard.writeText(buildChatGPTPrompt());
       setNotice("Full design prompt copied. Return to ChatGPT, paste it into the message box and press Send.");
@@ -269,6 +270,7 @@ export function GeneratePage() {
   };
 
   const openChatGPTDesigner = () => {
+    if (!brand.trim() || !product.trim()) { setNotice("Enter your business/brand name and product name before generating the prompt."); return; }
     const prompt = buildChatGPTPrompt();
     try { sessionStorage.setItem("labelflow-chatgpt-prompt", prompt); } catch { /* Clipboard and URL handoff remain available. */ }
     // Copy the complete brief as a fallback in case ChatGPT's undocumented URL
