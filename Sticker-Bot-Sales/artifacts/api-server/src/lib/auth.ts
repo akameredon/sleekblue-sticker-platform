@@ -6,7 +6,10 @@
  */
 import { createHmac, randomBytes, timingSafeEqual } from "crypto";
 
-const JWT_SECRET = process.env.JWT_SECRET ?? "dev-secret-change-in-production";
+const JWT_SECRET = process.env.JWT_SECRET ?? (process.env.NODE_ENV === "production" ? "" : "local-development-only-secret");
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET must be configured with a strong random value in production.");
+}
 const EXPIRY_SECONDS = 60 * 60 * 24 * 30; // 30 days
 
 /** Minimal JWT implementation — no external dep needed for HS256 */
@@ -33,7 +36,7 @@ export function verifyToken(token: string): Record<string, unknown> | null {
     const expBuf = Buffer.from(expected);
     if (sigBuf.length !== expBuf.length || !timingSafeEqual(sigBuf, expBuf)) return null;
     const payload = JSON.parse(Buffer.from(body, "base64").toString()) as Record<string, unknown>;
-    if (typeof payload.exp === "number" && payload.exp < Math.floor(Date.now() / 1000)) return null;
+    if (typeof payload.exp !== "number" || payload.exp <= Math.floor(Date.now() / 1000)) return null;
     return payload;
   } catch {
     return null;
