@@ -271,7 +271,7 @@ export function GeneratePage() {
               {retailEstimate != null ? (
                 <>
                   <div className="mt-1 text-2xl font-extrabold">₦{retailEstimate.toLocaleString("en-NG")}</div>
-                  <p className="mt-1 text-xs text-muted-foreground">Based on the supplied Sleekblue production price list and our initial 30% gross-margin target. Delivery and any special requirements are quoted separately.</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Based on the supplied Sleekblue production cost and our initial 30% gross-margin target. Delivery, packaging, payment fees and special requirements are not included and may change the final quote.</p>
                 </>
               ) : (
                 <p className="mt-1 text-xs text-muted-foreground">We’ll confirm a price on WhatsApp for this size or quantity. The current cost sheet covers selected sizes at 100, 500 and 1,000 pieces.</p>
