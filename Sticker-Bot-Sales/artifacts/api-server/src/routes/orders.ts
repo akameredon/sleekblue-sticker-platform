@@ -69,6 +69,13 @@ router.post("/orders", async (req, res) => {
     return;
   }
   const body = parsed.data;
+  const authToken = extractToken(req.headers.authorization);
+  const authPayload = authToken ? verifyToken(authToken) : null;
+  if (authToken && (!authPayload || typeof authPayload.userId !== "number")) {
+    res.status(401).json({ error: "Invalid or expired customer session." });
+    return;
+  }
+  const authenticatedUserId = typeof authPayload?.userId === "number" ? authPayload.userId : null;
   if (
     body.customerName.trim().length < 2 ||
     body.customerName.length > 100 ||
@@ -94,9 +101,7 @@ router.post("/orders", async (req, res) => {
   // authenticated customer and have a finalized private ACL.
   const artworkPaths = body.artworkUrls ?? [];
   if (artworkPaths.length > 0) {
-    const token = extractToken(req.headers.authorization);
-    const payload = token ? verifyToken(token) : null;
-    const userId = payload?.userId;
+    const userId = authenticatedUserId;
     if (typeof userId !== "number") {
       res.status(401).json({ error: "Sign in before attaching artwork files." });
       return;
@@ -211,6 +216,7 @@ router.post("/orders", async (req, res) => {
     .insert(schema.orders)
     .values({
       reference,
+      userId: authenticatedUserId ?? undefined,
       customerName: body.customerName,
       customerPhone: body.customerPhone,
       customerEmail: body.customerEmail,
