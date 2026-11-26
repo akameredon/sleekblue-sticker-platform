@@ -215,7 +215,7 @@ export function GeneratePage() {
         setTemplateId(draft.templateId ?? "custom");
         setBrand(draft.brand ?? "");
         setProduct(draft.product ?? "");
-        setTagline(draft.tagline ?? "");
+        setTagline(draft.tagline ?? "");\n        setPrintPhone(draft.printPhone ?? "");
         setColor(draft.color ?? TEMPLATES[5].color);
         setAccent(draft.accent ?? TEMPLATES[5].accent);
         setShape(draft.shape ?? "round");
