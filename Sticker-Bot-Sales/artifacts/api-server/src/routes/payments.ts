@@ -21,6 +21,7 @@ import { db, schema } from "../lib/db";
 import { initializePayment, verifyPayment, validateWebhookSignature } from "../lib/paystack";
 import { buildWhatsappMessage, buildWhatsappUrl } from "../lib/whatsapp";
 import { getShopSettingsRow } from "../lib/shop";
+import { requireAuth } from "./auth";
 
 const router: IRouter = Router();
 
@@ -35,7 +36,7 @@ const InitializeBody = z.object({
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
 /** POST /payments/initialize */
-router.post("/payments/initialize", async (req, res) => {
+router.post("/payments/initialize", requireAuth, async (req, res) => {
   const parse = InitializeBody.safeParse(req.body);
   if (!parse.success) {
     res.status(400).json({ error: "Validation failed", issues: parse.error.issues });
@@ -49,7 +50,8 @@ router.post("/payments/initialize", async (req, res) => {
     .from(schema.orders)
     .where(eq(schema.orders.id, orderId))
     .limit(1);
-  if (!order) { res.status(404).json({ error: "Order not found" }); return; }
+  const user = (req as typeof req & { user: { id: number; isAdmin: boolean } }).user;
+  if (!order || (!user.isAdmin && order.userId !== user.id)) { res.status(404).json({ error: "Order not found" }); return; }
 
   // Match the payer to the email supplied with the order where one exists.
   if (order.customerEmail && order.customerEmail.toLowerCase() !== customerEmail.toLowerCase()) {
@@ -183,7 +185,7 @@ router.post("/payments/webhook", async (req, res) => {
 });
 
 /** GET /payments/:reference — poll payment status */
-router.get("/payments/:reference", async (req, res) => {
+router.get("/payments/:reference", requireAuth, async (req, res) => {
   const reference = req.params.reference;
   const phone = typeof req.query.phone === "string" ? req.query.phone.replace(/\D/g, "") : "";
   if (!reference || phone.length < 10) { res.status(404).json({ error: "Payment not found" }); return; }
@@ -197,12 +199,13 @@ router.get("/payments/:reference", async (req, res) => {
   if (!payment) { res.status(404).json({ error: "Payment not found" }); return; }
 
   const [order] = await db
-    .select({ status: schema.orders.status, reference: schema.orders.reference, customerPhone: schema.orders.customerPhone })
+    .select({ status: schema.orders.status, reference: schema.orders.reference, customerPhone: schema.orders.customerPhone, userId: schema.orders.userId })
     .from(schema.orders)
     .where(eq(schema.orders.id, payment.orderId))
     .limit(1);
 
-  if (!order || order.customerPhone.replace(/\D/g, "").slice(-10) !== phone.slice(-10)) {
+  const user = (req as typeof req & { user: { id: number; isAdmin: boolean } }).user;
+  if (!order || (!user.isAdmin && order.userId !== user.id) || order.customerPhone.replace(/\D/g, "").slice(-10) !== phone.slice(-10)) {
     res.status(404).json({ error: "Payment not found" });
     return;
   }
