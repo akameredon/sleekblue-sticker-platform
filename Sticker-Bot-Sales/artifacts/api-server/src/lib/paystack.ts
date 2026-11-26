@@ -59,6 +59,7 @@ export async function initializePayment(
     currency: "NGN",
     metadata,
     channels: ["card", "bank", "ussd", "mobile_money"],
+    ...(process.env.PAYSTACK_CALLBACK_URL ? { callback_url: process.env.PAYSTACK_CALLBACK_URL } : {}),
   });
 }
 
