@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { apiUrl } from "@/lib/paths";
+import { getToken } from "@/lib/auth";
 import { CheckCircle2, Clock3, AlertCircle } from "lucide-react";
 
 type PendingPayment = {
@@ -39,7 +40,9 @@ export function PaymentReturnPage() {
         if (cancelled) return;
         attempts += 1;
         try {
-          const response = await fetch(apiUrl(`/payments/${encodeURIComponent(reference)}?phone=${encodeURIComponent(pending!.phone)}`));
+          const response = await fetch(apiUrl(`/payments/${encodeURIComponent(reference)}?phone=${encodeURIComponent(pending!.phone)}`), {
+            headers: { Authorization: `Bearer ${getToken()}` },
+          });
           const data = await response.json();
           if (!response.ok) throw new Error(data.error || "Payment status could not be checked.");
           if (data.status === "success" || data.orderStatus === "confirmed") {
