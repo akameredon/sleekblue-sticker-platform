@@ -23,7 +23,7 @@ export interface StoredObjectRef {
 
 function supabaseConfig(): { url: string; key: string } {
   const url = process.env.SUPABASE_URL?.replace(/\/$/, "");
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.supabase_service_role_key || process.env.SUPABASE_SECRET_KEY;
   if (!url || !key) {
     throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be configured on the API server.");
   }
