@@ -46,3 +46,19 @@ This document records decisions explicitly approved by the product owner. Unansw
 ## Decisions still open
 
 Rounds 3–5 have not yet been answered. Do not infer or implement decisions about sticker dimensions, shapes, quantity, pricing, payment, artwork handoff, upload, revisions, production, or other workflow details until they are covered by approved answers.
+
+## Round 3 — Sticker size, shape and quantity (confirmed)
+
+1. **Available shapes:** All shapes, including die-cut.
+2. **Dimensions:** Customers can choose both preset and custom sizes.
+3. **Measurement unit:** Millimetres (mm).
+4. **Size preview:** Show a flat sticker preview at the selected proportions.
+5. **Dimension guidance:** Customers choose from our recommended sizes.
+6. **Sizes per order:** One sticker size per order; no mixed sizes in a single order.
+7. **Quantity selection:** Both preset quantities and a custom quantity.
+8. **Preset quantities:** 50, 100, 200, 500 and 1,000.
+9. **Custom die-cut outline:** Customers may request a custom outline, but the team must approve it.
+10. **When size/shape/quantity are selected:** After the customer chooses a design and enters business details.
+
+**Round 3 experience principle:** Keep sizing visual and straightforward: present recommended sizes in millimetres, allow custom dimensions and quantities, show a flat proportionate preview, and make clear that custom die-cut outlines require approval.
+
