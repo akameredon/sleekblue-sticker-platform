@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { randomBytes } from "crypto";
-import { extractToken, verifyToken } from "../lib/auth";
+import { requireAuth } from "./auth";
 import { ObjectPermission } from "../lib/objectAcl";
 import { ObjectStorageService } from "../lib/objectStorage";
 import { eq } from "drizzle-orm";
@@ -58,24 +58,22 @@ function serializeOrder(o: typeof schema.orders.$inferSelect) {
 // Order lists contain customer names, phone numbers and delivery details.
 // They must only be exposed through an authenticated customer/admin endpoint.
 // Until that endpoint is wired to verified ownership, do not expose recent orders publicly.
-router.get("/orders", (_req, res) => {
-  res.status(401).json({ error: "Authentication required" });
+router.get("/orders", requireAuth, async (req, res) => {
+  const user = (req as typeof req & { user: { id: number; isAdmin: boolean } }).user;
+  const rows = user.isAdmin
+    ? await db.select().from(schema.orders)
+    : await db.select().from(schema.orders).where(eq(schema.orders.userId, user.id));
+  res.json(rows.map(serializeOrder));
 });
 
-router.post("/orders", async (req, res) => {
+router.post("/orders", requireAuth, async (req, res) => {
   const parsed = CreateOrderBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Invalid order details", issues: parsed.error.issues });
     return;
   }
   const body = parsed.data;
-  const authToken = extractToken(req.headers.authorization);
-  const authPayload = authToken ? verifyToken(authToken) : null;
-  if (authToken && (!authPayload || typeof authPayload.userId !== "number")) {
-    res.status(401).json({ error: "Invalid or expired customer session." });
-    return;
-  }
-  const authenticatedUserId = typeof authPayload?.userId === "number" ? authPayload.userId : null;
+  const authenticatedUserId = (req as typeof req & { user: { id: number } }).user.id;
   if (
     body.customerName.trim().length < 2 ||
     body.customerName.length > 100 ||
@@ -280,8 +278,13 @@ router.post("/orders/lookup", async (req, res) => {
 
 // Sequential database IDs are not authorization. Do not return order PII
 // through this route until a signed-in owner/admin check is implemented.
-router.get("/orders/:id", (_req, res) => {
-  res.status(401).json({ error: "Authentication required" });
+router.get("/orders/:id", requireAuth, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isSafeInteger(id) || id < 1) { res.status(404).json({ error: "Order not found" }); return; }
+  const user = (req as typeof req & { user: { id: number; isAdmin: boolean } }).user;
+  const [row] = await db.select().from(schema.orders).where(eq(schema.orders.id, id)).limit(1);
+  if (!row || (!user.isAdmin && row.userId !== user.id)) { res.status(404).json({ error: "Order not found" }); return; }
+  res.json(serializeOrder(row));
 });
 
 export default router;
