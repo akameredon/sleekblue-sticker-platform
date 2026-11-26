@@ -8,7 +8,7 @@ const TIMESTAMP_TOLERANCE_MS = 5 * 60 * 1000;
  * Uses timing-safe comparison to prevent timing attacks.
  * Rejects payloads older than 5 minutes to block replay attacks.
  */
-export async function verifyWhatsAppWebhook(
+export function verifyWhatsAppWebhook(
   request: Request,
   reply: Response,
   next: NextFunction
