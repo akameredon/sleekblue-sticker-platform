@@ -11,7 +11,7 @@ import { format } from "date-fns";
 const STATUS_LABEL: Record<string, { label: string; tone: string }> = {
   pending_payment: { label: "Awaiting payment", tone: "bg-primary/15 text-foreground" },
   pending_whatsapp: { label: "Awaiting WhatsApp confirmation", tone: "bg-primary/15 text-foreground" },
-  confirmed: { label: "Confirmed", tone: "bg-accent/15 text-foreground" },
+  confirmed: { label: "Paid — awaiting production", tone: "bg-accent/15 text-foreground" },
   in_production: { label: "In production", tone: "bg-primary/20 text-foreground" },
   ready: { label: "Ready for pickup / shipping", tone: "bg-accent/25 text-foreground" },
   shipped: { label: "Shipped", tone: "bg-accent/30 text-foreground" },
