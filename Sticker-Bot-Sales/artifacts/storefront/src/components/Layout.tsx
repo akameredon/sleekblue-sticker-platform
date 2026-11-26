@@ -72,11 +72,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Zap className="h-3.5 w-3.5" /> Quick Order
               </Button>
             </Link>
-            <Link href="/admin" className="hidden md:inline-flex">
+            {authUser?.isAdmin && <Link href="/admin" className="hidden md:inline-flex">
               <Button variant="outline" size="sm" title="Analytics" data-testid="button-admin">
                 <BarChart2 className="h-4 w-4" />
               </Button>
-            </Link>
+            </Link>}
             <Link href="/wishlist" className="hidden sm:inline-flex">
               <Button variant="outline" size="sm" className="relative" data-testid="button-wishlist">
                 <Heart className={mounted && wishlistCount > 0 ? "h-4 w-4 fill-current text-accent" : "h-4 w-4"} />
@@ -205,7 +205,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <li><Link href="/batch" className="hover:underline flex items-center gap-1"><Layers className="h-3 w-3" />Batch quote</Link></li>
                 <li><Link href="/track" className="hover:underline">Track an order</Link></li>
                 <li><Link href="/account" className="hover:underline flex items-center gap-1"><User className="h-3 w-3" />My account</Link></li>
-                <li><Link href="/admin" className="hover:underline flex items-center gap-1"><BarChart2 className="h-3 w-3" />Admin dashboard</Link></li>
+                {authUser?.isAdmin && <li><Link href="/admin" className="hover:underline flex items-center gap-1"><BarChart2 className="h-3 w-3" />Admin dashboard</Link></li>}
               </ul>
             </div>
           </div>
