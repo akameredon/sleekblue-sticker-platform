@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { apiUrl } from "@/lib/paths";
+import { getToken, setAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Save, Sparkles, Lock, Globe2, RotateCcw, Download, ChevronLeft, CheckCircle2 } from "lucide-react";
 
@@ -89,7 +90,7 @@ function getRetailEstimate(widthMm: number, heightMm: number, qty: number) {
   if (!Number.isFinite(widthMm) || !Number.isFinite(heightMm) ||
       widthMm < 20 || heightMm < 20 || widthMm > 300 || heightMm > 300) return null;
   const areaIn2 = (widthMm / 25.4) * (heightMm / 25.4);
-  if (areaIn2 > 16) return null;
+  if (areaIn2 < 2.25 || areaIn2 > 16) return null;
   const cost = estimateProductionCost(areaIn2, qty);
   if (cost == null) return null;
   return Math.ceil((cost / 0.7) / 100) * 100;
@@ -133,6 +134,7 @@ export function GeneratePage() {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
+  const [customerPassword, setCustomerPassword] = useState("");
   const [checkoutBusy, setCheckoutBusy] = useState(false);
 
   const design = useMemo<Template>(() => ({
@@ -233,6 +235,29 @@ export function GeneratePage() {
 
     setCheckoutBusy(true);
     try {
+      // Orders require an authenticated owner. Register this customer or sign in
+      // an existing account before creating an order or starting payment.
+      if (!getToken()) {
+        if (customerPassword.length < 8) throw new Error("Create a password of at least 8 characters to secure your order.");
+        const registration = await fetch(apiUrl("/auth/register"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: customerName.trim(), email: customerEmail.trim(), phone: customerPhone.trim(), password: customerPassword }),
+        });
+        let account = await registration.json();
+        if (!registration.ok && registration.status === 409) {
+          const login = await fetch(apiUrl("/auth/login"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: customerEmail.trim(), password: customerPassword }),
+          });
+          account = await login.json();
+          if (!login.ok) throw new Error(account.error ?? "An account already exists. Check your password and try again.");
+        } else if (!registration.ok) {
+          throw new Error(account.error ?? "Could not create your customer account.");
+        }
+        setAuth(account.token, account.user);
+      }
       const designNotes = JSON.stringify({
         templateId, brand, product, tagline, color, accent, shape,
         widthMm: Number(width), heightMm: Number(height), quantity: Number(quantity),
@@ -241,7 +266,7 @@ export function GeneratePage() {
       });
       const orderResponse = await fetch(apiUrl("/orders"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
         body: JSON.stringify({
           customerName: customerName.trim(),
           customerPhone: customerPhone.trim(),
@@ -265,7 +290,7 @@ export function GeneratePage() {
 
       const paymentResponse = await fetch(apiUrl("/payments/initialize"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
         body: JSON.stringify({
           orderId: order.id,
           customerEmail: customerEmail.trim(),
