@@ -29,7 +29,7 @@ const TEMPLATES: Template[] = [
 const WHATSAPP_NUMBER = "2348058162036";
 const DRAFT_KEY = "labelflow-design-draft-v1";
 
-const COST_ANCHORS_BY_QUANTITY = {
+const COST_ANCHORS_BY_QUANTITY: Record<100 | 500 | 1000, Array<{ areaIn2: number; cost: number }>> = {
   100: [
     { areaIn2: 2.25, cost: 3000 },
     { areaIn2: 4, cost: 3000 },
@@ -54,7 +54,7 @@ const COST_ANCHORS_BY_QUANTITY = {
     { areaIn2: 12, cost: 55000 },
     { areaIn2: 16, cost: 80000 },
   ],
-} as const;
+};
 
 // The supplied cost sheet prices by the listed dimensions. For unlisted dimensions,
 // estimate production cost by interpolating/extrapolating between its area anchors.
