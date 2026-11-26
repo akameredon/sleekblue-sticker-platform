@@ -103,10 +103,19 @@ export class ObjectStorageService {
       throw new Error(`Could not create a signed Supabase Storage upload URL (${response.status}). ${detail.slice(0, 300)}`);
     }
     const data = await response.json() as { url?: string; signedUrl?: string; signedURL?: string; token?: string };
-    const signed = data.signedUrl || data.signedURL || data.url;
-    if (!signed) throw new Error("Supabase Storage did not return a signed upload URL.");
+    const directSignedUrl = data.signedUrl || data.signedURL;
+    if (directSignedUrl) {
+      if (directSignedUrl.startsWith("http")) return directSignedUrl;
+      const { url } = supabaseConfig();
+      return `${url}/storage/v1${directSignedUrl.startsWith("/") ? "" : "/"}${directSignedUrl}`;
+    }
+    if (!data.url || !data.token) {
+      throw new Error("Supabase Storage did not return both the signed upload path and token.");
+    }
     const { url } = supabaseConfig();
-    return signed.startsWith("http") ? signed : `${url}/storage/v1${signed.startsWith("/") ? "" : "/"}${signed}`;
+    const signedPath = data.url.startsWith("/") ? data.url : `/${data.url}`;
+    const separator = signedPath.includes("?") ? "&" : "?";
+    return `${url}/storage/v1${signedPath}${separator}token=${encodeURIComponent(data.token)}`;
   }
 
   async getObjectEntityFile(objectPath: string): Promise<StoredObjectRef> {
