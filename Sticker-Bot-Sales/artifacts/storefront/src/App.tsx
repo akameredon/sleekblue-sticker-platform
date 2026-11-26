@@ -11,7 +11,7 @@ import { OrderDetailPage } from "@/pages/OrderDetail";
 import { ChatPage } from "@/pages/Chat";
 import { TrackPage } from "@/pages/Track";
 import { WishlistPage } from "@/pages/Wishlist";
-import { GeneratePage } from "@/pages/Generate";
+import { GeneratePage } from "@/pages/DesignStudio";
 import { BatchPage } from "@/pages/Batch";
 import { AdminPage } from "@/pages/Admin";
 import { QuickOrderPage } from "@/pages/QuickOrder";
