@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { useLookupOrder } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatNGN } from "@/lib/format";
-import { Search, Package, MessageCircle, ChevronRight } from "lucide-react";
+import { Search, Package, MessageCircle } from "lucide-react";
 import { format } from "date-fns";
 
 const STATUS_LABEL: Record<string, { label: string; tone: string }> = {
@@ -23,6 +23,11 @@ export function TrackPage() {
   const [phone, setPhone] = useState("");
   const [submitErr, setSubmitErr] = useState<string | null>(null);
 
+  useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get("reference");
+    if (ref) setReference(ref);
+  }, []);
+
   const lookup = useLookupOrder({
     mutation: {
       onError: (e: unknown) => {
@@ -33,7 +38,7 @@ export function TrackPage() {
   });
 
   const order = lookup.data;
-  const canSubmit = reference.trim().length > 3 && phone.replace(/\D/g, "").length >= 4 && !lookup.isPending;
+  const canSubmit = reference.trim().length > 3 && phone.replace(/\D/g, "").length >= 10 && !lookup.isPending;
 
   const submit = () => {
     setSubmitErr(null);
@@ -66,11 +71,11 @@ export function TrackPage() {
             />
           </div>
           <div>
-            <Label className="text-xs font-medium text-muted-foreground">Phone (last 4 digits ok)</Label>
+            <Label className="text-xs font-medium text-muted-foreground">Phone number (enter at least 10 digits)</Label>
             <Input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="0000"
+              placeholder="08012345678"
               className="mt-1"
               data-testid="input-track-phone"
             />
@@ -144,11 +149,7 @@ export function TrackPage() {
                 Open in WhatsApp
               </Button>
             </a>
-            <Link href={`/orders/${order.id}?ref=${encodeURIComponent(order.reference)}`} className="flex-1">
-              <Button variant="outline" className="w-full" size="lg">
-                Full order details <ChevronRight className="h-4 w-4" />
-              </Button>
-            </Link>
+
           </div>
         </div>
       ) : null}
