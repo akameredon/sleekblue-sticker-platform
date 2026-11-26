@@ -200,11 +200,43 @@ router.get("/payments/:reference", async (req, res) => {
     return;
   }
 
+  let paymentStatus = payment.status;
+  let orderStatus = order.status;
+  let paidAt = payment.paidAt;
+
+  // Webhooks are the primary confirmation path. If a webhook is delayed or
+  // missed, the verified customer may safely trigger a server-side Paystack
+  // verification during status polling.
+  if (paymentStatus !== "success") {
+    try {
+      const verified = await verifyPayment(reference);
+      if (
+        verified.status === "success" &&
+        verified.reference === reference &&
+        verified.amount === Number(payment.amountKobo)
+      ) {
+        paidAt = new Date(verified.paid_at);
+        await db
+          .update(schema.payments)
+          .set({ status: "success", paidAt })
+          .where(eq(schema.payments.paystackReference, reference));
+        await db
+          .update(schema.orders)
+          .set({ status: "confirmed" })
+          .where(eq(schema.orders.id, payment.orderId));
+        paymentStatus = "success";
+        orderStatus = "confirmed";
+      }
+    } catch {
+      // Leave the payment pending; the customer can retry the status check.
+    }
+  }
+
   res.json({
     reference: payment.paystackReference,
-    status: payment.status,
-    paidAt: payment.paidAt,
-    orderStatus: order?.status ?? "unknown",
+    status: paymentStatus,
+    paidAt,
+    orderStatus,
   });
 });
 
