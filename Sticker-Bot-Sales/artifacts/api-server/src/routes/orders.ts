@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import {
   CreateOrderBody,
   LookupOrderBody,
@@ -86,17 +86,8 @@ router.post("/orders", async (req, res) => {
   }> = [];
 
   for (const item of body.items) {
-    const [product] = await db
-      .select()
-      .from(schema.products)
-      .where(eq(schema.products.slug, item.productSlug))
-      .limit(1);
-
-    if (!product) {
-      res.status(400).json({ error: `Unknown product: ${item.productSlug}` });
-      return;
-    }
-
+    // Custom labels are designed in the studio and do not need a pre-existing
+    // catalogue product. The browser-supplied display name is not used to price.
     const widthMm = Number(item.widthMm ?? 0);
     const heightMm = Number(item.heightMm ?? 0);
     const unitPrice = calculateLabelStudioUnitPrice(widthMm, heightMm, item.quantity);
@@ -108,8 +99,8 @@ router.post("/orders", async (req, res) => {
     }
 
     items.push({
-      productSlug: product.slug,
-      productName: product.name,
+      productSlug: item.productSlug ?? "custom-label",
+      productName: "Custom product label",
       sizeLabel: item.sizeLabel,
       finishLabel: item.finishLabel,
       quantity: item.quantity,
@@ -145,7 +136,7 @@ router.post("/orders", async (req, res) => {
       total: total.toString(),
       currency: settings.currency,
       currencySymbol: settings.currencySymbol,
-      status: "pending_whatsapp",
+      status: "pending_payment",
       artworkUrls: artworkPublicUrls,
     })
     .returning();
