@@ -203,6 +203,8 @@ export function calculateLabelStudioUnitPrice(
 
   const ratio = (areaIn2 - left.areaIn2) / (right.areaIn2 - left.areaIn2);
   const productionCost = Math.max(0, Math.ceil(left.cost + ratio * (right.cost - left.cost)));
-  // 30% gross-margin target; rounded upward to the next ₦100.
-  return Math.ceil((productionCost / 0.7) / 100) * 100;
+  // Wholesale anchors are batch costs. Convert the rounded batch selling
+  // price to a per-sticker unit price for the order schema.
+  const batchSellingPrice = Math.ceil((productionCost / 0.7) / 100) * 100;
+  return Math.ceil((batchSellingPrice / quantity) * 100) / 100;
 }
