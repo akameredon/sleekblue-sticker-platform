@@ -91,7 +91,7 @@ export function PaymentReturnPage() {
         <p className="mt-3 text-sm text-muted-foreground">{message}</p>
         {orderReference && <p className="mt-4 rounded-lg bg-muted p-3 text-sm">Order reference: <strong>{orderReference}</strong></p>}
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link href="/track" className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground">Track an order</Link>
+          <Link href={orderReference ? `/track?reference=${encodeURIComponent(orderReference)}` : "/track"} className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground">Track an order</Link>
           <Link href="/" className="rounded-xl border border-border px-4 py-2.5 text-sm font-semibold">Back to home</Link>
         </div>
       </section>
