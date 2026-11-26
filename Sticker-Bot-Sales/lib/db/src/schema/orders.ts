@@ -9,6 +9,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
+import { users } from "./users";
 
 export type OrderItem = {
   productSlug?: string;
@@ -26,7 +27,7 @@ export type OrderItem = {
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
   reference: text("reference").notNull().unique(),
-  userId: integer("user_id"),
+  userId: integer("user_id").references(() => users.id, { onDelete: "set null" }),
   customerName: text("customer_name").notNull(),
   customerPhone: text("customer_phone").notNull(),
   customerEmail: text("customer_email"),
