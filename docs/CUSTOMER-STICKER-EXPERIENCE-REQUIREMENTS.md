@@ -122,3 +122,18 @@ Rounds 3–5 have not yet been answered. Do not infer or implement decisions abo
 
 **Production principle:** The system should prepare consistent print-production files and require a documented staff quality check before printing. Actual CDR compatibility, colour conversion, bleed and cut-line output must be validated against the production software and equipment during end-to-end testing.
 
+## Implementation decisions — Question set 3 (confirmed)
+
+1. **Launch market:** Serve Nigeria first, with international expansion later.
+2. **Launch currency:** Display Nigerian naira (₦) only.
+3. **Delivery address:** Collect a simple address with state, city and street.
+4. **Pickup:** Show approved pickup locations for customers to choose.
+5. **Delivery arrangements:** Support staff-managed delivery and courier dispatch.
+6. **WhatsApp notifications:** Start with staff sending updates manually; integrate the official WhatsApp platform later.
+7. **Email notifications:** Send automatically through a transactional email service.
+8. **Checkout access:** Allow guest checkout; customer accounts are optional.
+9. **Saved designs and reordering:** Customer accounts provide saved designs and one-click reorder.
+10. **Refunds and cancellations:** Customers submit requests; staff reviews and approves them under a clear policy.
+
+**Customer operations principle:** Launch for Nigeria in naira, keep address entry and checkout straightforward, and allow guest orders. Provide clear pickup/delivery choices and a staff-reviewed process for cancellations and refunds.
+
