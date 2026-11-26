@@ -186,7 +186,8 @@ router.post("/payments/webhook", async (req, res) => {
 
 /** GET /payments/:reference — poll payment status */
 router.get("/payments/:reference", requireAuth, async (req, res) => {
-  const reference = req.params.reference;
+  const rawReference = req.params.reference;
+  const reference = Array.isArray(rawReference) ? rawReference[0] ?? "" : rawReference;
   const phone = typeof req.query.phone === "string" ? req.query.phone.replace(/\D/g, "") : "";
   if (!reference || phone.length < 10) { res.status(404).json({ error: "Payment not found" }); return; }
 
