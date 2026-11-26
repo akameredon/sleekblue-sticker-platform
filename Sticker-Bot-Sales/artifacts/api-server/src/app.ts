@@ -21,9 +21,22 @@ app.use(
     origin: (origin, callback) => {
       // Allow requests with no origin (curl, Postman, same-host Replit)
       if (!origin) return callback(null, true);
-      if (ALLOWED_ORIGINS.some((o) => origin.startsWith(o))) return callback(null, true);
-      // On Replit, same-host requests use the Replit dev URL — allow *.replit.dev
-      if (origin.endsWith(".replit.dev") || origin.endsWith(".repl.co")) return callback(null, true);
+      let parsedOrigin: URL;
+      try {
+        parsedOrigin = new URL(origin);
+      } catch {
+        return callback(new Error("CORS: invalid origin"));
+      }
+      const isExactAllowedOrigin = ALLOWED_ORIGINS.some((allowed) => {
+        try { return new URL(allowed).origin === parsedOrigin.origin; }
+        catch { return false; }
+      });
+      if (isExactAllowedOrigin) return callback(null, true);
+      // Replit preview hosts are allowed by hostname suffix, not string prefix.
+      if (
+        parsedOrigin.protocol === "https:" &&
+        (parsedOrigin.hostname.endsWith(".replit.dev") || parsedOrigin.hostname.endsWith(".repl.co"))
+      ) return callback(null, true);
       callback(new Error(`CORS: origin ${origin} not allowed`));
     },
     credentials: true,
