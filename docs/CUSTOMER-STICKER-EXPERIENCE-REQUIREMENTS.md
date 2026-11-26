@@ -137,3 +137,18 @@ Rounds 3–5 have not yet been answered. Do not infer or implement decisions abo
 
 **Customer operations principle:** Launch for Nigeria in naira, keep address entry and checkout straightforward, and allow guest orders. Provide clear pickup/delivery choices and a staff-reviewed process for cancellations and refunds.
 
+## Implementation decisions — Question set 4 (confirmed)
+
+1. **Admin dashboard overview:** Show a complete overview of orders, payments, production and sales.
+2. **Gallery administration:** Staff can add, edit, publish and archive designs from the admin panel without a developer.
+3. **Catalogue administration:** Staff can manage all materials, sizes and shapes, and activate or deactivate options.
+4. **Manual order management:** Staff can create, edit and update customer orders from the admin panel.
+5. **Tracking link delivery:** Automatically send the private order tracking link after successful order submission.
+6. **Customer account security:** Use email verification and secure password login.
+7. **Customer data and artwork security:** Use private file storage, restricted access and secure account permissions.
+8. **Backups:** Provide scheduled database backups and recovery procedures.
+9. **Failure handling:** Show clear errors and let customers safely retry payment or file uploads without creating duplicate orders.
+10. **Device priority:** Mobile-first, with proper support for tablets and computers.
+
+**Admin and reliability principle:** Give staff operational control through the admin panel while protecting customer data and artwork. Design payment and upload retries to be safe and prevent duplicate orders.
+
