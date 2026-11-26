@@ -6,7 +6,7 @@
  *
  * All amounts are in KOBO (multiply NGN × 100).
  */
-import { createHmac } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 
 const SECRET_KEY = process.env.PAYSTACK_SECRET_KEY ?? "";
 const BASE_URL = "https://api.paystack.co";
@@ -86,5 +86,7 @@ export function validateWebhookSignature(rawBody: string | Buffer, signature: st
   if (!SECRET_KEY || !signature) return false;
   const body = Buffer.isBuffer(rawBody) ? rawBody.toString("utf8") : rawBody;
   const expected = createHmac("sha512", SECRET_KEY).update(body).digest("hex");
-  return expected === signature;
+  const expectedBytes = Buffer.from(expected, "hex");
+  const suppliedBytes = Buffer.from(signature, "hex");
+  return expectedBytes.length === suppliedBytes.length && timingSafeEqual(expectedBytes, suppliedBytes);
 }
