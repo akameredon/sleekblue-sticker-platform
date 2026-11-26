@@ -106,7 +106,7 @@ function makeSvg(template: Template, width: number, height: number, preview = fa
   const safe = (value: string) => value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" })[c] ?? c);
   const labelShape = template.shape === "round"
     ? '<circle cx="450" cy="450" r="390" fill="url(#labelBase)" stroke="url(#labelRim)" stroke-width="18" filter="url(#labelShadow)"/>'
-    : `<rect x="58" y="88" width="784" height="724" rx="${template.shape === "oval" ? 350 : 48}" fill="url(#labelBase)" stroke="url(#labelRim)" stroke-width="18" filter="url(#labelShadow)"/>`;
+    : `<rect x="58" y="88" width="784" height="724" rx="${template.shape === "oval" ? 350 : template.shape === "square" ? 24 : 48}" fill="url(#labelBase)" stroke="url(#labelRim)" stroke-width="18" filter="url(#labelShadow)"/>`;
   const motif = template.id === "glow"
     ? '<path d="M160 650 C250 500 250 350 175 245 M175 430 C90 390 100 300 175 245 M175 430 C265 390 280 315 175 245" fill="none" stroke="#ffffff" stroke-width="12" opacity=".48"/><circle cx="700" cy="230" r="92" fill="#ffffff" opacity=".16"/>'
     : template.id === "sip"
@@ -138,8 +138,6 @@ function makeSvg(template: Template, width: number, height: number, preview = fa
     <path d="M250 285 H650" stroke="${template.accent}" stroke-width="3" opacity=".48"/>
     <text x="450" y="420" text-anchor="middle" font-family="Georgia,serif" font-size="60" font-weight="700" fill="${template.accent}">${safe(template.product.slice(0, 22))}</text>
     <text x="450" y="485" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" fill="#30343b">${safe(template.tagline.slice(0, 48))}</text>
-    <rect x="290" y="545" width="320" height="62" rx="31" fill="${template.accent}"/>
-    <text x="450" y="585" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="700" letter-spacing="1" fill="#ffffff">MADE IN NIGERIA</text>
     ${preview ? '<g opacity=".13" transform="rotate(-28 450 450)"><text x="450" y="470" text-anchor="middle" font-family="Arial,sans-serif" font-size="74" font-weight="800" fill="#111111">DESIGN PREVIEW</text><text x="450" y="555" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" fill="#111111">NOT A PRINT FILE</text></g>' : ""}
   </svg>`;
 }
@@ -179,7 +177,7 @@ export function GeneratePage() {
       if (!raw) return;
       const draft = JSON.parse(raw);
       if (draft && typeof draft === "object") {
-        setTemplateId(draft.templateId ?? "botanical-jar");
+        setTemplateId(TEMPLATES.some((item) => item.id === draft.templateId) ? draft.templateId : "botanical-jar");
         setBrand(draft.brand ?? "");
         setProduct(draft.product ?? "");
         setTagline(draft.tagline ?? "");\n        setPrintPhone(draft.printPhone ?? "");
@@ -269,10 +267,6 @@ export function GeneratePage() {
   };
 
   const openChatGPTDesigner = () => {
-    if (!creativeBrief.trim() && !brand.trim() && !product.trim()) {
-      setNotice("Describe the label you want, or enter your brand and product details first.");
-      return;
-    }
     const prompt = buildChatGPTPrompt();
     try { sessionStorage.setItem("labelflow-chatgpt-prompt", prompt); } catch { /* Clipboard and URL handoff remain available. */ }
     // Copy the complete brief as a fallback in case ChatGPT's undocumented URL
@@ -472,9 +466,12 @@ export function GeneratePage() {
       <div className="mt-7 grid gap-6 lg:grid-cols-[1fr_390px]">
         <section className="space-y-6">
           <div>
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-semibold">1. Choose a design</h2>
-              <span className="text-xs text-muted-foreground">Tap one to start</span>
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <h2 className="font-semibold">1. Choose a visual reference</h2>
+                <p className="mt-1 text-xs text-muted-foreground">Select a look. ChatGPT receives its image, source and design direction.</p>
+              </div>
+              <a href="https://www.pinterest.com/search/pins/?q=product%20label%20sticker%20design" target="_blank" rel="noreferrer" className="shrink-0 text-xs font-semibold text-primary underline">Pinterest ideas</a>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {TEMPLATES.map((t) => (
