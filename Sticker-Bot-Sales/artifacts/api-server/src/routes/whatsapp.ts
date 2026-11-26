@@ -296,7 +296,8 @@ router.get("/whatsapp/conversations", requireAdmin, async (_req, res) => {
 
 /** GET /whatsapp/conversations/:phone — full message thread */
 router.get("/whatsapp/conversations/:phone", requireAdmin, async (req, res) => {
-  const phone = decodeURIComponent(req.params.phone);
+  const rawPhone = req.params.phone;
+  const phone = decodeURIComponent(Array.isArray(rawPhone) ? rawPhone[0] ?? "" : rawPhone);
   const messages = await db
     .select()
     .from(schema.whatsappMessages)
