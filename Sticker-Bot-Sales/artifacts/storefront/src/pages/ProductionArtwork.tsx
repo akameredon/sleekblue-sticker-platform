@@ -77,7 +77,7 @@ function makePrintSvg(input: ArtworkInput): string {
   const taglineY = centerY + minSide * 0.18;
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="${pageW}mm" height="${pageH}mm" viewBox="0 0 ${pageW} ${pageH}">
+<svg xmlns="http://www.w3.org/2000/svg" width="${pageW}mm" height="${pageH}mm" viewBox="0 0 ${pageW} ${pageH}">
   <title>Sleekblue production print artwork — ${product}</title>
   <desc>Trim size ${w} by ${h} mm. Bleed ${b} mm on each side. RGB SVG master; confirm colour conversion in the printer RIP.</desc>
   <g id="PRINT_ARTWORK">
@@ -114,7 +114,7 @@ function downloadSvg(filename: string, content: string) {
   document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();
-  URL.revokeObjectURL(url);
+  window.setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
 
 export function ProductionArtworkPage() {
