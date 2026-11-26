@@ -125,62 +125,98 @@ router.post("/payments/initialize", requireAuth, async (req, res) => {
  * in app.ts BEFORE express.json() on this specific route.
  */
 router.post("/payments/webhook", async (req, res) => {
-  // express.raw() gives us a Buffer; express.json() gives an object
   const rawBody: string = Buffer.isBuffer(req.body)
     ? req.body.toString("utf8")
     : typeof req.body === "string"
     ? req.body
     : JSON.stringify(req.body);
+  const signature = typeof req.headers["x-paystack-signature"] === "string"
+    ? req.headers["x-paystack-signature"]
+    : "";
 
-  const signature = (req.headers["x-paystack-signature"] as string) ?? "";
+  if (!validateWebhookSignature(rawBody, signature)) {
+    res.status(401).json({ error: "Invalid webhook signature" });
+    return;
+  }
 
-  // Always respond 200 quickly to avoid Paystack retries
-  res.status(200).json({ received: true });
+  let event: { event?: string; data?: { reference?: string } };
+  try {
+    event = JSON.parse(rawBody) as { event?: string; data?: { reference?: string } };
+  } catch {
+    res.status(400).json({ error: "Invalid webhook payload" });
+    return;
+  }
+  if (event.event !== "charge.success") {
+    res.status(200).json({ received: true });
+    return;
+  }
+
+  const reference = event.data?.reference;
+  if (!reference || reference.length > 100) {
+    res.status(400).json({ error: "Invalid payment reference" });
+    return;
+  }
 
   try {
-    if (!validateWebhookSignature(rawBody, signature)) {
-      console.error("[Paystack Webhook] Invalid signature — ignoring");
-      return;
-    }
-
-    const event = JSON.parse(rawBody) as { event: string; data: { reference: string; status: string } };
-    if (event.event !== "charge.success") return;
-
-    const reference = event.data.reference;
     const [payment] = await db
       .select()
       .from(schema.payments)
       .where(eq(schema.payments.paystackReference, reference))
       .limit(1);
-    if (!payment || payment.status === "success") return;
+    if (!payment) {
+      // A valid Paystack event can arrive before a locally committed record
+      // is visible; a retry is safer than silently dropping the event.
+      res.status(503).json({ error: "Payment record is not available yet" });
+      return;
+    }
+    if (payment.status === "success") {
+      res.status(200).json({ received: true });
+      return;
+    }
 
-    // Verify status, reference and exact amount server-side. Never trust
-    // webhook payload alone, and never confirm an underpaid/mismatched order.
-    const verified = await verifyPayment(reference);
-    if (
-      verified.status !== "success" ||
-      verified.reference !== reference ||
-      verified.amount !== Number(payment.amountKobo)
-    ) return;
-
-    await db
-      .update(schema.payments)
-      .set({ status: "success", paidAt: new Date(), webhookPayload: rawBody })
-      .where(eq(schema.payments.paystackReference, reference));
-
-    const [linkedOrder] = await db
-      .select({ status: schema.orders.status })
+    const [order] = await db
+      .select({ status: schema.orders.status, total: schema.orders.total, currency: schema.orders.currency })
       .from(schema.orders)
       .where(eq(schema.orders.id, payment.orderId))
       .limit(1);
-    if (linkedOrder && ["pending_payment", "pending_whatsapp"].includes(linkedOrder.status)) {
-      await db
-        .update(schema.orders)
-        .set({ status: "confirmed" })
-        .where(eq(schema.orders.id, payment.orderId));
+    if (!order) {
+      res.status(503).json({ error: "Linked order is not available yet" });
+      return;
     }
-  } catch (err) {
-    console.error("[Paystack Webhook] Error:", err);
+
+    const verified = await verifyPayment(reference);
+    const expectedKobo = Math.round(Number(order.total) * 100);
+    if (
+      verified.status !== "success" ||
+      verified.reference !== reference ||
+      verified.amount !== Number(payment.amountKobo) ||
+      verified.amount !== expectedKobo ||
+      verified.currency !== "NGN" ||
+      payment.currency !== "NGN" ||
+      order.currency !== "NGN"
+    ) {
+      // A verified but mismatched charge must never confirm an order.
+      res.status(200).json({ received: true, ignored: true });
+      return;
+    }
+
+    await db.transaction(async (tx) => {
+      await tx
+        .update(schema.payments)
+        .set({ status: "success", paidAt: verified.paid_at ? new Date(verified.paid_at) : new Date(), webhookPayload: rawBody })
+        .where(eq(schema.payments.paystackReference, reference));
+      if (["pending_payment", "pending_whatsapp"].includes(order.status)) {
+        await tx
+          .update(schema.orders)
+          .set({ status: "confirmed" })
+          .where(eq(schema.orders.id, payment.orderId));
+      }
+    });
+
+    res.status(200).json({ received: true });
+  } catch (error) {
+    console.error("[Paystack Webhook] Processing failed; requesting retry:", error);
+    if (!res.headersSent) res.status(500).json({ error: "Webhook processing failed" });
   }
 });
 
@@ -224,7 +260,11 @@ router.get("/payments/:reference", requireAuth, async (req, res) => {
       if (
         verified.status === "success" &&
         verified.reference === reference &&
-        verified.amount === Number(payment.amountKobo)
+        verified.amount === Number(payment.amountKobo) &&
+        verified.amount === Math.round(Number(order.total) * 100) &&
+        verified.currency === "NGN" &&
+        order.currency === "NGN" &&
+        payment.currency === "NGN"
       ) {
         paidAt = new Date(verified.paid_at);
         await db
