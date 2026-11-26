@@ -162,6 +162,10 @@ router.post("/orders", requireAuth, async (req, res) => {
         res.status(400).json({ error: `Unknown product: ${item.productSlug}` });
         return;
       }
+      if (!product.sizes?.length || !product.finishes?.length || !product.quantityTiers?.length) {
+        res.status(503).json({ error: "This product is not available for automatic ordering until approved pricing is configured." });
+        return;
+      }
       const quote = calculateQuote({
         productSlug: item.productSlug,
         sizeLabel: item.sizeLabel,
