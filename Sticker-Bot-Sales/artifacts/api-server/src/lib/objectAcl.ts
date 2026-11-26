@@ -34,10 +34,6 @@ export async function getObjectAclPolicy(objectPath: string): Promise<ObjectAclP
   return { owner: row.owner_id, visibility: row.visibility, aclRules: row.acl_rules ?? [] };
 }
 
-function isPermissionAllowed(requested: ObjectPermission, granted: ObjectPermission): boolean {
-  if (requested === ObjectPermission.READ) return [ObjectPermission.READ, ObjectPermission.WRITE].includes(granted);
-  return granted === ObjectPermission.WRITE;
-}
 
 export async function canAccessObject({
   userId,
@@ -53,10 +49,6 @@ export async function canAccessObject({
   if (acl.visibility === "public" && requestedPermission === ObjectPermission.READ) return true;
   if (!userId) return false;
   if (acl.owner === userId) return true;
-  // No access-group types are currently enabled. Unknown group grants fail closed.
-  return (acl.aclRules ?? []).some((rule) =>
-    rule.group.type === ("USER_LIST" as ObjectAccessGroupType) &&
-    rule.group.id === userId &&
-    isPermissionAllowed(requestedPermission, rule.permission)
-  );
+  // No shared-group grants are configured for this product. Fail closed.
+  return false;
 }
