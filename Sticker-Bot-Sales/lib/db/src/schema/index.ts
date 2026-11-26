@@ -8,3 +8,4 @@ export * from "./shopSettings";
 export * from "./users";
 export * from "./payments";
 export * from "./whatsappMessages";
+export * from "./objectAcl";
