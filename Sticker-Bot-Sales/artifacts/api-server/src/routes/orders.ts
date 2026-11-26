@@ -58,7 +58,16 @@ router.get("/orders", (_req, res) => {
 });
 
 router.post("/orders", async (req, res) => {
-  const body = CreateOrderBody.parse(req.body);
+  const parsed = CreateOrderBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid order details", issues: parsed.error.issues });
+    return;
+  }
+  const body = parsed.data;
+  if (body.deliveryMethod && body.deliveryMethod.toLowerCase() !== "pickup") {
+    res.status(422).json({ error: "Delivery requires a separately confirmed delivery quote. Please select pickup or contact the team." });
+    return;
+  }
   const settings = await getShopSettingsRow();
 
   // Never trust prices supplied by the browser. Recalculate every line from
@@ -128,7 +137,7 @@ router.post("/orders", async (req, res) => {
       customerPhone: body.customerPhone,
       customerEmail: body.customerEmail,
       deliveryAddress: body.deliveryAddress,
-      deliveryMethod: body.deliveryMethod ?? "Pickup",
+      deliveryMethod: "Pickup",
       notes: body.notes,
       items,
       subtotal: subtotal.toString(),
