@@ -27,6 +27,26 @@ router.post("/storage/uploads/request-url", requireAuth, async (req: Request, re
 
   try {
     const { name, size, contentType } = parsed.data;
+    const allowedTypes = new Set([
+      "image/png",
+      "image/jpeg",
+      "image/webp",
+      "image/svg+xml",
+      "application/pdf",
+      "application/postscript",
+    ]);
+    if (size > 20 * 1024 * 1024) {
+      res.status(413).json({ error: "Artwork files must be 20 MB or smaller." });
+      return;
+    }
+    if (!allowedTypes.has(contentType.toLowerCase())) {
+      res.status(415).json({ error: "Supported artwork formats: PNG, JPG, WEBP, SVG, PDF and AI/EPS." });
+      return;
+    }
+    if (name.length > 180 || name.includes("/") || name.includes("\\\\")) {
+      res.status(400).json({ error: "Invalid artwork filename." });
+      return;
+    }
 
     const userId = (req as Request & { user: { id: number } }).user.id;
     const uploadURL = await objectStorageService.getObjectEntityUploadURL(userId);
