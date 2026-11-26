@@ -186,6 +186,9 @@ export function calculateLabelStudioUnitPrice(
 
   const anchors = LABEL_STUDIO_COST_ANCHORS[quantity as 100 | 500 | 1000];
   const areaIn2 = (widthMm / 25.4) * (heightMm / 25.4);
+  // The wholesale sheet's largest reference is 16 sq in. Larger formats
+  // require a factory quote rather than extrapolating an unsafe retail price.
+  if (areaIn2 > 16) return null;
   let left = anchors[0]!;
   let right = anchors[1]!;
 
