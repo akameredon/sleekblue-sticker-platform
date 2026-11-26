@@ -97,8 +97,8 @@ function makeCutSvg(input: ArtworkInput): string {
   const pageH = h + b * 2;
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${pageW}mm" height="${pageH}mm" viewBox="0 0 ${pageW} ${pageH}">
-  <title>Sleekblue MC1200 manual-alignment cutline</title>
-  <desc>Cut path only. Finished trim size ${w} by ${h} mm. Page includes ${b} mm bleed offset around trim. No registration marks are included; align manually in the cutter workflow.</desc>
+  <title>Sleekblue MC1200 SignMaster contour cutline</title>
+  <desc>Cut path only. Finished trim size ${w} by ${h} mm. Page includes ${b} mm bleed offset around trim. Import into SignMaster as the contour path; create registration marks in SignMaster for the confirmed cutter profile.</desc>
   <g id="CUT_CONTOUR" fill="none" stroke="#FF00FF" stroke-width="0.1">
     ${cutPath(input, b, b, w, h)}
   </g>
@@ -143,7 +143,7 @@ export function ProductionArtworkPage() {
     const slug = input.product.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "label";
     const size = `${input.widthMm}x${input.heightMm}mm`;
     downloadSvg(`sleekblue-${slug}-${size}-${kind === "print" ? "PRINT" : "CUTLINE"}.svg`, kind === "print" ? makePrintSvg(input) : makeCutSvg(input));
-    setMessage(kind === "print" ? "Print SVG exported. Open it in CorelDRAW and inspect the physical page size before printing." : "Cutline SVG exported. Import it as a separate aligned layer; this file uses manual alignment and has no registration marks.");
+    setMessage(kind === "print" ? "Print SVG exported. Inspect it in CorelDRAW, then use SignMaster as the print-and-cut layout so its registration marks are included before printing." : "Cutline SVG exported. Import it into SignMaster as the contour path; generate registration marks in SignMaster for the confirmed MC1200 profile.");
   };
 
   if (access === "checking") return <div className="mx-auto max-w-3xl px-4 py-12 text-sm text-muted-foreground">Checking administrator access…</div>;
@@ -161,7 +161,7 @@ export function ProductionArtworkPage() {
       <Link href="/admin" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:underline"><ChevronLeft className="h-4 w-4"/> Studio Dashboard</Link>
       <header className="mt-4">
         <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"><Printer className="h-3.5 w-3.5"/> PRODUCTION ARTWORK</div>
-        <h1 className="mt-3 text-3xl font-bold">CorelDRAW / MC1200 export</h1>
+        <h1 className="mt-3 text-3xl font-bold">CorelDRAW + SignMaster / MC1200 export</h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Create a physical-size print SVG and a separate cutter SVG for one controlled test label. These are SVG masters, not native CDR or CMYK files.</p>
       </header>
 
@@ -186,7 +186,7 @@ export function ProductionArtworkPage() {
           <button type="button" onClick={() => exportFiles("print")} className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground"><Download className="h-4 w-4"/> Export print artwork SVG</button>
           <button type="button" onClick={() => exportFiles("cut")} className="flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-3 text-sm font-semibold"><Scissors className="h-4 w-4"/> Export cutline SVG</button>
         </div>
-        <p role="status" className="mt-3 text-sm text-muted-foreground">{message || "Print file includes bleed. Cutline file contains the exact trim path only. Both use the same page dimensions for manual alignment."}</p>
+        <p role="status" className="mt-3 text-sm text-muted-foreground">{message || "Print file includes bleed. Cutline file contains the exact trim path only. Both use the same page dimensions. SignMaster should manage registration marks and contour-cut alignment."}</p>
       </section>
 
       <section className="mt-4 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm">
@@ -194,7 +194,7 @@ export function ProductionArtworkPage() {
         <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
           <li>Open the print SVG in CorelDRAW; confirm the document/page measures exactly {input.widthMm + input.bleedMm * 2} × {input.heightMm + input.bleedMm * 2} mm.</li>
           <li>Keep the print and cutline files at identical scale and page position. Do not resize one independently.</li>
-          <li>Use manual alignment for this first export. No ARMS/CCD registration marks are generated until the exact sensor and software workflow are confirmed.</li>
+          <li>Use SignMaster’s contour-cut workflow to create registration marks for the exact MC1200 device profile. Do not draw or add generic marks in this exporter.</li>
           <li>Confirm the printer's material, ICC/RIP colour conversion, cut offset, blade and pressure with the operator. The SVG uses RGB HEX colours.</li>
           <li>In CorelDRAW, inspect text and convert text to curves if required by the production workstation; save a native CDR working copy there.</li>
         </ul>
