@@ -7,7 +7,7 @@ on:
       - "Sticker-Bot-Sales/**"
       - ".github/workflows/label-studio-ci.yml"
   push:
-    branches: [main]
+    branches: [main, "feature/label-studio-nigeria-mvp"]
     paths:
       - "Sticker-Bot-Sales/**"
       - ".github/workflows/label-studio-ci.yml"
