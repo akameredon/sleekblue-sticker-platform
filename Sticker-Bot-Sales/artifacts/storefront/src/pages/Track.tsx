@@ -9,6 +9,7 @@ import { Search, Package, MessageCircle } from "lucide-react";
 import { format } from "date-fns";
 
 const STATUS_LABEL: Record<string, { label: string; tone: string }> = {
+  pending_payment: { label: "Awaiting payment", tone: "bg-primary/15 text-foreground" },
   pending_whatsapp: { label: "Awaiting WhatsApp confirmation", tone: "bg-primary/15 text-foreground" },
   confirmed: { label: "Confirmed", tone: "bg-accent/15 text-foreground" },
   in_production: { label: "In production", tone: "bg-primary/20 text-foreground" },
