@@ -106,6 +106,7 @@ export class ObjectStorageService {
     if (directSignedUrl) {
       if (directSignedUrl.startsWith("http")) return directSignedUrl;
       const { url } = supabaseConfig();
+      if (directSignedUrl.startsWith("/storage/v1/")) return `${url}${directSignedUrl}`;
       return `${url}/storage/v1${directSignedUrl.startsWith("/") ? "" : "/"}${directSignedUrl}`;
     }
     if (!data.url || !data.token) {
@@ -113,8 +114,9 @@ export class ObjectStorageService {
     }
     const { url } = supabaseConfig();
     const signedPath = data.url.startsWith("/") ? data.url : `/${data.url}`;
-    const separator = signedPath.includes("?") ? "&" : "?";
-    return `${url}/storage/v1${signedPath}${separator}token=${encodeURIComponent(data.token)}`;
+    const apiPath = signedPath.startsWith("/storage/v1/") ? signedPath : `/storage/v1${signedPath}`;
+    const separator = apiPath.includes("?") ? "&" : "?";
+    return `${url}${apiPath}${separator}token=${encodeURIComponent(data.token)}`;
   }
 
   async getObjectEntityFile(objectPath: string): Promise<StoredObjectRef> {
