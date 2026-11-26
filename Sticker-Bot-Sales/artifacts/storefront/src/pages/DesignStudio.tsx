@@ -180,7 +180,8 @@ export function GeneratePage() {
         setTemplateId(TEMPLATES.some((item) => item.id === draft.templateId) ? draft.templateId : "botanical-jar");
         setBrand(draft.brand ?? "");
         setProduct(draft.product ?? "");
-        setTagline(draft.tagline ?? "");\n        setPrintPhone(draft.printPhone ?? "");
+        setTagline(draft.tagline ?? "");
+        setPrintPhone(draft.printPhone ?? "");
         setPrintSocials(draft.printSocials ?? "");
         setPrintWebsite(draft.printWebsite ?? "");
         setColor(draft.color ?? TEMPLATES[0].color);
