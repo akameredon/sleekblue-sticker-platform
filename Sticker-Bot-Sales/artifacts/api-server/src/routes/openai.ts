@@ -11,7 +11,7 @@ import {
   SendOpenaiMessageBody,
   SendOpenaiMessageParams,
 } from "@workspace/api-zod";
-import { openai } from "@workspace/integrations-openai-ai-server";
+import { createOpenAIClient } from "@workspace/integrations-openai-ai-server";
 import { db, schema } from "../lib/db";
 import { getShopSettingsRow } from "../lib/shop";
 import { calculateQuote, DEFAULT_SIZES, DEFAULT_FINISHES, DEFAULT_QUANTITY_TIERS } from "../lib/pricing";
@@ -78,7 +78,7 @@ DELIVERY: ${settings.deliveryNote ?? "Pickup in Lagos. Doorstep delivery quoted 
 HOURS: ${settings.hours}`;
 }
 
-const TOOLS: Parameters<typeof openai.chat.completions.create>[0]["tools"] = [
+const TOOLS: Parameters<ReturnType<typeof createOpenAIClient>["chat"]["completions"]["create"]>[0]["tools"] = [
   {
     type: "function",
     function: {
@@ -502,7 +502,8 @@ router.post("/openai/conversations/:id/messages", async (req, res) => {
     send({ ui: uiPayload });
   };
 
-  type ChatMessage = Parameters<typeof openai.chat.completions.create>[0]["messages"][number];
+  const openai = createOpenAIClient();
+  type ChatMessage = Parameters<ReturnType<typeof createOpenAIClient>["chat"]["completions"]["create"]>[0]["messages"][number];
 
   const chatMessages: ChatMessage[] = [
     { role: "system", content: systemPrompt },
