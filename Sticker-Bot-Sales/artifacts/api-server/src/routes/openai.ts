@@ -11,7 +11,7 @@ import {
   SendOpenaiMessageBody,
   SendOpenaiMessageParams,
 } from "@workspace/api-zod";
-import { openai } from "@workspace/integrations-openai-ai-server";
+import { createOpenAIClient } from "@workspace/integrations-openai-ai-server";
 import { db, schema } from "../lib/db";
 import { getShopSettingsRow } from "../lib/shop";
 import { calculateQuote, DEFAULT_SIZES, DEFAULT_FINISHES, DEFAULT_QUANTITY_TIERS } from "../lib/pricing";
@@ -78,7 +78,7 @@ DELIVERY: ${settings.deliveryNote ?? "Pickup in Lagos. Doorstep delivery quoted 
 HOURS: ${settings.hours}`;
 }
 
-const TOOLS: Parameters<typeof openai.chat.completions.create>[0]["tools"] = [
+const TOOLS: Parameters<ReturnType<typeof createOpenAIClient>["chat"]["completions"]["create"]>[0]["tools"] = [
   {
     type: "function",
     function: {
@@ -281,6 +281,7 @@ async function handleToolCall(
     const prompt = `A professional sticker design mockup${brandNote}: ${description}. Style: ${style}. Die-cut shape, clean edges, on white background, high detail, print-ready, flat lay product photo${finishNote}. No text unless specified in description.`;
 
     try {
+      const openai = createOpenAIClient();
       const response = await openai.images.generate({
         model: "gpt-image-1",
         prompt,
@@ -288,7 +289,7 @@ async function handleToolCall(
         size: "1024x1024",
       });
 
-      const b64 = response.data[0]?.b64_json;
+      const b64 = response.data?.[0]?.b64_json;
       if (!b64) throw new Error("No image returned");
 
       const imageDataUrl = `data:image/png;base64,${b64}`;
@@ -502,7 +503,8 @@ router.post("/openai/conversations/:id/messages", async (req, res) => {
     send({ ui: uiPayload });
   };
 
-  type ChatMessage = Parameters<typeof openai.chat.completions.create>[0]["messages"][number];
+  const openai = createOpenAIClient();
+  type ChatMessage = Parameters<ReturnType<typeof createOpenAIClient>["chat"]["completions"]["create"]>[0]["messages"][number];
 
   const chatMessages: ChatMessage[] = [
     { role: "system", content: systemPrompt },

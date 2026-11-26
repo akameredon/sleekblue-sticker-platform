@@ -64,11 +64,12 @@ export function calculateQuote(
   product: Product | null,
   leadTimeDays: number,
 ): QuoteResult {
-  const sizes = product?.sizes?.length ? product.sizes : DEFAULT_SIZES;
-  const finishes = product?.finishes?.length ? product.finishes : DEFAULT_FINISHES;
-  const tiers = product?.quantityTiers?.length
-    ? product.quantityTiers
-    : DEFAULT_QUANTITY_TIERS;
+  if (!product || !product.sizes?.length || !product.finishes?.length || !product.quantityTiers?.length) {
+    throw new Error("Approved product sizes, finishes and quantity prices are required before calculating a catalogue quote.");
+  }
+  const sizes = product.sizes;
+  const finishes = product.finishes;
+  const tiers = product.quantityTiers;
 
   const size =
     sizes.find((s) => s.label.toLowerCase() === input.sizeLabel.toLowerCase()) ??
@@ -150,3 +151,64 @@ export function calculateQuote(
 }
 
 export { DEFAULT_QUANTITY_TIERS, DEFAULT_SIZES, DEFAULT_FINISHES };
+
+
+/**
+ * Sleekblue Label Studio estimator based on the wholesale cost sheet supplied
+ * by the business. Supports only the listed quantity tiers. Non-standard
+ * materials, finishes, shapes and quantities require a manually confirmed quote.
+ */
+const LABEL_STUDIO_COST_ANCHORS: Record<100 | 500 | 1000, Array<{ areaIn2: number; cost: number }>> = {
+  100: [
+    { areaIn2: 2.25, cost: 3000 }, { areaIn2: 4, cost: 3000 },
+    { areaIn2: 6.25, cost: 4500 }, { areaIn2: 9, cost: 5000 },
+    { areaIn2: 12, cost: 6500 }, { areaIn2: 16, cost: 9000 },
+  ],
+  500: [
+    { areaIn2: 2.25, cost: 12500 }, { areaIn2: 4, cost: 12500 },
+    { areaIn2: 6.25, cost: 20000 }, { areaIn2: 9, cost: 22500 },
+    { areaIn2: 12, cost: 30000 }, { areaIn2: 16, cost: 42500 },
+  ],
+  1000: [
+    { areaIn2: 2.25, cost: 20000 }, { areaIn2: 4, cost: 20000 },
+    { areaIn2: 6.25, cost: 35000 }, { areaIn2: 9, cost: 40000 },
+    { areaIn2: 12, cost: 55000 }, { areaIn2: 16, cost: 80000 },
+  ],
+};
+
+export function calculateLabelStudioUnitPrice(
+  widthMm: number,
+  heightMm: number,
+  quantity: number,
+): number | null {
+  if (![100, 500, 1000].includes(quantity)) return null;
+  if (!Number.isFinite(widthMm) || !Number.isFinite(heightMm) ||
+      widthMm < 20 || heightMm < 20 || widthMm > 300 || heightMm > 300) return null;
+
+  const anchors = LABEL_STUDIO_COST_ANCHORS[quantity as 100 | 500 | 1000];
+  const areaIn2 = (widthMm / 25.4) * (heightMm / 25.4);
+  // The wholesale sheet's largest reference is 16 sq in. Larger formats
+  // require a factory quote rather than extrapolating an unsafe retail price.
+  if (areaIn2 < 2.25 || areaIn2 > 16) return null;
+  let left = anchors[0]!;
+  let right = anchors[1]!;
+
+  if (areaIn2 > anchors[0]!.areaIn2) {
+    for (let i = 1; i < anchors.length; i++) {
+      if (areaIn2 <= anchors[i]!.areaIn2) {
+        left = anchors[i - 1]!;
+        right = anchors[i]!;
+        break;
+      }
+      left = anchors[anchors.length - 2]!;
+      right = anchors[anchors.length - 1]!;
+    }
+  }
+
+  const ratio = (areaIn2 - left.areaIn2) / (right.areaIn2 - left.areaIn2);
+  const productionCost = Math.max(0, Math.ceil(left.cost + ratio * (right.cost - left.cost)));
+  // Wholesale anchors are batch costs. Convert the rounded batch selling
+  // price to a per-sticker unit price for the order schema.
+  const batchSellingPrice = Math.ceil((productionCost / 0.7) / 100) * 100;
+  return Math.ceil((batchSellingPrice / quantity) * 100) / 100;
+}

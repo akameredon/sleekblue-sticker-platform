@@ -27,8 +27,9 @@ import {
   isWhatsAppConfigured,
   VERIFY_TOKEN,
 } from "../lib/whatsappCloud";
-import { openai } from "@workspace/integrations-openai-ai-server";
+import { createOpenAIClient } from "@workspace/integrations-openai-ai-server";
 import { getShopSettingsRow } from "../lib/shop";
+import { requireAdmin } from "./auth";
 import { calculateQuote } from "../lib/pricing";
 
 const router: IRouter = Router();
@@ -41,7 +42,8 @@ const WA_MAX_CHARS = 4096;
 
 // ─── AI Tools (subset — no UI tools on WhatsApp, text-only) ──────────────────
 
-const WA_TOOLS: Parameters<typeof openai.chat.completions.create>[0]["tools"] = [
+type OpenAIClient = ReturnType<typeof createOpenAIClient>;
+const WA_TOOLS: Parameters<OpenAIClient["chat"]["completions"]["create"]>[0]["tools"] = [
   {
     type: "function",
     function: {
@@ -115,6 +117,8 @@ ${prodLines}`;
 
 /** Run AI agent against WhatsApp conversation context */
 async function runWaAgent(fromNumber: string, inboundText: string): Promise<string> {
+  // WhatsApp AI is optional; initialize its client only when an inbound message needs AI.
+  const openai = createOpenAIClient();
   const settings = await getShopSettingsRow();
 
   // Load recent message history for this phone number
@@ -163,6 +167,7 @@ async function runWaAgent(fromNumber: string, inboundText: string): Promise<stri
     if (finishReason === "tool_calls" && msg.tool_calls?.length) {
       chatMessages.push({ role: "assistant", content: msg.content ?? null, tool_calls: msg.tool_calls });
       for (const tc of msg.tool_calls) {
+        if (!("function" in tc)) continue;
         let args: Record<string, unknown> = {};
         try { args = JSON.parse(tc.function.arguments); } catch { /* ignore */ }
         const result = await handleWaTool(tc.function.name, args, settings);
@@ -243,7 +248,7 @@ router.post("/whatsapp/webhook", async (req, res) => {
 });
 
 /** POST /whatsapp/send — admin manual send */
-router.post("/whatsapp/send", async (req, res) => {
+router.post("/whatsapp/send", requireAdmin, async (req, res) => {
   if (!isWhatsAppConfigured()) {
     res.status(503).json({ error: "WhatsApp API not configured" });
     return;
@@ -272,7 +277,7 @@ router.post("/whatsapp/send", async (req, res) => {
 });
 
 /** GET /whatsapp/conversations — list all WhatsApp conversations (admin) */
-router.get("/whatsapp/conversations", async (_req, res) => {
+router.get("/whatsapp/conversations", requireAdmin, async (_req, res) => {
   // Group by fromNumber, return last message + count
   const messages = await db
     .select()
@@ -293,8 +298,9 @@ router.get("/whatsapp/conversations", async (_req, res) => {
 });
 
 /** GET /whatsapp/conversations/:phone — full message thread */
-router.get("/whatsapp/conversations/:phone", async (req, res) => {
-  const phone = decodeURIComponent(req.params.phone);
+router.get("/whatsapp/conversations/:phone", requireAdmin, async (req, res) => {
+  const rawPhone = req.params.phone;
+  const phone = decodeURIComponent(Array.isArray(rawPhone) ? rawPhone[0] ?? "" : rawPhone);
   const messages = await db
     .select()
     .from(schema.whatsappMessages)

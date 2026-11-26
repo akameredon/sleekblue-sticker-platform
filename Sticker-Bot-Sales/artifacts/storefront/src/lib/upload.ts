@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { apiUrl } from "./paths";
+import { authHeaders } from "./auth";
 
 export type UploadResult = {
   uploadURL: string;
@@ -22,7 +23,7 @@ export function useUpload() {
       try {
         const presignRes = await fetch(apiUrl("/storage/uploads/request-url"), {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...authHeaders() },
           body: JSON.stringify({
             name: file.name,
             size: file.size,
@@ -43,10 +44,18 @@ export function useUpload() {
           },
         });
         if (!putRes.ok) throw new Error("Upload to storage failed");
+        setProgress(80);
+        const finalizeRes = await fetch(apiUrl("/storage/uploads/complete"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...authHeaders() },
+          body: JSON.stringify({ objectPath: presign.objectPath }),
+        });
+        if (!finalizeRes.ok) throw new Error("Upload completed but private access could not be secured. Please retry.");
+        const finalized = await finalizeRes.json() as { objectPath: string };
         setProgress(100);
         return {
           uploadURL: presign.uploadURL,
-          objectPath: presign.objectPath,
+          objectPath: finalized.objectPath,
           name: file.name,
           size: file.size,
           contentType: file.type || "application/octet-stream",

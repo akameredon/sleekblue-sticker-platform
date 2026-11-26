@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from 'crypto';
-import type { FastifyRequest, FastifyReply } from 'fastify';
+import type { NextFunction, Request, Response } from "express";
 
 const TIMESTAMP_TOLERANCE_MS = 5 * 60 * 1000;
 
@@ -8,20 +8,21 @@ const TIMESTAMP_TOLERANCE_MS = 5 * 60 * 1000;
  * Uses timing-safe comparison to prevent timing attacks.
  * Rejects payloads older than 5 minutes to block replay attacks.
  */
-export async function verifyWhatsAppWebhook(
-  request: FastifyRequest,
-  reply: FastifyReply
-): Promise<void> {
+export function verifyWhatsAppWebhook(
+  request: Request,
+  reply: Response,
+  next: NextFunction
+): void {
   const secret = process.env.WHATSAPP_API_SECRET;
   if (!secret) {
-    request.log.error('WHATSAPP_API_SECRET not configured');
-    await reply.status(500).send({ error: 'Server misconfiguration' });
+    console.error('WHATSAPP_API_SECRET not configured');
+    reply.status(500).send({ error: 'Server misconfiguration' });
     return;
   }
 
   const signature = request.headers['x-hub-signature-256'] as string | undefined;
   if (!signature) {
-    await reply.status(403).send({ error: 'Missing signature' });
+    reply.status(403).send({ error: 'Missing signature' });
     return;
   }
 
@@ -32,8 +33,8 @@ export async function verifyWhatsAppWebhook(
   const expectedBuffer = Buffer.from(expected);
 
   if (sigBuffer.length !== expectedBuffer.length || !timingSafeEqual(sigBuffer, expectedBuffer)) {
-    request.log.warn({ signature }, 'Webhook signature mismatch');
-    await reply.status(403).send({ error: 'Invalid signature' });
+    console.warn('Webhook signature mismatch');
+    reply.status(403).send({ error: 'Invalid signature' });
     return;
   }
 
@@ -41,10 +42,11 @@ export async function verifyWhatsAppWebhook(
   if (timestampHeader) {
     const ts = parseInt(timestampHeader, 10);
     if (isNaN(ts) || Date.now() - ts > TIMESTAMP_TOLERANCE_MS) {
-      await reply.status(403).send({ error: 'Request timestamp expired' });
+      reply.status(403).send({ error: 'Request timestamp expired' });
       return;
     }
   }
+  next();
 }
 
 /**

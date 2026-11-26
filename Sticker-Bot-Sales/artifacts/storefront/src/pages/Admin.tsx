@@ -18,10 +18,11 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatNGN } from "@/lib/format";
 import { apiUrl } from "@/lib/paths";
+import { authHeaders } from "@/lib/auth";
 import {
   BarChart2, ChevronLeft, ExternalLink, Package, ShoppingBag,
   TrendingUp, Users, Zap, MessageSquare, Bot, Settings,
-  CheckCircle2, Edit2, Trash2, Plus, Save, X,
+  CheckCircle2, Edit2, Trash2, Plus, Save, X, Printer,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -39,6 +40,7 @@ type Order = {
   id: number; reference: string; customerName: string; customerPhone: string;
   deliveryMethod?: string; subtotal: number; total: number; status: string;
   createdAt: string;
+  notes?: string;
   items: { productName: string; quantity: number; sizeLabel: string; finishLabel: string; lineTotal: number }[];
 };
 
@@ -55,14 +57,49 @@ type ShopSettings = { businessName: string; tagline: string; whatsappNumber: str
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const STATUS_COLORS: Record<string, string> = {
-  pending_whatsapp: "hsl(48 100% 52%)", confirmed: "hsl(145 65% 48%)",
-  in_production: "hsl(210 80% 56%)", shipped: "hsl(270 60% 58%)",
+  pending_payment: "hsl(35 90% 55%)", pending_whatsapp: "hsl(48 100% 52%)", confirmed: "hsl(145 65% 48%)",
+  in_production: "hsl(210 80% 56%)", ready: "hsl(175 60% 45%)", shipped: "hsl(270 60% 58%)",
   delivered: "hsl(150 60% 46%)", cancelled: "hsl(0 70% 55%)",
 };
 const CHART_COLORS = ["hsl(48 100% 52%)", "hsl(330 80% 60%)", "hsl(210 80% 56%)", "hsl(145 65% 48%)", "hsl(270 60% 58%)", "hsl(30 90% 55%)", "hsl(190 70% 50%)", "hsl(0 70% 55%)"];
-const ALL_STATUSES = ["pending_whatsapp", "confirmed", "in_production", "shipped", "delivered", "cancelled"];
+const ALL_STATUSES = ["pending_payment", "pending_whatsapp", "confirmed", "in_production", "ready", "shipped", "delivered", "cancelled"];
 
 function shortDate(iso: string) { const d = new Date(iso); return `${d.getMonth() + 1}/${d.getDate()}`; }
+
+function getLabelDesignFiles(notes?: string) {
+  const prefix = "Label Studio design specification: ";
+  if (!notes?.startsWith(prefix)) return null;
+  try {
+    const details = JSON.parse(notes.slice(prefix.length));
+    const safePath = (value: unknown) =>
+      typeof value === "string" && value.startsWith("/objects/uploads/") && !value.includes("..")
+        ? value
+        : null;
+    return {
+      artworkPath: safePath(details.artworkObjectPath),
+      artworkName: typeof details.artworkFilename === "string" ? details.artworkFilename : "customer-artwork",
+      logoPath: safePath(details.logoObjectPath),
+      logoName: typeof details.logoFilename === "string" ? details.logoFilename : "customer-logo",
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function downloadPrivateOrderFile(objectPath: string, filename: string) {
+  const relativePath = objectPath.startsWith("/objects/") ? objectPath.slice("/objects/".length) : "";
+  const response = await fetch(apiUrl(`/storage/objects/${relativePath}`), { headers: authHeaders() });
+  if (!response.ok) throw new Error("The private customer file could not be downloaded. Check your staff access and try again.");
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename.replace(/[\\/\\\\]/g, "_");
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 function StatusBadge({ status }: { status: string }) {
   const color = STATUS_COLORS[status] ?? "hsl(200 15% 60%)";
@@ -96,12 +133,12 @@ export function AdminPage() {
     setLoading(true);
     try {
       const [a, o, ai, c, p, s] = await Promise.all([
-        fetch(apiUrl("/admin/analytics")).then((r) => r.json()),
-        fetch(apiUrl("/admin/orders?limit=50")).then((r) => r.json()),
-        fetch(apiUrl("/admin/ai-metrics")).then((r) => r.json()),
-        fetch(apiUrl("/admin/customers")).then((r) => r.json()),
-        fetch(apiUrl("/admin/products")).then((r) => r.json()),
-        fetch(apiUrl("/admin/settings")).then((r) => r.json()),
+        fetch(apiUrl("/admin/analytics"), { headers: authHeaders() }).then((r) => r.json()),
+        fetch(apiUrl("/admin/orders?limit=50"), { headers: authHeaders() }).then((r) => r.json()),
+        fetch(apiUrl("/admin/ai-metrics"), { headers: authHeaders() }).then((r) => r.json()),
+        fetch(apiUrl("/admin/customers"), { headers: authHeaders() }).then((r) => r.json()),
+        fetch(apiUrl("/admin/products"), { headers: authHeaders() }).then((r) => r.json()),
+        fetch(apiUrl("/admin/settings"), { headers: authHeaders() }).then((r) => r.json()),
       ]);
       setAnalytics(a);
       setOrders(Array.isArray(o.orders) ? o.orders : []);
@@ -123,7 +160,7 @@ export function AdminPage() {
     try {
       const res = await fetch(apiUrl(`/admin/orders/${id}`), {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...authHeaders(), "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
       if (res.ok) {
@@ -138,7 +175,7 @@ export function AdminPage() {
     try {
       const res = await fetch(apiUrl("/admin/settings"), {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...authHeaders(), "Content-Type": "application/json" },
         body: JSON.stringify(settingsDraft),
       });
       const updated = await res.json();
@@ -148,7 +185,7 @@ export function AdminPage() {
 
   const deleteProduct = async (id: number) => {
     if (!confirm("Delete this product?")) return;
-    await fetch(apiUrl(`/admin/products/${id}`), { method: "DELETE" });
+    await fetch(apiUrl(`/admin/products/${id}`), { method: "DELETE", headers: authHeaders() });
     setProducts((prev) => prev.filter((p) => p.id !== id));
   };
 
@@ -198,6 +235,7 @@ export function AdminPage() {
         <div>
           <h1 className="font-serif text-2xl font-semibold md:text-3xl">Studio Dashboard</h1>
           <p className="text-xs text-muted-foreground">Full-stack operations · AI sales · WhatsApp CRM</p>
+          <Link href="/admin/production-artwork" className="mt-2 inline-flex items-center gap-2 text-xs font-semibold text-primary hover:underline"><Printer className="h-3.5 w-3.5"/> Production artwork exporter</Link>
         </div>
       </header>
 
@@ -348,6 +386,21 @@ export function AdminPage() {
                   </div>
                 ))}
               </div>
+              {getLabelDesignFiles(o.notes) && (
+                <div className="mt-3 flex flex-wrap gap-2 rounded-lg border border-border p-3">
+                  <span className="w-full text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Private customer files</span>
+                  {getLabelDesignFiles(o.notes)?.artworkPath && (
+                    <button type="button" onClick={() => void downloadPrivateOrderFile(getLabelDesignFiles(o.notes)!.artworkPath!, getLabelDesignFiles(o.notes)!.artworkName).catch((error) => alert(error instanceof Error ? error.message : "Download failed."))} className="rounded-lg border border-border px-3 py-2 text-xs font-medium hover:bg-muted">
+                      Download artwork
+                    </button>
+                  )}
+                  {getLabelDesignFiles(o.notes)?.logoPath && (
+                    <button type="button" onClick={() => void downloadPrivateOrderFile(getLabelDesignFiles(o.notes)!.logoPath!, getLabelDesignFiles(o.notes)!.logoName).catch((error) => alert(error instanceof Error ? error.message : "Download failed."))} className="rounded-lg border border-border px-3 py-2 text-xs font-medium hover:bg-muted">
+                      Download logo
+                    </button>
+                  )}
+                </div>
+              )}
               <Link href={`/orders/${o.id}`}>
                 <button type="button" className="mt-3 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
                   View full order <ExternalLink className="h-3 w-3" />

@@ -6,9 +6,15 @@
  *
  * All amounts are in KOBO (multiply NGN × 100).
  */
-import { createHmac } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 
 const SECRET_KEY = process.env.PAYSTACK_SECRET_KEY ?? "";
+
+// Accept Paystack test keys for staging and live keys for production.
+// The key remains server-side and is used for both API requests and webhook signatures.
+if (SECRET_KEY && !/^sk_(test|live)_/.test(SECRET_KEY)) {
+  throw new Error("PAYSTACK_SECRET_KEY must be a valid Paystack secret key (sk_test_... or sk_live_...).");
+}
 const BASE_URL = "https://api.paystack.co";
 
 /** Generic Paystack API caller with error wrapping */
@@ -59,6 +65,7 @@ export async function initializePayment(
     currency: "NGN",
     metadata,
     channels: ["card", "bank", "ussd", "mobile_money"],
+    ...(process.env.PAYSTACK_CALLBACK_URL ? { callback_url: process.env.PAYSTACK_CALLBACK_URL } : {}),
   });
 }
 
@@ -66,6 +73,7 @@ export type VerifyResponse = {
   status: string;      // "success" | "failed" | "abandoned"
   reference: string;
   amount: number;      // kobo
+  currency: string;
   paid_at: string;
   customer: { email: string; phone: string | null };
 };
@@ -86,5 +94,7 @@ export function validateWebhookSignature(rawBody: string | Buffer, signature: st
   if (!SECRET_KEY || !signature) return false;
   const body = Buffer.isBuffer(rawBody) ? rawBody.toString("utf8") : rawBody;
   const expected = createHmac("sha512", SECRET_KEY).update(body).digest("hex");
-  return expected === signature;
+  const expectedBytes = Buffer.from(expected, "hex");
+  const suppliedBytes = Buffer.from(signature, "hex");
+  return expectedBytes.length === suppliedBytes.length && timingSafeEqual(expectedBytes, suppliedBytes);
 }
