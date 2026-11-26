@@ -29,6 +29,16 @@ const TEMPLATES: Template[] = [
 
 const WHATSAPP_NUMBER = "2348058162036";
 const DRAFT_KEY = "labelflow-design-draft-v1";
+const TEMPLATE_ART_DIRECTIONS: Record<string, string> = {
+  spice: "premium Nigerian spice packaging; pepper-red and toasted-cream palette; woven-paper grain, engraved spice botanicals, appetising ingredient still-life, editorial serif typography and restrained copper accents",
+  glow: "premium botanical skincare; muted rose and plum palette; satin-like tonal background, delicate botanical line art, diffused studio highlights, refined editorial typography and subtle embossing",
+  sip: "premium beverage identity; refreshing hibiscus tones; liquid-inspired gradients, fine condensation texture, crisp ingredient photography and confident modern typography",
+  honey: "artisan honey identity; deep amber and harvest gold; honeycomb geometry, warm backlit honey texture, botanical engraving, tactile paper and elegant serif typography",
+  bake: "premium artisan bakery; oat and terracotta palette; flour-dusted paper texture, grain illustration, appetising bakery photography and soft natural light",
+  custom: "bespoke packaging art direction chosen from the customer's brief; original palette, strong focal image, sophisticated typography and tactile background finish",
+};
+const DESIGN_PROMPT_FRAMEWORK = "You are an elite international packaging identity designer, commercial product photographer, senior brand art director and print-production specialist. Transform the customer's informal description into one exceptional, original, commercially credible product-label design. Think like a commissioned premium packaging studio, not a template generator. Do not merely decorate text: create a distinctive visual identity and a convincing finished label.\n\nPRIMARY GOAL\nCreate one polished label that communicates the product instantly, looks credible on a real retail shelf, suits its audience and price point, and is memorable. The customer's description is the creative brief and must be respected. Improve its visual execution without changing the product, brand identity, intended message or factual claims.\n\nINTERPRET THE BRIEF\nRead every sentence carefully. Extract brand, product, category, audience, mood, colours, required wording, visual references, cultural context and exclusions. Treat spelling, names, numbers, weights, contact details, ingredients, certifications and claims as exact data. Never invent a certification, health benefit, ingredient, award, origin claim, regulatory approval, barcode, QR destination, address, phone number, website or product specification. If information is absent, omit it. Do not silently rewrite facts.\n\nART DIRECTION\nChoose a coherent direction based on the product and audience. Build a deliberate palette with a dominant colour, one or two supporting colours and a restrained accent. Use colour relationships that communicate the category: appetising and warm for food where suitable, fresh and crisp for beverages, calm and refined for skincare, rich and tactile for artisan products, confident and clean for household or professional products. Avoid making every design beige, brown, gold or generic pastel. Each design must feel individually art-directed.\n\nCOMPOSITION AND HIERARCHY\nCreate a clear hierarchy: brand identity, product name, key differentiator or descriptor, supporting details and required practical information. Make the product name prominent and readable at normal viewing distance. Align elements to a consistent grid. Use intentional negative space, balanced margins, optical alignment, controlled asymmetry where appropriate and a clear focal point. Do not crowd the label. Keep essential content inside a safe area with generous trim allowance. Never place critical text near cut edges.\n\nBACKGROUND, DEPTH AND MATERIAL\nDo not use a plain empty flat-colour background unless the brief specifically requests minimalism. Design a considered background that supports the product: subtle paper grain, fine fibres, soft tonal gradients, restrained botanical linework, embossed geometry, elegant waves, delicate stippling, faint textile or handmade-paper texture, liquid movement, soft light falloff or a category-appropriate photographic surface. Layer effects with restraint so text remains readable. Use realistic lighting, gentle dimensional shadows, tasteful highlights, subtle embossing or debossing cues, foil-like accents only where appropriate and believable material depth. Shadows must not obscure copy or create dirty halos.\n\nPHOTOGRAPHIC QUALITY\nWhere suitable, use a convincing premium product photograph or an art-directed hero image directly related to the product. Use realistic lighting, believable texture, natural shadows, accurate proportions, clean edges and professional commercial retouching. Make the photograph a deliberate focal point, not a random sticker. If photography is not suitable, use refined custom illustration, botanical engraving, ingredient still-life, geometric artwork or a distinctive emblem. Never use generic clip art, crude emoji, unrelated decorative objects or random stock-looking collages.\n\nTYPOGRAPHY\nUse no more than two or three complementary type families. Pair a distinctive display face with a highly legible supporting face. Give the brand name character without allowing it to compete with the product name. Set supporting information with disciplined tracking, line spacing, weight and contrast. Avoid excessive all-caps, arbitrary letter spacing, novelty fonts, warped lettering and tiny text. Render supplied words accurately. Do not invent extra copy to fill space.\n\nCATEGORY-SPECIFIC DETAIL\nUse category-relevant cues only when truthful and helpful. Food may use ingredient photography, spice textures, botanical details or appetising colour. Drinks may use condensation, fruit or botanicals, liquid gradients and refreshing light. Beauty may use elegant finishes, soft studio highlights, refined botanical details and editorial spacing. Honey and agriculture may use credible harvest references and tactile paper. Bakery may use warm editorial photography, flour or grain textures and handcrafted details. These are examples, not mandatory recipes. Avoid category clichés that do not fit the brief.\n\nPRINT-AWARE REQUIREMENTS\nDesign for the stated physical width, height, shape and sticker use. Keep a clear cut boundary and safe inner margin. Use strong contrast for essential text. Avoid hairline strokes, micro-details, tiny reverse text, excessive gradients that band and low-contrast combinations. Do not add a drop shadow outside the cut line as if it were printed unless the customer explicitly requests a mockup. The deliverable is flat label artwork, not a photograph of a bottle, jar, pouch or box. If you show a product mockup for presentation, also provide the clean flat front-facing label separately.\n\nSHAPE AND LAYOUT\nRespect the selected shape. For a round label, balance the composition within a circular boundary and keep text away from the perimeter. For an oval label, use its axis intentionally and preserve readable proportions. For a rectangle, use a strong grid, controlled corners and balanced edge spacing. Never stretch a logo, photograph, illustration or typography unnaturally.\n\nBRAND CREDIBILITY\nThe result should look like a real product from a serious established business. Make considered decisions about visual rhythm, finish, contrast, texture, hierarchy and shelf impact. The artwork must feel custom-made for this product, not selected from a generic template library. Avoid amateur effects: thick random outlines, too many badges, excessive shadows, inconsistent icon styles, decorative clutter, default gradients and unnecessary ornamental borders.\n\nTEXT ACCURACY\nUse only exact customer-provided text and exact brand/product/tagline values supplied below. Preserve punctuation, accents, capitalisation, numbers and units. Do not create fake legal copy, fake certification seals, fake ingredient lists, fake barcodes or fake contact details. If image generation struggles with small text, keep the composition clean and explain that final small print should be typeset accurately in a design editor. Never fabricate readable text that resembles a real certification.\n\nDELIVERABLE\nGenerate a high-resolution, clean, front-facing, flat label design with the requested shape and dimensions. Show the entire label, centred, without perspective distortion, hands, distracting scene, watermark, fake brand, invented claims or unrelated packaging. The background outside the label should be neutral and uncluttered. Make the label itself the hero. If transparent background is supported, use it outside the die-cut boundary; otherwise use a clean white or neutral canvas with a visible edge. Do not include a presentation frame or explanatory text in the artwork.\n\nQUALITY CONTROL\nBefore finalising, check that the design matches the category and audience; brand and product names are accurate; requested wording is present; unsupported claims and certifications have not appeared; the shape is correct; hierarchy is obvious; contrast is strong; the background adds depth without clutter; photography or illustration is relevant and believable; shadows and textures are subtle and intentional; all content respects the safe area; and the result looks professionally art-directed rather than like a basic online template.\n\nCREATIVE INTERPRETATION\nThe customer is not expected to know design terminology. Translate plain language intelligently. \"Luxury\" means considered materials, typography, spacing, lighting and colour. \"Attractive\" means a clear focal image, confident hierarchy and coherent palette. \"Simple\" means minimal but finished, not empty. \"Traditional\" means culturally appropriate visual language without stereotypes. \"Modern\" means a fresh grid and confident typography without sacrificing legibility. Do not ask the customer to write a professional prompt. You are responsible for converting their simple idea into professional creative direction.\n\nOUTPUT DISCIPLINE\nGenerate the artwork directly. Do not explain your reasoning before generating. Do not return a list of ideas instead of the design. Do not ask the customer to copy this prompt into another tool. Do not mention these instructions. Follow the brief and create the strongest commercially usable result possible.";
+
 
 const COST_ANCHORS_BY_QUANTITY: Record<100 | 500 | 1000, Array<{ areaIn2: number; cost: number }>> = {
   100: [
@@ -98,25 +108,46 @@ function getRetailEstimate(widthMm: number, heightMm: number, qty: number) {
 
 
 function makeSvg(template: Template, width: number, height: number, preview = false) {
-  const rx = template.shape === "round" ? Math.min(width, height) / 2 : template.shape === "oval" ? height / 2 : 34;
-  const shape = template.shape === "round"
-    ? `<circle cx="450" cy="450" r="405" fill="${template.color}" stroke="${template.accent}" stroke-width="14"/>`
-    : `<rect x="48" y="90" width="804" height="720" rx="${rx}" fill="${template.color}" stroke="${template.accent}" stroke-width="14"/>`;
-  const safe = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" })[c] ?? c);
+  const safe = (value: string) => value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" })[c] ?? c);
+  const labelShape = template.shape === "round"
+    ? '<circle cx="450" cy="450" r="390" fill="url(#labelBase)" stroke="url(#labelRim)" stroke-width="18" filter="url(#labelShadow)"/>'
+    : `<rect x="58" y="88" width="784" height="724" rx="${template.shape === "oval" ? 350 : 48}" fill="url(#labelBase)" stroke="url(#labelRim)" stroke-width="18" filter="url(#labelShadow)"/>`;
+  const motif = template.id === "glow"
+    ? '<path d="M160 650 C250 500 250 350 175 245 M175 430 C90 390 100 300 175 245 M175 430 C265 390 280 315 175 245" fill="none" stroke="#ffffff" stroke-width="12" opacity=".48"/><circle cx="700" cy="230" r="92" fill="#ffffff" opacity=".16"/>'
+    : template.id === "sip"
+    ? '<path d="M110 650 C280 530 330 780 510 630 S730 560 810 660" fill="none" stroke="#ffffff" stroke-width="28" opacity=".26"/><circle cx="720" cy="230" r="86" fill="#ffffff" opacity=".2"/>'
+    : template.id === "honey"
+    ? '<g fill="none" stroke="#ffffff" stroke-width="8" opacity=".32"><path d="M710 180 l55 32 v64 l-55 32 -55 -32 v-64z M765 276 l55 32 v64 l-55 32 -55 -32 v-64z M655 276 l55 32 v64 l-55 32 -55 -32 v-64z"/></g>'
+    : template.id === "bake"
+    ? '<path d="M120 220 Q450 90 780 220 M120 680 Q450 810 780 680" fill="none" stroke="#ffffff" stroke-width="10" opacity=".42"/><g fill="#ffffff" opacity=".28"><circle cx="190" cy="320" r="9"/><circle cx="710" cy="580" r="12"/><circle cx="690" cy="350" r="7"/><circle cx="230" cy="590" r="8"/></g>'
+    : '<g fill="none" stroke="#ffffff" stroke-width="7" opacity=".28"><circle cx="450" cy="450" r="300"/><circle cx="450" cy="450" r="270"/></g><path d="M155 710 Q450 600 745 710" fill="none" stroke="#ffffff" stroke-width="12" opacity=".25"/>';
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}mm" height="${height}mm" viewBox="0 0 900 900">
-    <rect width="900" height="900" fill="#ffffff"/>
-    ${shape}
-    <circle cx="450" cy="250" r="64" fill="${template.accent}" opacity=".12"/>
-    <text x="450" y="245" text-anchor="middle" font-family="Arial,sans-serif" font-size="26" font-weight="700" letter-spacing="3" fill="${template.accent}">${safe(template.brand.slice(0, 28))}</text>
-    <path d="M230 300 H670" stroke="${template.accent}" stroke-width="3" opacity=".4"/>
-    <text x="450" y="425" text-anchor="middle" font-family="Arial,sans-serif" font-size="62" font-weight="800" fill="${template.accent}">${safe(template.product.slice(0, 22))}</text>
-    <text x="450" y="490" text-anchor="middle" font-family="Arial,sans-serif" font-size="25" fill="#30343b">${safe(template.tagline.slice(0, 48))}</text>
+    <defs>
+      <linearGradient id="labelBase" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${template.color}"/><stop offset=".58" stop-color="${template.color}"/><stop offset="1" stop-color="${template.accent}" stop-opacity=".24"/></linearGradient>
+      <linearGradient id="labelRim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".48" stop-color="${template.accent}"/><stop offset="1" stop-color="#ffffff"/></linearGradient>
+      <radialGradient id="labelLight" cx="25%" cy="18%" r="85%"><stop offset="0" stop-color="#ffffff" stop-opacity=".7"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+      <filter id="labelShadow" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur in="SourceAlpha" stdDeviation="18"/><feOffset dx="0" dy="18" result="offset"/><feComponentTransfer><feFuncA type="linear" slope=".3"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <filter id="softTexture"><feTurbulence type="fractalNoise" baseFrequency=".72" numOctaves="2" seed="8"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="table" tableValues="0 .08"/></feComponentTransfer></filter>
+      <clipPath id="labelClip">${template.shape === "round" ? '<circle cx="450" cy="450" r="390"/>' : `<rect x="58" y="88" width="784" height="724" rx="${template.shape === "oval" ? 350 : 48}"/>`}</clipPath>
+    </defs>
+    <rect width="900" height="900" fill="#f4f1ec"/>
+    <ellipse cx="450" cy="820" rx="280" ry="28" fill="#111111" opacity=".12"/>
+    ${labelShape}
+    <g clip-path="url(#labelClip)">
+      <rect x="40" y="60" width="820" height="780" fill="url(#labelLight)"/>
+      ${motif}
+      <rect x="40" y="60" width="820" height="780" filter="url(#softTexture)" opacity=".34"/>
+    </g>
+    <rect x="105" y="145" width="690" height="610" rx="28" fill="none" stroke="${template.accent}" stroke-width="3" opacity=".35"/>
+    <text x="450" y="245" text-anchor="middle" font-family="Georgia,serif" font-size="28" font-weight="700" letter-spacing="4" fill="${template.accent}">${safe(template.brand.slice(0, 28))}</text>
+    <path d="M250 285 H650" stroke="${template.accent}" stroke-width="3" opacity=".48"/>
+    <text x="450" y="420" text-anchor="middle" font-family="Georgia,serif" font-size="60" font-weight="700" fill="${template.accent}">${safe(template.product.slice(0, 22))}</text>
+    <text x="450" y="485" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" fill="#30343b">${safe(template.tagline.slice(0, 48))}</text>
     <rect x="290" y="545" width="320" height="62" rx="31" fill="${template.accent}"/>
-    <text x="450" y="585" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#ffffff">MADE IN NIGERIA</text>
-    ${preview ? `<g opacity=".16" transform="rotate(-28 450 450)"><text x="450" y="470" text-anchor="middle" font-family="Arial,sans-serif" font-size="74" font-weight="800" fill="#111111">DESIGN PREVIEW</text><text x="450" y="555" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" fill="#111111">NOT A PRINT FILE</text></g>` : ""}
+    <text x="450" y="585" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="700" letter-spacing="1" fill="#ffffff">MADE IN NIGERIA</text>
+    ${preview ? '<g opacity=".13" transform="rotate(-28 450 450)"><text x="450" y="470" text-anchor="middle" font-family="Arial,sans-serif" font-size="74" font-weight="800" fill="#111111">DESIGN PREVIEW</text><text x="450" y="555" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" fill="#111111">NOT A PRINT FILE</text></g>' : ""}
   </svg>`;
 }
-
 export function GeneratePage() {
   const [templateId, setTemplateId] = useState("spice");
   const [brand, setBrand] = useState(TEMPLATES[0].brand);
@@ -136,6 +167,7 @@ export function GeneratePage() {
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPassword, setCustomerPassword] = useState("");
   const [checkoutBusy, setCheckoutBusy] = useState(false);
+  const [creativeBrief, setCreativeBrief] = useState("");
 
   const design = useMemo<Template>(() => ({
     ...(TEMPLATES.find((t) => t.id === templateId) ?? TEMPLATES[0]),
@@ -200,6 +232,43 @@ export function GeneratePage() {
     };
     image.onerror = () => { URL.revokeObjectURL(url); setNotice("Could not prepare preview. Please try again."); };
     image.src = url;
+  };
+
+  const buildChatGPTPrompt = () => {
+    const selected = TEMPLATES.find((item) => item.id === templateId) ?? TEMPLATES[0];
+    return [
+      DESIGN_PROMPT_FRAMEWORK,
+      "",
+      "PROJECT DETAILS — FOLLOW THESE VALUES EXACTLY",
+      `Brand name: ${brand.trim() || "Not supplied"}`,
+      `Product name: ${product.trim() || "Not supplied"}`,
+      `Tagline / required copy: ${tagline.trim() || "Not supplied"}`,
+      `Product category: ${selected.category}`,
+      `Selected starting direction: ${selected.name}`,
+      `Art direction reference: ${TEMPLATE_ART_DIRECTIONS[templateId] ?? TEMPLATE_ART_DIRECTIONS.custom}`,
+      `Label shape: ${shape}`,
+      `Physical size: ${width} mm wide × ${height} mm high`,
+      `Quantity context: ${Number(quantity).toLocaleString("en-NG")} labels`,
+      `Main colour reference: ${color}`,
+      `Typography / accent colour reference: ${accent}`,
+      "",
+      "THE CUSTOMER'S OWN CREATIVE BRIEF — SOURCE OF INTENT",
+      creativeBrief.trim() || "No additional description supplied. Use the product, brand, category and art direction above.",
+      "",
+      "FINAL CREATIVE INSTRUCTION",
+      "The selected template is only a starting direction, not a limitation. Substantially improve composition, background, texture, lighting, imagery, typography and finishing. Create a bespoke premium shelf-ready label that looks professionally art-directed. Do not reproduce the simple website SVG preview. Generate a genuinely new design. Deliver clean flat label artwork that the customer can download and upload to Sleekblue for review. Keep the complete label visible and preserve its requested shape and proportions."
+    ].join("\n");
+  };
+
+  const openChatGPTDesigner = () => {
+    if (!creativeBrief.trim() && !brand.trim() && !product.trim()) {
+      setNotice("Describe the label you want, or enter your brand and product details first.");
+      return;
+    }
+    const prompt = buildChatGPTPrompt();
+    try { sessionStorage.setItem("labelflow-chatgpt-prompt", prompt); } catch { /* URL still carries the prompt. */ }
+    window.open(`https://chatgpt.com/?q=${encodeURIComponent(prompt)}`, "_blank", "noopener,noreferrer");
+    setNotice("ChatGPT is opening with your full design brief prepared. Review it there and press Send to generate the artwork. Then download the result and return here to submit it.");
   };
 
   const sendToWhatsApp = () => {
@@ -339,7 +408,7 @@ export function GeneratePage() {
           </div>
           <h1 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">Make your product label.</h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground md:text-base">
-            Choose a ready-made design, change the words and colours, then send your preview to Sleekblue. No design skills needed.
+            Describe the label you imagine, open your detailed brief in ChatGPT, then download the artwork and submit it to Sleekblue. No design skills or image API required.
           </p>
         </div>
         <div className="rounded-2xl border border-accent/30 bg-accent/5 p-4 text-sm">
@@ -360,16 +429,30 @@ export function GeneratePage() {
               {TEMPLATES.map((t) => (
                 <button key={t.id} type="button" onClick={() => selectTemplate(t)}
                   className={`rounded-2xl border p-3 text-left transition ${templateId === t.id ? "border-primary ring-2 ring-primary/20" : "border-border hover:border-primary/50"}`}>
-                  <div className="mb-2 grid aspect-[4/3] place-items-center rounded-xl" style={{ background: t.color }}>
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full border-4 text-center text-[9px] font-black leading-tight" style={{ borderColor: t.accent, color: t.accent }}>
+                  <div className="relative mb-2 grid aspect-[4/3] place-items-center overflow-hidden rounded-xl shadow-inner" style={{ background: `radial-gradient(circle at 22% 18%, #ffffffaa, transparent 36%), linear-gradient(135deg, ${t.color}, ${t.accent}55)` }}>
+                    <div className="absolute inset-2 rounded-lg border border-white/60 opacity-50"/>
+                    <div className="absolute -right-4 -top-5 h-20 w-20 rounded-full border-[10px] border-white/40"/>
+                    <div className="relative flex h-[72px] w-[72px] items-center justify-center rounded-full border-[5px] bg-white/25 px-2 text-center text-[9px] font-black leading-tight shadow-xl backdrop-blur-sm" style={{ borderColor: "#ffffffcc", color: t.accent, boxShadow: `0 10px 22px ${t.accent}44` }}>
                       {t.product}
                     </div>
+                    <span className="absolute bottom-2 left-3 right-3 h-px bg-white/60"/>
                   </div>
                   <div className="text-sm font-semibold">{t.name}</div>
                   <div className="text-xs text-muted-foreground">{t.category}</div>
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/5 via-card to-accent/10 p-4 shadow-sm md:p-5">
+            <div className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary"/><h2 className="font-semibold">Describe the design you want</h2></div>
+            <p className="mt-2 text-sm text-muted-foreground">Write naturally. Describe the product, style, colours, imagery, background, texture, mood and anything you want included. Our design harness converts your notes into a detailed professional brief for ChatGPT.</p>
+            <textarea value={creativeBrief} onChange={(event) => setCreativeBrief(event.target.value)} rows={5} maxLength={4000} placeholder="Example: I make premium ginger and hibiscus drink. I want a bold, refreshing label with a rich burgundy-to-ruby background, realistic hibiscus flowers and fresh ginger, subtle condensation, elegant cream typography, a premium glass-bottle feel, and a clean space for ingredients." className="mt-3 w-full resize-y rounded-xl border border-border bg-background px-3 py-3 text-sm leading-6 outline-none focus:ring-2 focus:ring-primary/30"/>
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs text-muted-foreground">{creativeBrief.length}/4,000 characters · no image API used</span>
+              <Button type="button" onClick={openChatGPTDesigner} className="gap-2"><Sparkles className="h-4 w-4"/> Open ChatGPT Designer</Button>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">ChatGPT opens with the full design prompt prepared. The customer presses Send in ChatGPT, downloads the generated image, then returns here to submit it for artwork review.</p>
           </div>
 
           <div className="rounded-2xl border border-border p-4 md:p-5">
@@ -456,18 +539,8 @@ export function GeneratePage() {
               <h2 className="font-semibold">Your label preview</h2>
               <span className="rounded-full bg-muted px-2 py-1 text-[10px] font-semibold">PREVIEW</span>
             </div>
-            <div className="mt-3 overflow-hidden rounded-xl bg-white p-3">
-              <svg viewBox="0 0 900 900" className="w-full" role="img" aria-label="Your product label preview">
-                {shape === "round" ? <circle cx="450" cy="450" r="405" fill={color} stroke={accent} strokeWidth="14"/> : <rect x="48" y="90" width="804" height="720" rx={shape === "oval" ? 360 : 34} fill={color} stroke={accent} strokeWidth="14"/>}
-                <circle cx="450" cy="250" r="64" fill={accent} opacity=".12"/>
-                <text x="450" y="245" textAnchor="middle" fontSize="26" fontWeight="700" letterSpacing="3" fill={accent}>{brand.slice(0,28)}</text>
-                <path d="M230 300 H670" stroke={accent} strokeWidth="3" opacity=".4"/>
-                <text x="450" y="425" textAnchor="middle" fontSize="62" fontWeight="800" fill={accent}>{product.slice(0,22)}</text>
-                <text x="450" y="490" textAnchor="middle" fontSize="25" fill="#30343b">{tagline.slice(0,48)}</text>
-                <rect x="290" y="545" width="320" height="62" rx="31" fill={accent}/>
-                <text x="450" y="585" textAnchor="middle" fontSize="22" fontWeight="700" fill="#fff">MADE IN NIGERIA</text>
-                <g opacity=".17" transform="rotate(-28 450 450)"><text x="450" y="470" textAnchor="middle" fontSize="74" fontWeight="800" fill="#111">DESIGN PREVIEW</text></g>
-              </svg>
+            <div className="mt-3 overflow-hidden rounded-xl bg-[#f4f1ec] p-3 shadow-inner">
+              <div dangerouslySetInnerHTML={{ __html: makeSvg(design, Number(width) || 50, Number(height) || 50, true) }} />
             </div>
             <div className="mt-3 flex items-start gap-2 text-xs text-muted-foreground">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-600"/>
@@ -503,7 +576,7 @@ export function GeneratePage() {
           <div className="rounded-2xl border border-border p-4 text-sm">
             <div className="font-semibold">What happens next?</div>
             <ol className="mt-2 list-inside list-decimal space-y-1.5 text-xs text-muted-foreground">
-              <li>Send your design preview and order details.</li>
+              <li>Generate your artwork in ChatGPT, download it, then submit it with your order for review.</li>
               <li>Our team checks the size, material and cutting.</li>
               <li>We confirm your price and delivery date.</li>
               <li>Sleekblue prepares the final print file and produces your stickers.</li>
