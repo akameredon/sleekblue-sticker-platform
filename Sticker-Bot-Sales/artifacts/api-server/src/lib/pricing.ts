@@ -64,11 +64,12 @@ export function calculateQuote(
   product: Product | null,
   leadTimeDays: number,
 ): QuoteResult {
-  const sizes = product?.sizes?.length ? product.sizes : DEFAULT_SIZES;
-  const finishes = product?.finishes?.length ? product.finishes : DEFAULT_FINISHES;
-  const tiers = product?.quantityTiers?.length
-    ? product.quantityTiers
-    : DEFAULT_QUANTITY_TIERS;
+  if (!product || !product.sizes?.length || !product.finishes?.length || !product.quantityTiers?.length) {
+    throw new Error("Approved product sizes, finishes and quantity prices are required before calculating a catalogue quote.");
+  }
+  const sizes = product.sizes;
+  const finishes = product.finishes;
+  const tiers = product.quantityTiers;
 
   const size =
     sizes.find((s) => s.label.toLowerCase() === input.sizeLabel.toLowerCase()) ??
@@ -188,7 +189,7 @@ export function calculateLabelStudioUnitPrice(
   const areaIn2 = (widthMm / 25.4) * (heightMm / 25.4);
   // The wholesale sheet's largest reference is 16 sq in. Larger formats
   // require a factory quote rather than extrapolating an unsafe retail price.
-  if (areaIn2 > 16) return null;
+  if (areaIn2 < 2.25 || areaIn2 > 16) return null;
   let left = anchors[0]!;
   let right = anchors[1]!;
 
