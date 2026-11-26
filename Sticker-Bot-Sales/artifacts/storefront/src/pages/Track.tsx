@@ -24,7 +24,8 @@ export function TrackPage() {
   const [submitErr, setSubmitErr] = useState<string | null>(null);
 
   useEffect(() => {
-    const ref = new URLSearchParams(window.location.search).get("reference");
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("reference") || params.get("ref");
     if (ref) setReference(ref);
   }, []);
 
