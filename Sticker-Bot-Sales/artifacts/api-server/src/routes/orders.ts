@@ -11,7 +11,7 @@ import {
 import { db, schema } from "../lib/db";
 import { getShopSettingsRow } from "../lib/shop";
 import { buildWhatsappMessage, buildWhatsappUrl } from "../lib/whatsapp";
-import { calculateLabelStudioUnitPrice } from "../lib/pricing";
+import { calculateLabelStudioUnitPrice, calculateQuote } from "../lib/pricing";
 
 const router: IRouter = Router();
 const objectStorageService = new ObjectStorageService();
@@ -126,28 +126,62 @@ router.post("/orders", async (req, res) => {
   }> = [];
 
   for (const item of body.items) {
-    // Custom labels are designed in the studio and do not need a pre-existing
-    // catalogue product. The browser-supplied display name is not used to price.
-    const widthMm = Number(item.widthMm ?? 0);
-    const heightMm = Number(item.heightMm ?? 0);
-    const unitPrice = calculateLabelStudioUnitPrice(widthMm, heightMm, item.quantity);
-    if (unitPrice == null) {
-      res.status(422).json({
-        error: "This size or quantity needs a manually confirmed production quote before ordering.",
-      });
-      return;
+    let productName = "Custom product label";
+    let productSlug = "custom-label";
+    let widthMm: number | undefined;
+    let heightMm: number | undefined;
+    let unitPrice: number | null = null;
+    let lineTotal = 0;
+
+    if (item.productSlug) {
+      // Preserve the existing catalogue checkout pricing path.
+      const [product] = await db
+        .select()
+        .from(schema.products)
+        .where(eq(schema.products.slug, item.productSlug))
+        .limit(1);
+      if (!product) {
+        res.status(400).json({ error: `Unknown product: ${item.productSlug}` });
+        return;
+      }
+      const quote = calculateQuote({
+        productSlug: item.productSlug,
+        sizeLabel: item.sizeLabel,
+        finishLabel: item.finishLabel,
+        quantity: item.quantity,
+        widthMm: item.widthMm,
+        heightMm: item.heightMm,
+      }, product, settings.leadTimeDays);
+      productName = product.name;
+      productSlug = product.slug;
+      widthMm = quote.widthMm;
+      heightMm = quote.heightMm;
+      unitPrice = quote.unitPrice;
+      lineTotal = quote.total;
+    } else {
+      // Custom studio labels use the wholesale-cost batch estimator.
+      widthMm = Number(item.widthMm ?? 0);
+      heightMm = Number(item.heightMm ?? 0);
+      unitPrice = calculateLabelStudioUnitPrice(widthMm, heightMm, item.quantity);
+      if (unitPrice == null) {
+        res.status(422).json({
+          error: "This custom label size or quantity needs a manually confirmed production quote before ordering.",
+        });
+        return;
+      }
+      lineTotal = unitPrice * item.quantity;
     }
 
     items.push({
-      productSlug: item.productSlug ?? "custom-label",
-      productName: "Custom product label",
+      productSlug,
+      productName,
       sizeLabel: item.sizeLabel,
       finishLabel: item.finishLabel,
       quantity: item.quantity,
       widthMm,
       heightMm,
       unitPrice,
-      lineTotal: unitPrice * item.quantity,
+      lineTotal,
       notes: item.notes,
     });
   }
