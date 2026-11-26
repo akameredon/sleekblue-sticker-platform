@@ -280,6 +280,13 @@ export function GeneratePage() {
         }
         throw new Error(payment.error ?? "Could not initialize payment.");
       }
+      try {
+        sessionStorage.setItem("labelflow-pending-payment", JSON.stringify({
+          reference: payment.reference,
+          phone: customerPhone.trim(),
+          orderReference: order.reference,
+        }));
+      } catch { /* Payment can still proceed if session storage is unavailable. */ }
       setNotice(`Order ${order.reference} created. Opening secure payment…`);
       window.location.assign(payment.authorizationUrl);
     } catch (error) {
