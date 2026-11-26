@@ -28,6 +28,28 @@ const TEMPLATES: Template[] = [
 const WHATSAPP_NUMBER = "2348058162036";
 const DRAFT_KEY = "labelflow-design-draft-v1";
 
+// Sleekblue wholesale production costs from the supplied price-list photo.
+// Retail prices target a 30% gross margin: retail = cost / (1 - 0.30).
+// Round UP to the next ₦100. Unlisted quantities/sizes require a manual quote.
+const PRODUCTION_COSTS: Record<string, Record<number, number>> = {
+  "38.1x38.1": { 100: 3000, 500: 12500, 1000: 20000 },
+  "50.8x50.8": { 100: 3000, 500: 12500, 1000: 20000 },
+  "63.5x63.5": { 100: 4500, 500: 20000, 1000: 35000 },
+  "76.2x76.2": { 100: 5000, 500: 22500, 1000: 40000 },
+  "76.2x101.6": { 100: 6500, 500: 30000, 1000: 55000 },
+  "101.6x101.6": { 100: 9000, 500: 42500, 1000: 80000 },
+  "50.8x203.2": { 100: 9000, 500: 42500, 1000: 80000 },
+};
+
+function getRetailEstimate(widthMm: number, heightMm: number, qty: number) {
+  const key = `${widthMm.toFixed(1)}x${heightMm.toFixed(1)}`;
+  const reverseKey = `${heightMm.toFixed(1)}x${widthMm.toFixed(1)}`;
+  const cost = PRODUCTION_COSTS[key]?.[qty] ?? PRODUCTION_COSTS[reverseKey]?.[qty];
+  if (cost == null) return null;
+  return Math.ceil((cost / 0.7) / 100) * 100;
+}
+
+
 function makeSvg(template: Template, width: number, height: number, preview = false) {
   const rx = template.shape === "round" ? Math.min(width, height) / 2 : template.shape === "oval" ? height / 2 : 34;
   const shape = template.shape === "round"
@@ -149,6 +171,7 @@ export function GeneratePage() {
   };
 
   const quantityNumber = Number(quantity) || 0;
+  const retailEstimate = getRetailEstimate(Number(width), Number(height), quantityNumber);
   const isEligibleForFreeSample = quantityNumber >= 100;
 
   return (
@@ -242,6 +265,18 @@ export function GeneratePage() {
               </label>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">Our standard order starts at 100 pieces. 20- and 50-piece requests are available for selected sizes and materials; we will confirm feasibility and price.</p>
+
+            <div className="mt-3 rounded-xl border border-primary/20 bg-primary/5 p-3 text-sm">
+              <div className="font-semibold">Estimated printing price</div>
+              {retailEstimate != null ? (
+                <>
+                  <div className="mt-1 text-2xl font-extrabold">₦{retailEstimate.toLocaleString("en-NG")}</div>
+                  <p className="mt-1 text-xs text-muted-foreground">Based on the supplied Sleekblue production price list and our initial 30% gross-margin target. Delivery and any special requirements are quoted separately.</p>
+                </>
+              ) : (
+                <p className="mt-1 text-xs text-muted-foreground">We’ll confirm a price on WhatsApp for this size or quantity. The current cost sheet covers selected sizes at 100, 500 and 1,000 pieces.</p>
+              )}
+            </div>
             <div className="mt-3 rounded-xl bg-muted/50 p-3 text-sm">
               <div className="font-semibold">{isEligibleForFreeSample ? "You may qualify for 10 free sample stickers." : "Ask us about a small trial order."}</div>
               <div className="mt-1 text-xs text-muted-foreground">Final price depends on size, material, finish, quantity and cutting. We confirm your quote before printing.</div>
