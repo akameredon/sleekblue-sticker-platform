@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PORT: 8080
+      BASE_PATH: /
     defaults:
       run:
         working-directory: Sticker-Bot-Sales
