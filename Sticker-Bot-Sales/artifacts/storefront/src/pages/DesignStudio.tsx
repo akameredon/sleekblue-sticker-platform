@@ -28,19 +28,6 @@ const TEMPLATES: Template[] = [
 const WHATSAPP_NUMBER = "2348058162036";
 const DRAFT_KEY = "labelflow-design-draft-v1";
 
-// Sleekblue wholesale production costs from the supplied price-list photo.
-// Retail prices target a 30% gross margin: retail = cost / (1 - 0.30).
-// Round UP to the next ₦100. Unlisted quantities/sizes require a manual quote.
-const PRODUCTION_COSTS: Record<string, Record<number, number>> = {
-  "38.1x38.1": { 100: 3000, 500: 12500, 1000: 20000 },
-  "50.8x50.8": { 100: 3000, 500: 12500, 1000: 20000 },
-  "63.5x63.5": { 100: 4500, 500: 20000, 1000: 35000 },
-  "76.2x76.2": { 100: 5000, 500: 22500, 1000: 40000 },
-  "76.2x101.6": { 100: 6500, 500: 30000, 1000: 55000 },
-  "101.6x101.6": { 100: 9000, 500: 42500, 1000: 80000 },
-  "50.8x203.2": { 100: 9000, 500: 42500, 1000: 80000 },
-};
-
 const COST_ANCHORS_BY_QUANTITY = {
   100: [
     { areaIn2: 2.25, cost: 3000 },
