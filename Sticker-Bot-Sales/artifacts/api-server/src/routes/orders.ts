@@ -1,5 +1,8 @@
 import { Router, type IRouter } from "express";
 import { randomBytes } from "crypto";
+import { extractToken, verifyToken } from "../lib/auth";
+import { ObjectPermission } from "../lib/objectAcl";
+import { ObjectStorageService } from "../lib/objectStorage";
 import { eq } from "drizzle-orm";
 import {
   CreateOrderBody,
@@ -11,6 +14,7 @@ import { buildWhatsappMessage, buildWhatsappUrl } from "../lib/whatsapp";
 import { calculateLabelStudioUnitPrice } from "../lib/pricing";
 
 const router: IRouter = Router();
+const objectStorageService = new ObjectStorageService();
 
 function generateReference(): string {
   const ts = Date.now().toString(36).toUpperCase().slice(-5);
@@ -71,6 +75,41 @@ router.post("/orders", async (req, res) => {
   }
   const settings = await getShopSettingsRow();
 
+  // Attachments are optional, but any supplied artwork must belong to the
+  // authenticated customer and have a finalized private ACL.
+  const artworkPaths = body.artworkUrls ?? [];
+  if (artworkPaths.length > 0) {
+    const token = extractToken(req.headers.authorization);
+    const payload = token ? verifyToken(token) : null;
+    const userId = payload?.userId;
+    if (typeof userId !== "number") {
+      res.status(401).json({ error: "Sign in before attaching artwork files." });
+      return;
+    }
+    for (const objectPath of artworkPaths) {
+      const ownerPrefix = `/objects/uploads/${userId}/`;
+      if (!objectPath.startsWith(ownerPrefix) || objectPath.includes("..")) {
+        res.status(403).json({ error: "An artwork file does not belong to this account." });
+        return;
+      }
+      try {
+        const file = await objectStorageService.getObjectEntityFile(objectPath);
+        const allowed = await objectStorageService.canAccessObjectEntity({
+          userId: String(userId),
+          objectFile: file,
+          requestedPermission: ObjectPermission.READ,
+        });
+        if (!allowed) {
+          res.status(403).json({ error: "An artwork file is not accessible to this account." });
+          return;
+        }
+      } catch {
+        res.status(404).json({ error: "An attached artwork file could not be found." });
+        return;
+      }
+    }
+  }
+
   // Never trust prices supplied by the browser. Recalculate every line from
   // the server-side product catalogue before persisting an order.
   const items: Array<{
@@ -118,9 +157,7 @@ router.post("/orders", async (req, res) => {
   const total = subtotal + deliveryFee;
 
   const reference = generateReference();
-  // Do not accept arbitrary client-supplied storage paths. Artwork upload and
-  // private ownership checks must be implemented before production files are attached.
-  const artworkPublicUrls: string[] = [];
+  const artworkPublicUrls = artworkPaths;
   const [row] = await db
     .insert(schema.orders)
     .values({
