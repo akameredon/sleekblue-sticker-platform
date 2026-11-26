@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
+import { apiUrl } from "@/lib/paths";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Save, Sparkles, Lock, Globe2, RotateCcw, Download, ChevronLeft, CheckCircle2 } from "lucide-react";
 
@@ -128,6 +129,10 @@ export function GeneratePage() {
   const [visibility, setVisibility] = useState<"private" | "public">("private");
   const [saved, setSaved] = useState(false);
   const [notice, setNotice] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [checkoutBusy, setCheckoutBusy] = useState(false);
 
   const design = useMemo<Template>(() => ({
     ...(TEMPLATES.find((t) => t.id === templateId) ?? TEMPLATES[0]),
@@ -212,6 +217,76 @@ export function GeneratePage() {
     void downloadPreview();
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
     setNotice("Your preview is downloading. Attach it to the WhatsApp message so our team can identify your design.");
+  };
+
+  const placeOrderAndPay = async () => {
+    setNotice("");
+    if (customerName.trim().length < 2 || customerPhone.replace(/\\D/g, "").length < 10 || !customerEmail.trim()) {
+      setNotice("Enter your name, a valid phone number and email to continue to secure payment.");
+      return;
+    }
+    if (retailEstimate == null) {
+      setNotice("This quantity or size needs a confirmed manual quote. Please use WhatsApp to request one.");
+      return;
+    }
+
+    setCheckoutBusy(true);
+    try {
+      const designNotes = JSON.stringify({
+        templateId, brand, product, tagline, color, accent, shape,
+        widthMm: Number(width), heightMm: Number(height), quantity: Number(quantity),
+        visibilityPreference: visibility,
+        artworkStatus: "Watermarked preview only; production artwork must be prepared and approved by Sleekblue.",
+      });
+      const orderResponse = await fetch(apiUrl("/orders"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerName: customerName.trim(),
+          customerPhone: customerPhone.trim(),
+          customerEmail: customerEmail.trim(),
+          deliveryMethod: "Pickup",
+          notes: `Label Studio design specification: ${designNotes}`,
+          items: [{
+            productName: "Custom product label",
+            sizeLabel: `${width}mm × ${height}mm`,
+            finishLabel: "To be confirmed by Sleekblue",
+            quantity: Number(quantity),
+            widthMm: Number(width),
+            heightMm: Number(height),
+            unitPrice: retailEstimate,
+            notes: `Brand: ${brand}; Product: ${product}; Shape: ${shape}`,
+          }],
+        }),
+      });
+      const order = await orderResponse.json();
+      if (!orderResponse.ok) throw new Error(order.error ?? "Could not create your order.");
+
+      const paymentResponse = await fetch(apiUrl("/payments/initialize"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: order.id,
+          customerEmail: customerEmail.trim(),
+          customerPhone: customerPhone.trim(),
+        }),
+      });
+      const payment = await paymentResponse.json();
+      if (!paymentResponse.ok) {
+        if (payment.whatsappFallbackUrl) {
+          setNotice(`Order ${order.reference} was saved, but online payment could not start. You can continue with Sleekblue on WhatsApp.`);
+          window.open(payment.whatsappFallbackUrl, "_blank", "noopener,noreferrer");
+          return;
+        }
+        throw new Error(payment.error ?? "Could not initialize payment.");
+      }
+      setNotice(`Order ${order.reference} created. Opening secure payment…`);
+      window.location.assign(payment.authorizationUrl);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Something went wrong. Please try again.");
+    } finally {
+      setCheckoutBusy(false);
+    }
   };
 
   const quantityNumber = Number(quantity) || 0;
@@ -370,6 +445,23 @@ export function GeneratePage() {
               <Button variant="outline" onClick={() => { selectTemplate(TEMPLATES[0]); setNotice("Design reset."); }} className="gap-2"><RotateCcw className="h-4 w-4"/> Reset</Button>
             </div>
             <Button onClick={downloadPreview} variant="secondary" className="mt-2 w-full gap-2"><Download className="h-4 w-4"/> Download preview</Button>
+            <div className="mt-4 border-t border-border pt-4">
+              <h3 className="font-semibold">5. Place your print order</h3>
+              <p className="mt-1 text-xs text-muted-foreground">For now, online checkout supports 100, 500 or 1,000 pieces at supported sizes. Sleekblue confirms material, finish and production artwork before printing.</p>
+              <div className="mt-3 space-y-2">
+                <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} maxLength={100} placeholder="Your full name" autoComplete="name" className="w-full rounded-xl border border-border bg-background px-3 py-3 text-sm"/>
+                <input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} maxLength={20} placeholder="WhatsApp phone number" autoComplete="tel" className="w-full rounded-xl border border-border bg-background px-3 py-3 text-sm"/>
+                <input value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} maxLength={254} type="email" placeholder="Email for payment receipt" autoComplete="email" className="w-full rounded-xl border border-border bg-background px-3 py-3 text-sm"/>
+              </div>
+              <div className="mt-3 flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Estimated order total</span>
+                <strong>{retailEstimate == null ? "Manual quote" : `₦${(retailEstimate * quantityNumber).toLocaleString("en-NG")}`}</strong>
+              </div>
+              <Button onClick={placeOrderAndPay} disabled={checkoutBusy || retailEstimate == null} className="mt-3 w-full gap-2">
+                {checkoutBusy ? "Preparing secure checkout…" : "Create order & pay securely"}
+              </Button>
+              <p className="mt-2 text-[11px] text-muted-foreground">No print run begins until Sleekblue confirms the final production specifications. Your payment and order reference are handled separately.</p>
+            </div>
             <Button onClick={sendToWhatsApp} className="mt-2 w-full gap-2"><MessageCircle className="h-4 w-4"/> Send to Sleekblue on WhatsApp</Button>
             <p className="mt-2 text-center text-xs text-muted-foreground">WhatsApp: +234 805 816 2036</p>
             {notice && <p role="status" className="mt-3 rounded-lg bg-muted p-2 text-xs">{notice}</p>}
